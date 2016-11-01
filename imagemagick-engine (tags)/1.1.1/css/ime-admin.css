@@ -1,0 +1,40 @@
+#regenbar {
+    position: relative;
+    height: 25px;
+
+    padding: 1px;
+}
+
+#regenbar-percent {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 50px;
+    margin-left: -25px;
+    height: 25px;
+    margin-top: -9px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.ui-widget-content {
+    border: 1px solid #000;
+    background-color: #FFF;
+    color: #000;
+    height: 25px;
+}
+
+.ui-progressbar .ui-progressbar-value {
+    height: 25px;
+    background-color: #FF6600;
+}
+
+#regen-message {
+    margin-top: 10px;
+    width: 200px;
+    background-color: #FFC9A5;
+}
+
+#regen-message-inner {
+    padding: 10px;
+}

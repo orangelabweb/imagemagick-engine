@@ -1,0 +1,123 @@
+.form-table td.ime-handle-table-wrapper {
+    padding: 0;
+}
+
+#ime-handle-table th {
+    padding: 5px 10px 0 10px;
+}
+
+#ime-handle-table td {
+    padding: 5px 0 0 10px;
+}
+
+#ime-handle-table .ime-headline {
+    font-weight: bold;
+}
+
+#ime-handle-table .ime-fixed-width {
+    width: 60px;
+}
+
+#regenbar {
+	position: relative;
+	height: 22px;
+	border-radius: 0 0 5px 5px;
+	-moz-border-radius: 0 0 5px 5px;
+	-webkit-border-radius: 0 0 5px 5px;
+	-khtml-border-radius: 0 0 5px 5px;
+}
+
+#regenbar-percent {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 50px;
+	margin-left: -25px;
+	height: 22px;
+	margin-top: -9px;
+	font-weight: bold;
+	text-align: center;
+}
+
+#regenbar.ui-progressbar {
+	background-color: #eee;
+	color: #000;
+	height: 30px;
+}
+
+.ime-dialog .ui-widget-overlay {
+	background: #000;
+	opacity: 0.6;
+	position: absolute;
+	left: 0;
+	top: 0;
+}
+
+.ime-dialog.ui-dialog {
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-khtml-border-radius: 5px;
+	background: #111;
+	box-shadow: 0 0 10px #444;
+	-moz-box-shadow: 0 0 10px #444;
+	-webkit-box-shadow: 0 0 10px #444;
+}
+
+.ime-dialog .ui-dialog-titlebar {
+	height: 20px;
+	line-height: 20px;
+	color: #ccc;
+	font-size: 10px;
+	padding-left: 5px;
+}
+
+.ime-dialog .ui-dialog-titlebar .ui-dialog-titlebar-close {
+	float: right;
+	color: #fff;
+	text-decoration: none;
+	padding-right: 5px;
+}
+
+#regenerate-images-metabox .ajax-feedback {
+	margin-bottom: 5px;
+}
+
+.ime-dialog .ui-dialog-titlebar .ui-dialog-titlebar-close:hover {
+	color: #ff6600;
+}
+
+#regenbar.ui-progressbar .ui-progressbar-value {
+    height: 22px;
+    background: url(../images/pbar-ani.gif) #FF6600;
+	border-radius: 0 0 5px 5px;
+	-moz-border-radius: 0 0 5px 5px;
+	-webkit-border-radius: 0 0 5px 5px;
+	-khtml-border-radius: 0 0 5px 5px;
+}
+
+.ime-regen-button {
+    float: left;
+}
+
+.ime-spinner {
+    width: 16px;
+    height: 16px;
+
+    float: left;
+
+    padding: 3px 8px;
+}
+
+.ime-spinner img {
+    display: none;
+}
+
+.ime-media-message {
+    float: left;
+
+    padding: 0 3px;
+
+    font-style: italic;
+    line-height: 22px;
+}

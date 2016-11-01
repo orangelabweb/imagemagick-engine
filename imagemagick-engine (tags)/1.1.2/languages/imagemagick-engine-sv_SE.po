@@ -1,0 +1,169 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: ImageMagick Engine\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/imagemagick-engine\n"
+"POT-Creation-Date: 2010-09-21 12:11+0000\n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: imagemagick-engine.php:568
+msgid "Settings"
+msgstr "Inställningar"
+
+#: imagemagick-engine.php:595
+msgid "Resized using ImageMagick Engine"
+msgstr "Omskalad av ImageMagick Engine"
+
+#. #-#-#-#-#  plugin.pot (ImageMagick Engine 1.1)  #-#-#-#-#
+#. Plugin Name of the plugin/theme
+#: imagemagick-engine.php:624
+msgid "ImageMagick Engine"
+msgstr "ImageMagick Engine"
+
+#: imagemagick-engine.php:631
+#, php-format
+msgid "Unable to find any images. Are you sure <a href='%s'>some exist</a>?"
+msgstr "Hittade inga bilder. Är du säker på att <a href='%s'>du har laddat upp några</a>?"
+
+#: imagemagick-engine.php:636
+msgid "Please be patient while images are regenerated. This can take a long time if you have many images."
+msgstr "Var god vänta medan bilderna skalas om. Det kan ta lång tid om du har många bilder."
+
+#: imagemagick-engine.php:656
+msgid "You must enable Javascript in order to proceed!"
+msgstr "Du måste tillåta Javascript i din webbläsare för att kunna fortsätta!"
+
+#: imagemagick-engine.php:662
+msgid "Working..."
+msgstr "Arbetar..."
+
+#: imagemagick-engine.php:690
+msgid "All done!"
+msgstr "Färdigt!"
+
+#: imagemagick-engine.php:690
+#, php-format
+msgid "Processed %d images."
+msgstr "Skalat om %d bilder."
+
+#: imagemagick-engine.php:715
+msgid "Thumbnail"
+msgstr "Miniatyr"
+
+#: imagemagick-engine.php:716
+msgid "Medium"
+msgstr "Mellan"
+
+#: imagemagick-engine.php:717
+msgid "Large"
+msgstr "Stor"
+
+#: imagemagick-engine.php:750
+msgid "Settings updated"
+msgstr "Inställningar uppdaterade"
+
+#: imagemagick-engine.php:786
+#, php-format
+msgid "No valid ImageMagick mode found! Please check %sFAQ%s for installation instructions."
+msgstr "Ingen fungerande ImageMagick-installation hittades! Se %sFAQ%s för instruktioner hur du installerar."
+
+#: imagemagick-engine.php:790
+msgid "ImageMagick Engine is not enabled."
+msgstr "ImageMagick Engine är inte aktiverad."
+
+#: imagemagick-engine.php:794
+msgid "ImageMagick Engine Settings"
+msgstr "ImageMagick Engine Inställningar"
+
+#: imagemagick-engine.php:803
+msgid "Regenerate Images"
+msgstr "Skala om bilder"
+
+#: imagemagick-engine.php:808
+msgid "Sizes"
+msgstr "Bilder"
+
+#: imagemagick-engine.php:818
+msgid "ImageMagick images too"
+msgstr "ImageMagick bilder också"
+
+#: imagemagick-engine.php:820
+msgid "Regenerate"
+msgstr "Skala om"
+
+#: imagemagick-engine.php:820
+msgid "(this can take a long time)"
+msgstr "(det här kan ta lång tid)"
+
+#: imagemagick-engine.php:830
+msgid "Enable enhanced image engine"
+msgstr "Aktivera ImageMagick Engine"
+
+#: imagemagick-engine.php:836
+msgid "Image engine"
+msgstr "Bildmotor"
+
+#: imagemagick-engine.php:853
+msgid "Imagick PHP module"
+msgstr "Imagick PHP modul"
+
+#: imagemagick-engine.php:856
+msgid "Imagick PHP module found"
+msgstr "Imagick PHP modul finns."
+
+#: imagemagick-engine.php:856
+msgid "Imagick PHP module not found"
+msgstr "Imagick PHP modul finns ej."
+
+#: imagemagick-engine.php:860
+msgid "ImageMagick path"
+msgstr "ImageMagick sökväg"
+
+#: imagemagick-engine.php:863
+msgid "Command not found"
+msgstr "Kommando hittades inte"
+
+#: imagemagick-engine.php:864
+msgid "Testing command..."
+msgstr "Testar kommando..."
+
+#: imagemagick-engine.php:866
+msgid "Test path"
+msgstr "Testa sökväg"
+
+#: imagemagick-engine.php:870
+msgid "ImageMagick quality"
+msgstr "ImageMagick kvalité"
+
+#: imagemagick-engine.php:872
+msgid "(0-100, leave empty for default value, computed dynamically)"
+msgstr "(0-100, lämna tomt för automatiskt beräknat värde)"
+
+#: imagemagick-engine.php:876
+msgid "Handle sizes"
+msgstr "Hantera storlekar"
+
+#: imagemagick-engine.php:887
+msgid "Save Changes"
+msgstr "Spara ändringar"
+
+#. Plugin URI of the plugin/theme
+msgid "http://wp.orangelab.se/imagemagick-engine/"
+msgstr "http://wp.orangelab.se/imagemagick-engine/"
+
+#. Description of the plugin/theme
+msgid "Improve the quality of re-sized images by replacing standard GD library with ImageMagick"
+msgstr "Förbättra kvalitén på dina omskalade bilder genom att ersätta GD med ImageMagick"
+
+#. Author of the plugin/theme
+msgid "Orangelab"
+msgstr "Orangelab"
+
+#. Author URI of the plugin/theme
+msgid "http://www.orangelab.se"
+msgstr "http://www.orangelab.se"
+

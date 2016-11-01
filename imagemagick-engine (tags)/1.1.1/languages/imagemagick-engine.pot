@@ -1,0 +1,180 @@
+# Translation of the WordPress plugin ImageMagick Engine 1.1 by Orangelab.
+# Copyright (C) 2010 Orangelab
+# This file is distributed under the same license as the ImageMagick Engine package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ImageMagick Engine 1.1\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/imagemagick-engine\n"
+"POT-Creation-Date: 2010-09-21 12:11+0000\n"
+"PO-Revision-Date: 2010-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: imagemagick-engine.php:568
+msgid "Settings"
+msgstr ""
+
+#: imagemagick-engine.php:595
+msgid "Resized using ImageMagick Engine"
+msgstr ""
+
+#. #-#-#-#-#  plugin.pot (ImageMagick Engine 1.1)  #-#-#-#-#
+#. Plugin Name of the plugin/theme
+#: imagemagick-engine.php:624
+msgid "ImageMagick Engine"
+msgstr ""
+
+#: imagemagick-engine.php:631
+#, php-format
+msgid "Unable to find any images. Are you sure <a href='%s'>some exist</a>?"
+msgstr ""
+
+#: imagemagick-engine.php:636
+msgid ""
+"Please be patient while images are regenerated. This can take a long time if "
+"you have many images."
+msgstr ""
+
+#: imagemagick-engine.php:656
+msgid "You must enable Javascript in order to proceed!"
+msgstr ""
+
+#: imagemagick-engine.php:662
+msgid "Working..."
+msgstr ""
+
+#: imagemagick-engine.php:690
+msgid "All done!"
+msgstr ""
+
+#: imagemagick-engine.php:690
+#, php-format
+msgid "Processed %d images."
+msgstr ""
+
+#: imagemagick-engine.php:715
+msgid "Thumbnail"
+msgstr ""
+
+#: imagemagick-engine.php:716
+msgid "Medium"
+msgstr ""
+
+#: imagemagick-engine.php:717
+msgid "Large"
+msgstr ""
+
+#: imagemagick-engine.php:750
+msgid "Settings updated"
+msgstr ""
+
+#: imagemagick-engine.php:786
+#, php-format
+msgid ""
+"No valid ImageMagick mode found! Please check %sFAQ%s for installation "
+"instructions."
+msgstr ""
+
+#: imagemagick-engine.php:790
+msgid "ImageMagick Engine is not enabled."
+msgstr ""
+
+#: imagemagick-engine.php:794
+msgid "ImageMagick Engine Settings"
+msgstr ""
+
+#: imagemagick-engine.php:803
+msgid "Regenerate Images"
+msgstr ""
+
+#: imagemagick-engine.php:808
+msgid "Sizes"
+msgstr ""
+
+#: imagemagick-engine.php:818
+msgid "ImageMagick images too"
+msgstr ""
+
+#: imagemagick-engine.php:820
+msgid "Regenerate"
+msgstr ""
+
+#: imagemagick-engine.php:820
+msgid "(this can take a long time)"
+msgstr ""
+
+#: imagemagick-engine.php:830
+msgid "Enable enhanced image engine"
+msgstr ""
+
+#: imagemagick-engine.php:836
+msgid "Image engine"
+msgstr ""
+
+#: imagemagick-engine.php:853
+msgid "Imagick PHP module"
+msgstr ""
+
+#: imagemagick-engine.php:856
+msgid "Imagick PHP module found"
+msgstr ""
+
+#: imagemagick-engine.php:856
+msgid "Imagick PHP module not found"
+msgstr ""
+
+#: imagemagick-engine.php:860
+msgid "ImageMagick path"
+msgstr ""
+
+#: imagemagick-engine.php:863
+msgid "Command not found"
+msgstr ""
+
+#: imagemagick-engine.php:864
+msgid "Testing command..."
+msgstr ""
+
+#: imagemagick-engine.php:866
+msgid "Test path"
+msgstr ""
+
+#: imagemagick-engine.php:870
+msgid "ImageMagick quality"
+msgstr ""
+
+#: imagemagick-engine.php:872
+msgid "(0-100, leave empty for default value, computed dynamically)"
+msgstr ""
+
+#: imagemagick-engine.php:876
+msgid "Handle sizes"
+msgstr ""
+
+#: imagemagick-engine.php:887
+msgid "Save Changes"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "http://wp.orangelab.se/imagemagick-engine/"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid ""
+"Improve the quality of re-sized images by replacing standard GD library with "
+"ImageMagick"
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Orangelab"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "http://www.orangelab.se"
+msgstr ""

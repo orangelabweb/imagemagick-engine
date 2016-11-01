@@ -1,0 +1,182 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: ImageMagick Engine\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/imagemagick-engine\n"
+"POT-Creation-Date: 2011-01-14 11:30:07+00:00\n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: imagemagick-engine.php:659
+#: imagemagick-engine.php:848
+msgid "Settings"
+msgstr "Inställningar"
+
+#: imagemagick-engine.php:679
+msgid "Resized using ImageMagick Engine"
+msgstr "Omskalad av ImageMagick Engine"
+
+#: imagemagick-engine.php:717
+msgid "Thumbnail"
+msgstr "Miniatyr"
+
+#: imagemagick-engine.php:718
+msgid "Medium"
+msgstr "Mellan"
+
+#: imagemagick-engine.php:719
+msgid "Large"
+msgstr "Stor"
+
+#: imagemagick-engine.php:754
+msgid "Settings updated"
+msgstr "Inställningar uppdaterade"
+
+#: imagemagick-engine.php:790
+msgid "No valid ImageMagick mode found! Please check %sFAQ%s for installation instructions."
+msgstr "Ingen fungerande ImageMagick-installation hittades! Se %sFAQ%s för instruktioner hur du installerar."
+
+#: imagemagick-engine.php:794
+msgid "ImageMagick Engine is not enabled."
+msgstr "ImageMagick Engine är inte aktiverad."
+
+#: imagemagick-engine.php:799
+msgid "ImageMagick Engine Settings"
+msgstr "ImageMagick Engine Inställningar"
+
+#: imagemagick-engine.php:802
+msgid "You dont have any images to regenerate"
+msgstr "Du har inga bilder att skala om"
+
+#: imagemagick-engine.php:803
+msgid "All done!"
+msgstr "Färdigt!"
+
+#: imagemagick-engine.php:804
+msgid "Processed"
+msgstr "Skalat om"
+
+#: imagemagick-engine.php:805
+msgid "images"
+msgstr "bilder"
+
+#: imagemagick-engine.php:810
+msgid "Regenerate Images"
+msgstr "Skala om bilder"
+
+#: imagemagick-engine.php:815
+msgid "Sizes"
+msgstr "Bilder"
+
+#: imagemagick-engine.php:825
+msgid "ImageMagick images too"
+msgstr "ImageMagick bilder också"
+
+#: imagemagick-engine.php:829
+msgid "Resize will use standard WordPress functions."
+msgstr "Omskalningen kommer använda Wordpress standardfunktioner."
+
+#: imagemagick-engine.php:831
+msgid "Regenerate"
+msgstr "Skala om"
+
+#: imagemagick-engine.php:831
+msgid "(this can take a long time)"
+msgstr "(det här kan ta lång tid)"
+
+#: imagemagick-engine.php:834
+msgid "Regenerating images"
+msgstr "Skalar om bilder"
+
+#: imagemagick-engine.php:835
+msgid "You must enable Javascript in order to proceed!"
+msgstr "Du måste tillåta Javascript i din webbläsare för att kunna fortsätta!"
+
+#: imagemagick-engine.php:852
+msgid "Enable enhanced image engine"
+msgstr "Aktivera ImageMagick Engine"
+
+#: imagemagick-engine.php:858
+msgid "Image engine"
+msgstr "Bildmotor"
+
+#: imagemagick-engine.php:873
+msgid "Imagick PHP module"
+msgstr "Imagick PHP modul"
+
+#: imagemagick-engine.php:876
+msgid "Imagick PHP module found"
+msgstr "Imagick PHP modul finns."
+
+#: imagemagick-engine.php:876
+msgid "Imagick PHP module not found"
+msgstr "Imagick PHP modul finns ej."
+
+#: imagemagick-engine.php:880
+msgid "ImageMagick path"
+msgstr "ImageMagick sökväg"
+
+#: imagemagick-engine.php:883
+msgid "Command not found"
+msgstr "Kommando hittades inte"
+
+#: imagemagick-engine.php:884
+msgid "Testing command..."
+msgstr "Testar kommando..."
+
+#: imagemagick-engine.php:886
+msgid "Test path"
+msgstr "Testa sökväg"
+
+#: imagemagick-engine.php:890
+msgid "ImageMagick quality"
+msgstr "ImageMagick kvalité"
+
+#: imagemagick-engine.php:892
+msgid "(0-100, leave empty for default value, computed dynamically)"
+msgstr "(0-100, lämna tomt för automatiskt beräknat värde)"
+
+#: imagemagick-engine.php:896
+msgid "Handle sizes"
+msgstr "Hantera storlekar"
+
+#: imagemagick-engine.php:907
+msgid "Save Changes"
+msgstr "Spara ändringar"
+
+#. Plugin Name of the plugin/theme
+msgid "ImageMagick Engine"
+msgstr "ImageMagick Engine"
+
+#. Plugin URI of the plugin/theme
+msgid "http://wp.orangelab.se/imagemagick-engine/"
+msgstr "http://wp.orangelab.se/imagemagick-engine/"
+
+#. Description of the plugin/theme
+msgid "Improve the quality of re-sized images by replacing standard GD library with ImageMagick"
+msgstr "Förbättra kvalitén på dina omskalade bilder genom att ersätta GD med ImageMagick"
+
+#. Author of the plugin/theme
+msgid "Orangelab"
+msgstr "Orangelab"
+
+#. Author URI of the plugin/theme
+msgid "http://www.orangelab.se"
+msgstr "http://www.orangelab.se"
+
+#~ msgid "Unable to find any images. Are you sure <a href='%s'>some exist</a>?"
+#~ msgstr ""
+#~ "Hittade inga bilder. Är du säker på att <a href='%s'>du har laddat upp "
+#~ "några</a>?"
+#~ msgid ""
+#~ "Please be patient while images are regenerated. This can take a long time "
+#~ "if you have many images."
+#~ msgstr ""
+#~ "Var god vänta medan bilderna skalas om. Det kan ta lång tid om du har "
+#~ "många bilder."
+#~ msgid "Working..."
+#~ msgstr "Arbetar..."
+

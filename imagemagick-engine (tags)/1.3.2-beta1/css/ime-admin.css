@@ -1,0 +1,77 @@
+#regenbar {
+	position: relative;
+	height: 22px;
+	border-radius: 0 0 5px 5px;
+	-moz-border-radius: 0 0 5px 5px;
+	-webkit-border-radius: 0 0 5px 5px;
+	-khtml-border-radius: 0 0 5px 5px;
+}
+
+#regenbar-percent {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 50px;
+	margin-left: -25px;
+	height: 22px;
+	margin-top: -9px;
+	font-weight: bold;
+	text-align: center;
+}
+
+.ui-progressbar {
+	background-color: #eee;
+	color: #000;
+	height: 30px;
+}
+
+.ui-widget-overlay {
+	background: #000;
+	opacity: 0.6;
+	position: absolute;
+	left: 0;
+	top: 0;
+}
+
+.ui-dialog {
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-khtml-border-radius: 5px;
+	background: #111;
+	box-shadow: 0 0 10px #444;
+	-moz-box-shadow: 0 0 10px #444;
+	-webkit-box-shadow: 0 0 10px #444;
+}
+
+.ui-dialog-titlebar {
+	height: 20px;
+	line-height: 20px;
+	color: #ccc;
+	font-size: 10px;
+	padding-left: 5px;
+}
+
+.ui-dialog-titlebar .ui-dialog-titlebar-close {
+	float: right;
+	color: #fff;
+	text-decoration: none;
+	padding-right: 5px;
+}
+
+#regenerate-images-metabox .ajax-feedback {
+	margin-bottom: 5px;
+}
+
+.ui-dialog-titlebar .ui-dialog-titlebar-close:hover {
+	color: #ff6600;
+}
+
+.ui-progressbar .ui-progressbar-value {
+    height: 22px;
+    background: url(../images/pbar-ani.gif) #FF6600;
+	border-radius: 0 0 5px 5px;
+	-moz-border-radius: 0 0 5px 5px;
+	-webkit-border-radius: 0 0 5px 5px;
+	-khtml-border-radius: 0 0 5px 5px;
+}
