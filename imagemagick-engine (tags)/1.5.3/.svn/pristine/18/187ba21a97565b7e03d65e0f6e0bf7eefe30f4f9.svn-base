@@ -1,9 +1,9 @@
 === ImageMagick Engine ===
-Contributors: rickardw, johanee, orangelab
+Contributors: rickardw, johanee
 Tags: image, images, picture, imagemagick, gd
 Requires at least: 2.9
-Tested up to: 5.0
-Stable tag: 1.5.3
+Tested up to: 4.1
+Stable tag: 1.5.1
 
 Improve the quality of re-sized images by replacing standard GD library with ImageMagick.
 
@@ -70,12 +70,10 @@ You'll probably have problems with various other plugins too unless you fix this
 
 == Screenshots ==
 
-1. Administration interface
+1. Example image: ImageMagick vs GD
+2. Administration interface
 
 == Changelog ==
-
-= 1.5.3 =
-* Tested with WP 5.0
 
 = 1.5.2 =
 * Tested with WP 4.1

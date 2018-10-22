@@ -1,0 +1,227 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: ImageMagick Engine\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/imagemagick-engine\n"
+"POT-Creation-Date: 2012-10-15 09:40:54+00:00\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Johan Eenfeldt <johan@orangelab.se>\n"
+"Language-Team: \n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: imagemagick-engine.php:55
+#: imagemagick-engine.php:1003
+msgid "Imagick PHP module"
+msgstr "Imagick PHP modul"
+
+#: imagemagick-engine.php:56
+msgid "ImageMagick command-line"
+msgstr "ImageMagick kommando"
+
+#: imagemagick-engine.php:142
+msgid "Thumbnail"
+msgstr "Miniatyr"
+
+#: imagemagick-engine.php:143
+msgid "Medium"
+msgstr "Mellan"
+
+#: imagemagick-engine.php:144
+msgid "Large"
+msgstr "Stor"
+
+#: imagemagick-engine.php:732
+msgid "You dont have any images to regenerate"
+msgstr "Du har inga bilder att skala om"
+
+#: imagemagick-engine.php:733
+msgid "All done!"
+msgstr "Färdigt!"
+
+#: imagemagick-engine.php:734
+msgid "Processed %d images"
+msgstr "Skalat om %d bilder"
+
+#: imagemagick-engine.php:735
+msgid "Failed to resize image!"
+msgstr "Kunde inte skala om bild!"
+
+#: imagemagick-engine.php:736
+#: imagemagick-engine.php:782
+msgid "Resized using ImageMagick Engine"
+msgstr "Omskalad av ImageMagick Engine"
+
+#: imagemagick-engine.php:750
+#: imagemagick-engine.php:978
+msgid "Settings"
+msgstr "Inställningar"
+
+#: imagemagick-engine.php:783
+msgid "Resize image"
+msgstr "Skala om bild"
+
+#: imagemagick-engine.php:787
+msgid "Resize using ImageMagick Engine"
+msgstr "Omskala med ImageMagick Engine"
+
+#: imagemagick-engine.php:881
+msgid "Settings updated"
+msgstr "Inställningar uppdaterade"
+
+#: imagemagick-engine.php:924
+msgid "No valid ImageMagick mode found! Please check %sFAQ%s for installation instructions."
+msgstr "Ingen fungerande ImageMagick-installation hittades! Se %sFAQ%s för instruktioner hur du installerar."
+
+#: imagemagick-engine.php:928
+msgid "ImageMagick Engine is not enabled."
+msgstr "ImageMagick Engine är inte aktiverad."
+
+#: imagemagick-engine.php:933
+msgid "ImageMagick Engine Settings"
+msgstr "ImageMagick Engine Inställningar"
+
+#: imagemagick-engine.php:940
+msgid "Regenerate Images"
+msgstr "Skala om bilder"
+
+#: imagemagick-engine.php:945
+msgid "Sizes"
+msgstr "Bilder"
+
+#: imagemagick-engine.php:955
+msgid "ImageMagick images too"
+msgstr "ImageMagick bilder också"
+
+#: imagemagick-engine.php:959
+msgid "Resize will use standard WordPress functions."
+msgstr "Omskalningen kommer använda Wordpress standardfunktioner."
+
+#: imagemagick-engine.php:961
+msgid "Regenerate"
+msgstr "Skala om"
+
+#: imagemagick-engine.php:961
+msgid "(this can take a long time)"
+msgstr "(det här kan ta lång tid)"
+
+#: imagemagick-engine.php:964
+msgid "Regenerating images"
+msgstr "Skalar om bilder"
+
+#: imagemagick-engine.php:965
+msgid "You must enable Javascript in order to proceed!"
+msgstr "Du måste tillåta Javascript i din webbläsare för att kunna fortsätta!"
+
+#: imagemagick-engine.php:982
+msgid "Enable enhanced image engine"
+msgstr "Aktivera ImageMagick Engine"
+
+#: imagemagick-engine.php:988
+msgid "Image engine"
+msgstr "Bildmotor"
+
+#: imagemagick-engine.php:1006
+msgid "Imagick PHP module found"
+msgstr "Imagick PHP modul finns."
+
+#: imagemagick-engine.php:1006
+msgid "Imagick PHP module not found"
+msgstr "Imagick PHP modul finns ej."
+
+#: imagemagick-engine.php:1010
+msgid "ImageMagick path"
+msgstr "ImageMagick sökväg"
+
+#: imagemagick-engine.php:1013
+msgid "Command not found"
+msgstr "Kommando hittades inte"
+
+#: imagemagick-engine.php:1014
+msgid "Testing command..."
+msgstr "Testar kommando..."
+
+#: imagemagick-engine.php:1016
+msgid "Test path"
+msgstr "Testa sökväg"
+
+#: imagemagick-engine.php:1020
+msgid "ImageMagick quality"
+msgstr "ImageMagick bildkvalité"
+
+#: imagemagick-engine.php:1022
+msgid "Optimize for quality"
+msgstr "Vid optimering f&ouml;r kvalité"
+
+#: imagemagick-engine.php:1023
+msgid "Optimize for size"
+msgstr "Vid optimering f&ouml;r storlek"
+
+#: imagemagick-engine.php:1025
+msgid "Set to 0-100. Higher value gives better image quality but larger file size. Leave empty for default value, computed dynamically."
+msgstr "S&auml;tt till 0-100. H&ouml;gre v&auml;rden ger b&auml;ttre bildkvalité men st&ouml;rre filstorlek. L&auml;mna tomt f&ouml;r automatiskt ber&auml;knat v&auml;rde."
+
+#: imagemagick-engine.php:1033
+msgid "Optimize for"
+msgstr "Optimera"
+
+#: imagemagick-engine.php:1034
+msgid "Quality"
+msgstr "Kvalité"
+
+#: imagemagick-engine.php:1035
+msgid "Size"
+msgstr "Storlek"
+
+#: imagemagick-engine.php:1036
+msgid "None (use WP instead)"
+msgstr "Inget (anv&auml;nd WP ist&auml;llet)"
+
+#: imagemagick-engine.php:1066
+msgid "Save Changes"
+msgstr "Spara ändringar"
+
+#. Plugin Name of the plugin/theme
+msgid "ImageMagick Engine"
+msgstr "ImageMagick Engine"
+
+#. Plugin URI of the plugin/theme
+msgid "http://wp.orangelab.se/imagemagick-engine/"
+msgstr "http://wp.orangelab.se/imagemagick-engine/"
+
+#. Description of the plugin/theme
+msgid "Improve the quality of re-sized images by replacing standard GD library with ImageMagick"
+msgstr "Förbättra kvalitén på dina omskalade bilder genom att ersätta GD med ImageMagick"
+
+#. Author of the plugin/theme
+msgid "Orangelab"
+msgstr "Orangelab"
+
+#. Author URI of the plugin/theme
+msgid "http://www.orangelab.se"
+msgstr "http://www.orangelab.se"
+
+#~ msgid "Handle sizes"
+#~ msgstr "Hantera storlekar"
+
+#~ msgid "Force resize"
+#~ msgstr "Tvinga Omskalning"
+
+#~ msgid "images"
+#~ msgstr "bilder"
+
+#~ msgid "Unable to find any images. Are you sure <a href='%s'>some exist</a>?"
+#~ msgstr ""
+#~ "Hittade inga bilder. Är du säker på att <a href='%s'>du har laddat upp "
+#~ "några</a>?"
+
+#~ msgid ""
+#~ "Please be patient while images are regenerated. This can take a long time "
+#~ "if you have many images."
+#~ msgstr ""
+#~ "Var god vänta medan bilderna skalas om. Det kan ta lång tid om du har "
+#~ "många bilder."
+
+#~ msgid "Working..."
+#~ msgstr "Arbetar..."
