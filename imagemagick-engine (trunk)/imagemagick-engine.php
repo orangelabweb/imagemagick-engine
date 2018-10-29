@@ -390,6 +390,12 @@ function ime_im_filename_is_jpg($filename) {
 	return (strcasecmp($ext, 'jpg') == 0) || (strcasecmp($ext, 'jpeg') == 0);
 }
 
+// Get file extenstion – same style as ime_im_filename_is_jpg
+function ime_im_get_filetype($filename) {
+	$info = pathinfo($filename);
+	return strtolower($info['extension']);
+}
+
 /*
  * PHP ImageMagick ("Imagick") class handling
  */
@@ -406,14 +412,19 @@ function ime_im_php_resize( $old_file, $new_file, $width, $height, $crop, $resiz
 		return false;
 
 	try {
+		$im->setImageFormat(ime_im_get_filetype( $old_file) );
 		$quality = ime_get_quality( $resize_mode );
 		if ( is_numeric( $quality ) && $quality >= 0 && $quality <= 100 && ime_im_filename_is_jpg( $new_file ) ) {
 			$im->setImageCompression( Imagick::COMPRESSION_JPEG );
 			$im->setImageCompressionQuality( $quality );
 		}
+		
+		// setImageOpacity corrupting PNG transparency – it's done for PNG using setImageFormat()
+		/*
 		if ( method_exists( $im, 'setImageOpacity' ) )
 			$im->setImageOpacity( 1.0 );
-
+		*/
+		
 		if ( $resize_mode == 'size' )
 			$im->stripImage();
 
