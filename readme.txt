@@ -31,7 +31,7 @@ Requires either ImageMagick binary or Imagick PHP module.
 4. Configure ImageMagick settings and enable it on plugin settings page.
 5. Regenerate existing images to take advantage of the new features.
 
-If you have any questions or problems please make a comment here: http://wp.orangelab.se/imagemagick-engine/
+If you have any questions or problems please make write in the support forum.
 
 == Frequently Asked Questions ==
 
@@ -39,7 +39,7 @@ If you have any questions or problems please make a comment here: http://wp.oran
 
 ImageMagick can result in huge improvements in the quality of re-sized images.
 
-Take a look at the supplied screenshot, or try it yourself. More examples will be available on the plugin website (http://wp.orangelab.se/imagemagick-engine/).
+Take a look at the supplied screenshot, or try it yourself.
 
 Note that the new images tend to be slightly larger than those of the standard GD library, especially if you specify a very high image quality (95+).
 
