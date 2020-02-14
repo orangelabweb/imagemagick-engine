@@ -1,9 +1,9 @@
 === ImageMagick Engine ===
-Contributors: orangelab
+Contributors: rickardw, johanee, orangelab
 Tags: image, images, picture, imagemagick, gd
 Requires at least: 2.9
-Tested up to: 3.2.1
-Stable tag: 1.3.1
+Tested up to: 5.3.2
+Stable tag: 1.5.5
 
 Improve the quality of re-sized images by replacing standard GD library with ImageMagick.
 
@@ -16,9 +16,10 @@ Features
 * Preserve embedded color profile in re-sized image
 * Automatically recognize custom image sizes
 * Allow regeneration of existing images (optionally for selected image sizes only)
-* Configure image quality or use dynamically computed default value.
+* Configure image quality or use dynamically computed default value
+* Optimize different image sizes for either quality or size
 
-Translations: German, Swedish
+Lnguages: English, French, German, Swedish
 
 Requires either ImageMagick binary or Imagick PHP module.
 
@@ -69,10 +70,43 @@ You'll probably have problems with various other plugins too unless you fix this
 
 == Screenshots ==
 
-1. Example image: ImageMagick vs GD
-2. Administration interface
+1. Administration interface
 
 == Changelog ==
+
+= 1.5.4 =
+* Fixed a bug that could cause transparency errors with PNG
+
+= 1.5.3 =
+* Tested with WP 5.0
+
+= 1.5.2 =
+* Tested with WP 4.1
+
+= 1.5.1 =
+* Tested with WP 3.6
+* Fix CSS problems with other users of jQuery dialogs
+
+= 1.5.0 =
+* Tested with WP 3.5-beta2
+* Allow choosing between optimize for quality & size for each image size
+* Fix resize UI bug in media pop-up and new attachment editor (post.php)
+* Add "ime_after_resize" action after resize
+* Catch Imagick exceptions
+* Modified code now uses more of WP standard coding style
+* Updated French translation, thanks to Damien Fabreguettes
+* Updated Swedish translation for new strings
+
+= 1.4.0 =
+* Tested with WP 3.3.1
+* Resize / Force resize button in media library
+* Add more precision to resize % when large nr of images
+* More sanity tests in ajax resize code
+* Use WordPress version of jQuery UI progressbar if available
+* Split plugin init into early and late part
+* Fix PHP notice (in initial plugin configuration)
+* Updated swedish translation for new strings
+* French translation thanks to Damien Fabreguettes
 
 = 1.3.1 =
 * Tested with WP 3.2.1
