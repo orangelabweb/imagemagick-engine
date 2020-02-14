@@ -1,9 +1,9 @@
 === ImageMagick Engine ===
 Contributors: rickardw, orangelab
 Tags: image, images, picture, imagemagick, gd
-Requires at least: 2.9
+Requires at least: 3.0
 Tested up to: 5.3.2
-Stable tag: 1.5.5
+Stable tag: 1.5.6
 
 Improve the quality of re-sized images by replacing standard GD library with ImageMagick.
 
