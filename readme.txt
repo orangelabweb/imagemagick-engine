@@ -1,5 +1,5 @@
 === ImageMagick Engine ===
-Contributors: rickardw, johanee, orangelab
+Contributors: rickardw, orangelab
 Tags: image, images, picture, imagemagick, gd
 Requires at least: 2.9
 Tested up to: 5.3.2
