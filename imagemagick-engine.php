@@ -8,7 +8,7 @@
   Version: 1.6.0
   Text Domain: imagemagick-engine
 
-  Copyright 2020 Orangelab AB
+  Copyright @ 2020 Orangelab AB
 
   Licenced under the GNU GPL:
 
@@ -203,13 +203,13 @@ function ime_get_option($option_name, $default = null) {
 	
 	global $ime_options, $ime_options_default;
 
-	if (array_key_exists($option_name, $ime_options))
+	if (is_array($ime_options) && array_key_exists($option_name, $ime_options))
 		return $ime_options[$option_name];
 
 	if (!is_null($default))
 		return $default;
 
-	if (array_key_exists($option_name, $ime_options_default))
+	if (is_array($ime_options_default) && array_key_exists($option_name, $ime_options_default))
 		return $ime_options_default[$option_name];
 
 	return null;
