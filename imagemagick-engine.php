@@ -46,7 +46,7 @@ $ime_options_default = array('enabled' => false
 			     , 'handle_sizes' => array('thumbnail' => 'size', 'medium' => 'quality', 'large' => 'quality')
 			     , 'quality' => array('quality' => -1, 'size' => 70)
 			     , 'quality' => ''
-			     , 'version' => IME_OPTION_VERSION
+			     , 'version' => constant('IME_OPTION_VERSION')
 			     );
 
 // Available modes
@@ -91,20 +91,8 @@ function ime_init() {
 		add_action('wp_ajax_ime_test_im_path', 'ime_ajax_test_im_path');
 		add_action('wp_ajax_ime_process_image', 'ime_ajax_process_image');
 		add_action('wp_ajax_ime_regeneration_get_images','ime_ajax_regeneration_get_images');
-
-		// Do we have a WP native version of progressbar?
-		if (!wp_script_is('jquery-ui-progressbar', 'registered')) {
-			/*
-			 * jQuery UI version 1.7 and 1.8 seems incompatible...
-			 */
-			if (ime_script_version_compare('jquery-ui-core', '1.8', '>=')) {
-				wp_register_script('jquery-ui-progressbar', plugins_url('/js/ui.progressbar-1.8.9.js', __FILE__), array('jquery-ui-core', 'jquery-ui-widget'), '1.8.9');
-			} else {
-				wp_register_script('jquery-ui-progressbar', plugins_url('/js/ui.progressbar-1.7.2.js', __FILE__), array('jquery-ui-core'), '1.7.2');
-			}
-		}
 		
-		wp_register_script('ime-admin', plugins_url('/js/ime-admin.js', __FILE__), array('jquery', 'jquery-ui-dialog', 'jquery-ui-progressbar'));
+		wp_register_script('ime-admin', plugins_url('/js/ime-admin.js', __FILE__), array('jquery', 'jquery-ui-progressbar'));
 	}
 }
 
@@ -172,13 +160,13 @@ function ime_setup_options() {
 
 	// Do we need to upgrade options?
 	if (!array_key_exists('version', $ime_options)
-	    || $ime_options['version'] < IME_OPTION_VERSION) {
+	    || $ime_options['version'] < constant('IME_OPTION_VERSION')) {
 		
 		/*
 		 * Future compatability code goes here!
 		 */
 		
-		$ime_options['version'] = IME_OPTION_VERSION;
+		$ime_options['version'] = constant('IME_OPTION_VERSION');
 		ime_store_options();
 	}
 }
@@ -934,6 +922,13 @@ function ime_option_page() {
 <div class="wrap">
   <div id="regen-message" class="hidden updated fade"></div>
   <h2><?php _e('ImageMagick Engine Settings','imagemagick-engine'); ?></h2>
+  <div id="ime-regeneration" title="<?php _e('Regenerating images', 'imagemagick-engine'); ?>...">
+  	<noscript><p><em><?php _e( 'You must enable Javascript in order to proceed!', 'imagemagick-engine' ) ?></em></p></noscript>
+  	<p><strong><?php _e('Regenerating images', 'imagemagick-engine'); ?>...</strong></p>
+  	<div id="ime-regenbar">
+  		<div id="ime-regenbar-percent"></div>
+	</div>
+  </div>
   <form action="options-general.php?page=imagemagick-engine" method="post" name="update_options">
     <?php wp_nonce_field('ime-options'); ?>
   <div id="poststuff" class="metabox-holder has-right-sidebar">
@@ -961,16 +956,9 @@ function ime_option_page() {
 		      if (!ime_active())
 			      echo '<p class="howto">' . __('Resize will use standard WordPress functions.', 'imagemagick-engine') . '</p>';
 	      ?>
-	      <p><input class="button-primary" type="button" id="regenerate-images" value="<?php _e('Regenerate', 'imagemagick-engine'); ?>" /> <img alt="" title="" class="ajax-feedback" src="<?php echo ime_option_admin_images_url(); ?>wpspin_light.gif" style="visibility: hidden;"> <?php _e('(this can take a long time)', 'imagemagick-engine'); ?></p>
+	      <p><input class="button-primary" type="button" id="regenerate-images" value="<?php _e('Regenerate', 'imagemagick-engine'); ?>" /></p>
+	      <p class="description"><?php _e('(this can take a long time)', 'imagemagick-engine'); ?></p>
 	    </div>
-	    <div class="hidden">
-	      <div id="regeneration" title="<?php _e('Regenerating images', 'imagemagick-engine'); ?>...">
-	      <noscript><p><em><?php _e( 'You must enable Javascript in order to proceed!', 'imagemagick-engine' ) ?></em></p></noscript>
-	      <div id="regenbar">
-		<div id="regenbar-percent"></div>
-	      </div>
-	    </div>
-	  </div>
 	</div>
       </div>
     </div>
@@ -1022,11 +1010,9 @@ function ime_option_page() {
 	    <tr>
 	      <th scope="row" valign="top"><?php _e('ImageMagick quality','imagemagick-engine'); ?>:</th>
 	      <td>
-		<input id="quality-quality" type="text" name="quality-quality" size="3" value="<?php echo ( ( isset( $quality[ 'quality' ] ) && $quality[ 'quality' ] > 0 ) ? $quality[ 'quality' ] : '' ); ?>" /> <?php _e( 'Optimize for quality','imagemagick-engine' ); ?><br />
-		<input id="quality-size" type="text" name="quality-size" size="3" value="<?php echo ( ( isset( $quality[ 'size' ] ) && $quality[ 'size' ] > 0 ) ? $quality[ 'size' ] : '' ); ?>" /> <?php  _e( 'Optimize for size','imagemagick-engine' ); ?><br />
-		<p class="ime-description">
-		<?php _e( 'Set to 0-100. Higher value gives better image quality but larger file size. Leave empty for default value, computed dynamically.', 'imagemagick-engine' ); ?>
-		</p>
+		<p><input id="quality-quality" type="text" name="quality-quality" size="3" value="<?php echo ( ( isset( $quality[ 'quality' ] ) && $quality[ 'quality' ] > 0 ) ? $quality[ 'quality' ] : '' ); ?>" /> <?php _e( 'Optimize for quality','imagemagick-engine' ); ?></p>
+		<p><input id="quality-size" type="text" name="quality-size" size="3" value="<?php echo ( ( isset( $quality[ 'size' ] ) && $quality[ 'size' ] > 0 ) ? $quality[ 'size' ] : '' ); ?>" /> <?php  _e( 'Optimize for size','imagemagick-engine' ); ?></p>
+		<p class="ime-description"><?php _e( 'Set to 0-100. Higher value gives better image quality but larger file size. Leave empty for default value, computed dynamically.', 'imagemagick-engine' ); ?></p>
 	      </td>
 	    </tr>
 	    <tr>

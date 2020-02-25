@@ -75,8 +75,8 @@ You'll probably have problems with various other plugins too unless you fix this
 == Changelog ==
 
 = 1.6.0 =
-* Small fixes
-* Updates to admin UI
+* Small bug fixes
+* Small updates to admin UI
 
 = 1.5.4 =
 * Fixed a bug that could cause transparency errors with PNG

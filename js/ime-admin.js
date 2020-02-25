@@ -54,9 +54,9 @@ function imeStartResize() {
     var rt_percent = 0;
 
     rt_count = 1;
-    jQuery("#regenbar").progressbar();
-    jQuery("#regenbar-percent").html( rt_percent.toFixed(rt_precision) + " %" );
-    jQuery('#regeneration').dialog( { 'dialogClass': 'ime-dialog' } ).dialog( 'open' );
+    jQuery("#ime-regenbar").progressbar();
+    jQuery("#ime-regenbar-percent").html( rt_percent.toFixed(rt_precision) + " %" );
+    jQuery('#ime-regeneration').addClass( 'working' );
 
     imeRegenImages( rt_images.shift() );
 }
@@ -73,15 +73,15 @@ function imeRegenImages( id ) {
 
 	if ( rt_images.length <= 0 ) {
 	    jQuery('#regen-message').removeClass('hidden').html("<p><strong>" + ime_admin.done + "</strong> " + ime_admin.processed_fmt.replace('%d', rt_total) + ".</p>");
-	    jQuery('#regeneration').dialog('close');
-	    jQuery("#regenbar").progressbar( "value", 0 );
+	    jQuery('#ime-regeneration').removeClass('working');
+	    jQuery("#ime-regenbar").progressbar( "value", 0 );
 	    return;
 	}
 
 	var next_id = rt_images.shift();
 	var rt_percent = ( rt_count / rt_total ) * 100;
-	jQuery("#regenbar").progressbar( "value", rt_percent );
-	jQuery("#regenbar-percent").html( rt_percent.toFixed(rt_precision) + " %" );
+	jQuery("#ime-regenbar").progressbar( "value", rt_percent );
+	jQuery("#ime-regenbar-percent").html( rt_percent.toFixed(rt_precision) + " %" );
 	rt_count = rt_count + 1;
 
 	// tail recursion
@@ -134,28 +134,18 @@ jQuery(document).ready(function($) {
     imeUpdateMode();
     jQuery('#ime-select-mode').change(imeUpdateMode);
 
-    $('#regeneration').dialog({
-	height: 42,
-	minHeight: 42,
-	closeText: 'X',
-	width: '75%',
-	modal: true,
-	autoOpen: false
-    });
-
     $('#regenerate-images').click(function(){
-	$('#regenerate-images-metabox img.ajax-feedback').css('visibility','visible');
-	$.post(ajaxurl, { action: "ime_regeneration_get_images" }, function(data) {
-	    jQuery('#regen-message').addClass('hidden');
-	    $('#regenerate-images-metabox img.ajax-feedback').css('visibility','hidden');
-	    rt_images = data.split(",");
-	    rt_total = rt_images.length;
-	    
-	    if(rt_total > 0) {
-		imeStartResize();
-	    } else {
-		alert(ime_admin.noimg);
-	    }
-	});
+		$('#regenerate-images-metabox img.ajax-feedback').show();
+		$.post(ajaxurl, { action: "ime_regeneration_get_images" }, function(data) {
+		    jQuery('#regen-message').addClass('hidden');
+		    rt_images = data.split(",");
+		    rt_total = rt_images.length;
+		    
+		    if(rt_total > 0) {
+			 imeStartResize();
+		    } else {
+			 alert(ime_admin.noimg);
+		    }
+		});
     });
 });
