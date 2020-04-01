@@ -92,7 +92,7 @@ function ime_init() {
 		add_action('wp_ajax_ime_process_image', 'ime_ajax_process_image');
 		add_action('wp_ajax_ime_regeneration_get_images','ime_ajax_regeneration_get_images');
 		
-		wp_register_script('ime-admin', plugins_url('/js/ime-admin.js', __FILE__), array('jquery', 'jquery-ui-progressbar'));
+		wp_register_script('ime-admin', plugins_url('/js/ime-admin.js?v=1.6.2', __FILE__), array('jquery', 'jquery-ui-progressbar'));
 	}
 }
 
