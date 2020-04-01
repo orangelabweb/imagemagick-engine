@@ -3,7 +3,7 @@ Contributors: rickardw, orangelab
 Tags: image, images, picture, imagemagick, gd
 Requires at least: 3.0
 Tested up to: 5.3.2
-Stable tag: 1.6.1
+Stable tag: 1.6.2
 
 Improve the quality of re-sized images by replacing standard GD library with ImageMagick.
 
@@ -73,6 +73,10 @@ You'll probably have problems with various other plugins too unless you fix this
 1. Administration interface
 
 == Changelog ==
+
+= 1.6.2 =
+* Added medium_large image size by default
+* Display version of ImageMagick CLI (thanks @marcissimus)
 
 = 1.6.1 =
 * Fixed deprecated use of gd_edit_image_support (thanks @chesio)

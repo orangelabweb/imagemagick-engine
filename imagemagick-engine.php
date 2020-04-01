@@ -5,7 +5,7 @@
   Description: Improve the quality of re-sized images by replacing standard GD library with ImageMagick
   Author: Orangelab
   Author URI: https://orangelab.com/
-  Version: 1.6.1
+  Version: 1.6.2
   Text Domain: imagemagick-engine
 
   Copyright @ 2020 Orangelab AB
@@ -43,7 +43,7 @@ define('IME_OPTION_VERSION', 1);
 $ime_options_default = array('enabled' => false
 			     , 'mode' => null
 			     , 'cli_path' => null
-			     , 'handle_sizes' => array('thumbnail' => 'size', 'medium' => 'quality', 'large' => 'quality')
+			     , 'handle_sizes' => array('thumbnail' => 'size', 'medium' => 'quality', 'medium_large' => 'quality', 'large' => 'quality')
 			     , 'quality' => array('quality' => -1, 'size' => 70)
 			     , 'quality' => ''
 			     , 'version' => constant('IME_OPTION_VERSION')
@@ -127,6 +127,7 @@ function ime_available_image_sizes() {
 	global $_wp_additional_image_sizes;
 	$sizes = array('thumbnail' => __('Thumbnail', 'imagemagick-engine')
 		       , 'medium' => __('Medium', 'imagemagick-engine')
+		       , 'medium_large' => __('Medium Large', 'imagemagick-engine')
 		       , 'large' => __('Large', 'imagemagick-engine')); // Standard sizes
 	if ( isset( $_wp_additional_image_sizes ) && count( $_wp_additional_image_sizes ) ) {
 		foreach ($_wp_additional_image_sizes as $name => $spec)
@@ -711,7 +712,7 @@ function ime_ajax_process_image() {
 function ime_admin_menu() {
 	$ime_page = add_options_page('ImageMagick Engine', 'ImageMagick Engine', 'manage_options', 'imagemagick-engine', 'ime_option_page');
 
-	$script_pages = array( $ime_page, 'media.php', 'media-new.php', 'media-upload.php', 'media-upload-popup', 'post.php' );
+	$script_pages = array( $ime_page, 'media.php', 'media-new.php', 'media-upload.php', 'media-upload-popup', 'post.php', 'upload.php' );
 	foreach ($script_pages as $page) {
 		add_action('admin_print_scripts-' . $page, 'ime_admin_print_scripts');
 		add_action('admin_print_styles-' . $page, 'ime_admin_print_styles');
