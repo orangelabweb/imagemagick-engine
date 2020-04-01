@@ -465,6 +465,8 @@ function ime_im_cli_check_executable($fullpath) {
 
 	@exec('"' . $fullpath . '" --version', $output);
 
+	ime_set_option( 'imagemagick_version', $output, true );
+
 	return count($output) > 0;
 }
 
@@ -1016,6 +1018,7 @@ function ime_option_page() {
 		<img id="cli_path_progress" src="<?php echo ime_option_admin_images_url(); ?>wpspin_light.gif" alt="<?php _e('Testing command...', 'qp-qie'); ?>"  <?php ime_option_display(false); ?> />
 		<input id="cli_path" type="text" name="cli_path" size="<?php echo max(30, strlen($cli_path) + 5); ?>" value="<?php echo $cli_path; ?>" />
 		<input type="button" name="ime_cli_path_test" id="ime_cli_path_test" value="<?php _e('Test path', 'imagemagick-engine'); ?>" class="button-secondary" />
+		<span <?php ime_option_display($cli_path_ok); ?>><br><br><?php echo ime_get_option('imagemagick_version')[0]; ?></span>
 	      </td>
 	    </tr>
 	    <tr>
