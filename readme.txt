@@ -76,6 +76,7 @@ You'll probably have problems with various other plugins too unless you fix this
 
 = 1.6.2 =
 * Added medium_large image size by default
+* Display version of ImageMagick CLI (thanks @marcissimus)
 
 = 1.6.1 =
 * Fixed deprecated use of gd_edit_image_support (thanks @chesio)
