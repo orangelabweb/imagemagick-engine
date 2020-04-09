@@ -172,3 +172,7 @@ You'll probably have problems with various other plugins too unless you fix this
 
 = 1.2.0 =
 Fixes plugin jQuery UI script incompatibility for WordPress 3.1
+
+== Contribute ==
+
+Code repo available on https://github.com/orangelabweb/imagemagick-engine/
