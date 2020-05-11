@@ -498,12 +498,12 @@ function ime_im_php_resize( $old_file, $new_file, $width, $height, $crop, $resiz
 // Do we have a valid ImageMagick executable set?
 function ime_im_cli_valid() {
 	$cmd = ime_im_cli_command();
-	return ! empty( $cmd ) && is_executable( $cmd );
+	return !empty($cmd) && @is_executable($cmd);
 }
 
 // Test if we are allowed to exec executable!
-function ime_im_cli_check_executable( $fullpath ) {
-	if ( ! is_executable( $fullpath ) ) {
+function ime_im_cli_check_executable($fullpath) {
+	if (!@is_executable($fullpath))
 		return false;
 	}
 
