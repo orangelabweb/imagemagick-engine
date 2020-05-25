@@ -502,7 +502,7 @@ function ime_im_cli_valid() {
 
 // Test if we are allowed to exec executable!
 function ime_im_cli_check_executable($fullpath) {
-	if (!@is_executable($fullpath))
+	if (!@is_executable($fullpath)) {
 		return false;
 	}
 
