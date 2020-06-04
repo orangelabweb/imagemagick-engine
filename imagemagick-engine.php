@@ -5,7 +5,7 @@
 	Description: Improve the quality of re-sized images by replacing standard GD library with ImageMagick
 	Author: Orangelab
 	Author URI: https://orangelab.com/
-	Version: 1.6.3
+	Version: 1.6.4
 	Text Domain: imagemagick-engine
 
 	Copyright @ 2020 Orangelab AB
@@ -35,7 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Constants
  */
 define( 'IME_OPTION_VERSION', 1 );
-define( 'IME_VERSION', '1.6.3' );
+define( 'IME_VERSION', '1.6.4' );
 
 /*
  * Global variables
@@ -334,18 +334,11 @@ function ime_filter_attachment_metadata( $metadata, $attachment_id ) {
 
 	/*
 	 * Sort out the filename, extension (and image type) of resized images
-	 *
-	 * If image type is PNG or GIF keep it, otherwise make sure it is JPG
 	 */
 	$info     = pathinfo( $ime_image_file );
 	$dir      = $info['dirname'];
 	$ext      = $info['extension'];
 	$namebase = basename( $ime_image_file, ".{$ext}" );
-	if ( $orig_type == IMAGETYPE_PNG || $orig_type == IMAGETYPE_GIF ) {
-		$new_ext = $ext;
-	} else {
-		$new_ext = 'jpg';
-	}
 
 	/*
 	 * Do the actual resize
@@ -368,7 +361,7 @@ function ime_filter_attachment_metadata( $metadata, $attachment_id ) {
 		list($dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h) = $dims;
 
 		$suffix       = "{$dst_w}x{$dst_h}";
-		$new_filename = "{$dir}/{$namebase}-{$suffix}.{$new_ext}";
+		$new_filename = "{$dir}/{$namebase}-{$suffix}.{$ext}";
 
 		$resized = ime_im_resize( $ime_image_file, $new_filename, $dst_w, $dst_h, $crop, ime_get_resize_mode( $size ) );
 		if ( ! $resized ) {
