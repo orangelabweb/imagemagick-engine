@@ -19,7 +19,7 @@ Features
 * Configure image quality or use dynamically computed default value
 * Optimize different image sizes for either quality or size
 
-Lnguages: English, French, German, Swedish
+Lnguages: English, French, German, Swedish, Turkish
 
 Requires either ImageMagick binary or Imagick PHP module.
 
@@ -73,6 +73,9 @@ You'll probably have problems with various other plugins too unless you fix this
 1. Administration interface
 
 == Changelog ==
+
+= 1.6.5 =
+* Turkish translation thanks to Haydar ŞAHİN
 
 = 1.6.4 =
 * Critical bugfix for .jpeg files
