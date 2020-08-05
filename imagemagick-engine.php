@@ -5,7 +5,7 @@
 	Description: Improve the quality of re-sized images by replacing standard GD library with ImageMagick
 	Author: Orangelab
 	Author URI: https://orangelab.com/
-	Version: 1.6.4
+	Version: 1.6.5
 	Text Domain: imagemagick-engine
 
 	Copyright @ 2020 Orangelab AB
@@ -35,7 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Constants
  */
 define( 'IME_OPTION_VERSION', 1 );
-define( 'IME_VERSION', '1.6.4' );
+define( 'IME_VERSION', '1.6.5' );
 
 /*
  * Global variables
@@ -942,9 +942,9 @@ function ime_option_page() {
 		}
 		if ( isset( $_POST['quality-size'] ) ) {
 			if ( is_numeric( $_POST['quality-size'] ) ) {
-				$new_quality['quality-size'] = min( 100, max( 0, intval( $_POST['quality-size'] ) ) );
+				$new_quality['size'] = min( 100, max( 0, intval( $_POST['quality-size'] ) ) );
 			} elseif ( empty( $_POST['quality-size'] ) ) {
-				$new_quality['quality-size'] = -1;
+				$new_quality['size'] = -1;
 			}
 		}
 		ime_set_option( 'quality', $new_quality );

@@ -2,8 +2,8 @@
 Contributors: rickardw, orangelab
 Tags: image, images, picture, imagemagick, gd
 Requires at least: 3.0
-Tested up to: 5.4.1
-Stable tag: 1.6.4
+Tested up to: 5.5.0
+Stable tag: 1.6.5
 
 Improve the quality of re-sized images by replacing standard GD library with ImageMagick.
 
@@ -19,7 +19,7 @@ Features
 * Configure image quality or use dynamically computed default value
 * Optimize different image sizes for either quality or size
 
-Lnguages: English, French, German, Swedish
+Lnguages: English, French, German, Swedish, Turkish
 
 Requires either ImageMagick binary or Imagick PHP module.
 
@@ -73,6 +73,11 @@ You'll probably have problems with various other plugins too unless you fix this
 1. Administration interface
 
 == Changelog ==
+
+= 1.6.5 =
+* Turkish translation thanks to Haydar ŞAHİN
+* Bugfix
+* Tested compability with WordPress 5.5
 
 = 1.6.4 =
 * Critical bugfix for .jpeg files
