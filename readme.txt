@@ -76,6 +76,7 @@ You'll probably have problems with various other plugins too unless you fix this
 
 = 1.6.5 =
 * Turkish translation thanks to Haydar ŞAHİN
+* Bugfixes
 
 = 1.6.4 =
 * Critical bugfix for .jpeg files

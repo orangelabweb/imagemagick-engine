@@ -942,9 +942,9 @@ function ime_option_page() {
 		}
 		if ( isset( $_POST['quality-size'] ) ) {
 			if ( is_numeric( $_POST['quality-size'] ) ) {
-				$new_quality['quality-size'] = min( 100, max( 0, intval( $_POST['quality-size'] ) ) );
+				$new_quality['size'] = min( 100, max( 0, intval( $_POST['quality-size'] ) ) );
 			} elseif ( empty( $_POST['quality-size'] ) ) {
-				$new_quality['quality-size'] = -1;
+				$new_quality['size'] = -1;
 			}
 		}
 		ime_set_option( 'quality', $new_quality );
