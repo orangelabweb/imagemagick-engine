@@ -5,10 +5,10 @@
 	Description: Improve the quality of re-sized images by replacing standard GD library with ImageMagick
 	Author: Orangelab
 	Author URI: https://orangelab.com/
-	Version: 1.6.5
+	Version: 1.7.0
 	Text Domain: imagemagick-engine
 
-	Copyright @ 2020 Orangelab AB
+	Copyright @ 2021 Orangelab AB
 
 	Licenced under the GNU GPL:
 
@@ -35,7 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Constants
  */
 define( 'IME_OPTION_VERSION', 1 );
-define( 'IME_VERSION', '1.6.5' );
+define( 'IME_VERSION', '1.7.0' );
 
 /*
  * Global variables
@@ -56,6 +56,7 @@ $ime_options_default = [
 		'quality' => -1,
 		'size'    => 70,
 	],
+	'interlace'    => false,
 	'quality'      => '',
 	'version'      => constant( 'IME_OPTION_VERSION' ),
 ];
@@ -239,6 +240,11 @@ function ime_set_option( $option_name, $option_value, $store = false ) {
 	if ( $store ) {
 		ime_store_options();
 	}
+}
+
+// Should images be converted with interlace or not
+function ime_interlace() {
+	return ime_get_option( 'interlace' );
 }
 
 // Get image quality setting for type
@@ -441,6 +447,10 @@ function ime_im_php_resize( $old_file, $new_file, $width, $height, $crop, $resiz
 			$im->setImageCompressionQuality( $quality );
 		}
 
+		if ( ime_interlace() ) {
+			$im->setInterlaceScheme( Imagick::INTERLACE_PLANE );
+		}
+
 		if ( $resize_mode == 'size' ) {
 			$im->stripImage();
 		}
@@ -503,7 +513,7 @@ function ime_im_cli_check_executable($fullpath) {
 
 	ime_set_option( 'imagemagick_version', $output, true );
 
-	return count( $output ) > 0;
+	return (is_array($output)) ? (count( $output ) > 0) : false;
 }
 
 /*
@@ -596,6 +606,10 @@ function ime_im_cli_resize( $old_file, $new_file, $width, $height, $crop, $resiz
 		$cmd .= ' -quality ' . intval( $quality );
 	}
 
+	if ( ime_interlace() ) {
+		$cmd .= ' -interlace Plane';
+	}
+
 	if ( $resize_mode == 'size' ) {
 		$cmd .= ' -strip';
 	}
@@ -630,7 +644,7 @@ function ime_ajax_regeneration_get_images() {
 	}
 
 	// Query for the IDs only to reduce memory usage
-	$images = $wpdb->get_results( "SELECT ID FROM $wpdb->posts WHERE post_type = 'attachment' AND post_mime_type LIKE 'image/%'" );
+	$images = $wpdb->get_results( "SELECT ID FROM $wpdb->posts WHERE post_type = 'attachment' AND post_mime_type LIKE 'image/%' AND post_mime_type != 'image/svg+xml'" );
 
 	// Generate the list of IDs
 	$ids = [];
@@ -700,7 +714,7 @@ function ime_ajax_process_image() {
 
 	$force = isset( $_REQUEST['force'] ) && ! ! $_REQUEST['force'];
 
-	$ime_image_file = get_attached_file( $id );
+	$ime_image_file = function_exists('wp_get_original_image_path') ? wp_get_original_image_path( $id ) : get_attached_file( $id );
 
 	if ( false === $ime_image_file || ! file_exists( $ime_image_file ) ) {
 		die( '-1' );
@@ -949,6 +963,9 @@ function ime_option_page() {
 		}
 		ime_set_option( 'quality', $new_quality );
 
+		$new_interlace = isset( $_POST['interlace'] ) && ! ! $_POST['interlace'];
+		ime_set_option( 'interlace', $new_interlace );
+
 		$new_handle_sizes = [];
 		foreach ( $sizes as $s => $name ) {
 			$new_mode = isset( $_POST[ 'handle-mode-' . $s ] ) ? $_POST[ 'handle-mode-' . $s ] : 'skip';
@@ -1010,6 +1027,8 @@ function ime_option_page() {
 		}
 		$quality = $n;
 	}
+
+	$interlace = ime_get_option( 'interlace' );
 
 	$handle_sizes = ime_get_option( 'handle_sizes' );
 
@@ -1125,6 +1144,17 @@ function ime_option_page() {
 		<p><input id="quality-quality" type="text" name="quality-quality" size="3" value="<?php echo ( ( isset( $quality['quality'] ) && $quality['quality'] > 0 ) ? $quality['quality'] : '' ); ?>" /> <?php _e( 'Optimize for quality', 'imagemagick-engine' ); ?></p>
 		<p><input id="quality-size" type="text" name="quality-size" size="3" value="<?php echo ( ( isset( $quality['size'] ) && $quality['size'] > 0 ) ? $quality['size'] : '' ); ?>" /> <?php _e( 'Optimize for size', 'imagemagick-engine' ); ?></p>
 		<p class="ime-description"><?php _e( 'Set to 0-100. Higher value gives better image quality but larger file size. Leave empty for default value, computed dynamically.', 'imagemagick-engine' ); ?></p>
+			</td>
+		</tr>
+		<tr>
+			<th scope="row" valign="top"><?php _e( 'Image interlace?', 'imagemagick-engine' ); ?>:</th>
+			<td>
+				<input type="checkbox" id="interlace" name="interlace" value="1"
+				<?php
+				echo $interlace ? ' CHECKED ' : '';
+				?>
+				/>
+				<p class="ime-description"><?php _e( 'Adds interlace option to ImageMagick when images are processed.', 'imagemagick-engine' ); ?></p>
 			</td>
 		</tr>
 		<tr>
