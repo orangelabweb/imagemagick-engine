@@ -503,7 +503,7 @@ function ime_im_cli_check_executable($fullpath) {
 
 	ime_set_option( 'imagemagick_version', $output, true );
 
-	return count( $output ) > 0;
+	return (is_array($output)) ? (count( $output ) > 0) : false;
 }
 
 /*
