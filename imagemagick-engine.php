@@ -700,7 +700,7 @@ function ime_ajax_process_image() {
 
 	$force = isset( $_REQUEST['force'] ) && ! ! $_REQUEST['force'];
 
-	$ime_image_file = get_attached_file( $id );
+	$ime_image_file = function_exists('wp_get_original_image_path') ? wp_get_original_image_path( $id ) : get_attached_file( $id );
 
 	if ( false === $ime_image_file || ! file_exists( $ime_image_file ) ) {
 		die( '-1' );
