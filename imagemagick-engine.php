@@ -56,6 +56,7 @@ $ime_options_default = [
 		'quality' => -1,
 		'size'    => 70,
 	],
+	'interlace'    => false,
 	'quality'      => '',
 	'version'      => constant( 'IME_OPTION_VERSION' ),
 ];
@@ -239,6 +240,11 @@ function ime_set_option( $option_name, $option_value, $store = false ) {
 	if ( $store ) {
 		ime_store_options();
 	}
+}
+
+// Should images be converted with interlace or not
+function ime_interlace() {
+	return ime_get_option( 'interlace' );
 }
 
 // Get image quality setting for type
@@ -441,6 +447,10 @@ function ime_im_php_resize( $old_file, $new_file, $width, $height, $crop, $resiz
 			$im->setImageCompressionQuality( $quality );
 		}
 
+		if ( ime_interlace() ) {
+			$im->setInterlaceScheme( Imagick::INTERLACE_PLANE );
+		}
+
 		if ( $resize_mode == 'size' ) {
 			$im->stripImage();
 		}
@@ -594,6 +604,10 @@ function ime_im_cli_resize( $old_file, $new_file, $width, $height, $crop, $resiz
 	$quality = ime_get_quality( $resize_mode );
 	if ( is_numeric( $quality ) && $quality >= 0 && $quality <= 100 && ime_im_filename_is_jpg( $new_file ) ) {
 		$cmd .= ' -quality ' . intval( $quality );
+	}
+
+	if ( ime_interlace() ) {
+		$cmd .= ' -interlace Plane';
 	}
 
 	if ( $resize_mode == 'size' ) {
@@ -949,6 +963,9 @@ function ime_option_page() {
 		}
 		ime_set_option( 'quality', $new_quality );
 
+		$new_interlace = isset( $_POST['interlace'] ) && ! ! $_POST['interlace'];
+		ime_set_option( 'interlace', $new_interlace );
+
 		$new_handle_sizes = [];
 		foreach ( $sizes as $s => $name ) {
 			$new_mode = isset( $_POST[ 'handle-mode-' . $s ] ) ? $_POST[ 'handle-mode-' . $s ] : 'skip';
@@ -1010,6 +1027,8 @@ function ime_option_page() {
 		}
 		$quality = $n;
 	}
+
+	$interlace = ime_get_option( 'interlace' );
 
 	$handle_sizes = ime_get_option( 'handle_sizes' );
 
@@ -1125,6 +1144,17 @@ function ime_option_page() {
 		<p><input id="quality-quality" type="text" name="quality-quality" size="3" value="<?php echo ( ( isset( $quality['quality'] ) && $quality['quality'] > 0 ) ? $quality['quality'] : '' ); ?>" /> <?php _e( 'Optimize for quality', 'imagemagick-engine' ); ?></p>
 		<p><input id="quality-size" type="text" name="quality-size" size="3" value="<?php echo ( ( isset( $quality['size'] ) && $quality['size'] > 0 ) ? $quality['size'] : '' ); ?>" /> <?php _e( 'Optimize for size', 'imagemagick-engine' ); ?></p>
 		<p class="ime-description"><?php _e( 'Set to 0-100. Higher value gives better image quality but larger file size. Leave empty for default value, computed dynamically.', 'imagemagick-engine' ); ?></p>
+			</td>
+		</tr>
+		<tr>
+			<th scope="row" valign="top"><?php _e( 'Image interlace?', 'imagemagick-engine' ); ?>:</th>
+			<td>
+				<input type="checkbox" id="interlace" name="interlace" value="1"
+				<?php
+				echo $interlace ? ' CHECKED ' : '';
+				?>
+				/>
+				<p class="ime-description"><?php _e( 'Adds interlace option to ImageMagick when images are processed.', 'imagemagick-engine' ); ?></p>
 			</td>
 		</tr>
 		<tr>
