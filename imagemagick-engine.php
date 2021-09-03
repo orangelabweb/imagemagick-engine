@@ -5,7 +5,7 @@
 	Description: Improve the quality of re-sized images by replacing standard GD library with ImageMagick
 	Author: Orangelab
 	Author URI: https://orangelab.com/
-	Version: 1.6.6
+	Version: 1.7.0
 	Text Domain: imagemagick-engine
 
 	Copyright @ 2021 Orangelab AB
@@ -35,7 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Constants
  */
 define( 'IME_OPTION_VERSION', 1 );
-define( 'IME_VERSION', '1.6.6' );
+define( 'IME_VERSION', '1.7.0' );
 
 /*
  * Global variables
@@ -644,7 +644,7 @@ function ime_ajax_regeneration_get_images() {
 	}
 
 	// Query for the IDs only to reduce memory usage
-	$images = $wpdb->get_results( "SELECT ID FROM $wpdb->posts WHERE post_type = 'attachment' AND post_mime_type LIKE 'image/%'" );
+	$images = $wpdb->get_results( "SELECT ID FROM $wpdb->posts WHERE post_type = 'attachment' AND post_mime_type LIKE 'image/%' AND post_mime_type != 'image/svg+xml'" );
 
 	// Generate the list of IDs
 	$ids = [];
