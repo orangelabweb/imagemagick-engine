@@ -5,7 +5,7 @@
 	Description: Improve the quality of re-sized images by replacing standard GD library with ImageMagick
 	Author: Orangelab
 	Author URI: https://orangelab.com/
-	Version: 1.7.0
+	Version: 1.7.1
 	Text Domain: imagemagick-engine
 
 	Copyright @ 2021 Orangelab AB
@@ -35,7 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Constants
  */
 define( 'IME_OPTION_VERSION', 1 );
-define( 'IME_VERSION', '1.7.0' );
+define( 'IME_VERSION', '1.7.1' );
 
 /*
  * Global variables
@@ -330,6 +330,21 @@ function ime_filter_attachment_metadata( $metadata, $attachment_id ) {
 		return $metadata;
 	}
 
+	$editor = wp_get_image_editor( $ime_image_file );
+	if ( is_wp_error( $editor ) ) {
+		// Display a more helpful error message.
+		if ( 'image_no_editor' === $editor->get_error_code() ) {
+			$editor = new WP_Error( 'image_no_editor', __( 'The current image editor cannot process this file type.', 'regenerate-thumbnails' ) );
+		}
+
+		$editor->add_data( array(
+			'attachment' => $this->attachment,
+			'status'     => 415,
+		) );
+
+		return $editor;
+	}
+
 	// Get size & image type of original image
 	$old_stats = @getimagesize( $ime_image_file );
 	if ( ! $old_stats ) {
@@ -344,7 +359,6 @@ function ime_filter_attachment_metadata( $metadata, $attachment_id ) {
 	$info     = pathinfo( $ime_image_file );
 	$dir      = $info['dirname'];
 	$ext      = $info['extension'];
-	$namebase = basename( $ime_image_file, ".{$ext}" );
 
 	/*
 	 * Do the actual resize
@@ -367,7 +381,7 @@ function ime_filter_attachment_metadata( $metadata, $attachment_id ) {
 		list($dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h) = $dims;
 
 		$suffix       = "{$dst_w}x{$dst_h}";
-		$new_filename = "{$dir}/{$namebase}-{$suffix}.{$ext}";
+		$new_filename = $editor->generate_filename( $suffix, null, $ext );
 
 		$resized = ime_im_resize( $ime_image_file, $new_filename, $dst_w, $dst_h, $crop, ime_get_resize_mode( $size ) );
 		if ( ! $resized ) {
@@ -375,7 +389,7 @@ function ime_filter_attachment_metadata( $metadata, $attachment_id ) {
 		}
 
 		$metadata['sizes'][ $size ] = [
-			'file'   => basename( $new_filename ),
+			'file'   => wp_basename( $new_filename ),
 			'width'  => $dst_w,
 			'height' => $dst_h,
 		];

@@ -2,8 +2,8 @@
 Contributors: rickardw, orangelab
 Tags: image, images, picture, imagemagick, gd
 Requires at least: 3.0
-Tested up to: 5.8.0
-Stable tag: 1.7.0
+Tested up to: 5.8.1
+Stable tag: 1.7.1
 
 Improve the quality of re-sized images by replacing standard GD library with ImageMagick.
 
@@ -73,6 +73,10 @@ You'll probably have problems with various other plugins too unless you fix this
 1. Administration interface
 
 == Changelog ==
+
+= 1.7.1 =
+* Use WP_IMAGE_EDITOR class to generate filename
+* Tested compability with WordPress 5.8
 
 = 1.7.0 =
 * Add option to resize images interlaced
