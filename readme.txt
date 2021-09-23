@@ -75,8 +75,8 @@ You'll probably have problems with various other plugins too unless you fix this
 == Changelog ==
 
 = 1.7.1 =
-* Use WP_IMAGE_EDITOR class to generate filename
-* Tested compability with WordPress 5.8
+* Use WP_Image_Editor class to generate filename
+* Tested compability with WordPress 5.8.1
 
 = 1.7.0 =
 * Add option to resize images interlaced
