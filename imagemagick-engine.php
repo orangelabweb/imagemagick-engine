@@ -5,10 +5,10 @@
 	Description: Improve the quality of re-sized images by replacing standard GD library with ImageMagick
 	Author: Orangelab
 	Author URI: https://orangelab.com/
-	Version: 1.7.2
+	Version: 1.7.3
 	Text Domain: imagemagick-engine
 
-	Copyright @ 2021 Orangelab AB
+	Copyright @ 2022 Orangelab AB
 
 	Licenced under the GNU GPL:
 
@@ -35,7 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Constants
  */
 define( 'IME_OPTION_VERSION', 1 );
-define( 'IME_VERSION', '1.7.2' );
+define( 'IME_VERSION', '1.7.3' );
 
 /*
  * Global variables
@@ -337,6 +337,11 @@ function ime_filter_attachment_metadata( $metadata, $attachment_id ) {
 		return $metadata;
 	}
 
+	// Make sure file exists on server
+	if ( ! $ime_image_file || ! file_exists( $ime_image_file ) ) {
+		return $metadata;
+	}
+
 	$editor = wp_get_image_editor( $ime_image_file );
 	if ( is_wp_error( $editor ) ) {
 		// Display a more helpful error message.
@@ -353,8 +358,8 @@ function ime_filter_attachment_metadata( $metadata, $attachment_id ) {
 	}
 
 	// Get size & image type of original image
-	$old_stats = @getimagesize( $ime_image_file );
-	if ( ! $old_stats ) {
+	$old_stats = wp_getimagesize( $ime_image_file );
+	if ( ! $old_stats || is_wp_error( $old_stats ) ) {
 		return $metadata;
 	}
 
@@ -518,15 +523,21 @@ function ime_im_php_resize( $old_file, $new_file, $width, $height, $crop, $resiz
  * ImageMagick executable handling
  */
 
+// Check if path is executable depending on OS
+function ime_is_executable($fullpath) {
+	$whereIsCommand = (PHP_OS == 'WINNT') ? 'where' : 'which';
+	return `$whereIsCommand $fullpath`;
+}
+
 // Do we have a valid ImageMagick executable set?
 function ime_im_cli_valid() {
 	$cmd = ime_im_cli_command();
-	return !empty($cmd) && @is_executable($cmd);
+	return !empty($cmd) && ime_is_executable($cmd);
 }
 
 // Test if we are allowed to exec executable!
 function ime_im_cli_check_executable($fullpath) {
-	if (!@is_executable($fullpath)) {
+	if (!ime_is_executable($fullpath)) {
 		return false;
 	}
 
@@ -762,6 +773,9 @@ function ime_ajax_process_image() {
 	set_time_limit( 60 );
 
 	$new_meta = ime_filter_attachment_metadata( $metadata, $id );
+	if ( is_wp_error( $new_meta ) ) {
+		die( '-1' );
+	}
 	wp_update_attachment_metadata( $id, $new_meta );
 
 	/*
@@ -1156,7 +1170,7 @@ function ime_option_page() {
 		<img id="cli_path_progress" src="<?php echo ime_option_admin_images_url(); ?>wpspin_light.gif" alt="<?php _e( 'Testing command...', 'qp-qie' ); ?>"  <?php ime_option_display( false ); ?> />
 		<input id="cli_path" type="text" name="cli_path" size="<?php echo max( 30, strlen( $cli_path ) + 5 ); ?>" value="<?php echo $cli_path; ?>" />
 		<input type="button" name="ime_cli_path_test" id="ime_cli_path_test" value="<?php _e( 'Test path', 'imagemagick-engine' ); ?>" class="button-secondary" />
-		<span <?php ime_option_display( $cli_path_ok ); ?>><br><br><?php echo ime_get_option( 'imagemagick_version' )[0]; ?></span>
+		<span <?php ime_option_display( $cli_path_ok ); ?>><br><br><?php if (ime_get_option( 'imagemagick_version' )) { echo ime_get_option( 'imagemagick_version' )[0]; } ?></span>
 			</td>
 		</tr>
 		<tr>
