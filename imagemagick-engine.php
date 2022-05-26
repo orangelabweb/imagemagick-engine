@@ -337,6 +337,11 @@ function ime_filter_attachment_metadata( $metadata, $attachment_id ) {
 		return $metadata;
 	}
 
+	// Make sure file exists on server
+	if ( ! $ime_image_file || ! file_exists( $ime_image_file ) ) {
+		return $metadata;
+	}
+
 	$editor = wp_get_image_editor( $ime_image_file );
 	if ( is_wp_error( $editor ) ) {
 		// Display a more helpful error message.
@@ -353,8 +358,8 @@ function ime_filter_attachment_metadata( $metadata, $attachment_id ) {
 	}
 
 	// Get size & image type of original image
-	$old_stats = @getimagesize( $ime_image_file );
-	if ( ! $old_stats ) {
+	$old_stats = wp_getimagesize( $ime_image_file );
+	if ( ! $old_stats || is_wp_error( $old_stats ) ) {
 		return $metadata;
 	}
 
@@ -768,6 +773,9 @@ function ime_ajax_process_image() {
 	set_time_limit( 60 );
 
 	$new_meta = ime_filter_attachment_metadata( $metadata, $id );
+	if ( is_wp_error( $new_meta ) ) {
+		die( '-1' );
+	}
 	wp_update_attachment_metadata( $id, $new_meta );
 
 	/*
