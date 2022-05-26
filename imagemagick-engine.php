@@ -8,7 +8,7 @@
 	Version: 1.7.2
 	Text Domain: imagemagick-engine
 
-	Copyright @ 2021 Orangelab AB
+	Copyright @ 2022 Orangelab AB
 
 	Licenced under the GNU GPL:
 
