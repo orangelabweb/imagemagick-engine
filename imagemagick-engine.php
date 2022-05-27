@@ -5,7 +5,7 @@
 	Description: Improve the quality of re-sized images by replacing standard GD library with ImageMagick
 	Author: Orangelab
 	Author URI: https://orangelab.com/
-	Version: 1.7.3
+	Version: 1.7.4
 	Text Domain: imagemagick-engine
 
 	Copyright @ 2022 Orangelab AB
@@ -526,7 +526,7 @@ function ime_im_php_resize( $old_file, $new_file, $width, $height, $crop, $resiz
 // Check if path is executable depending on OS
 function ime_is_executable($fullpath) {
 	$whereIsCommand = (PHP_OS == 'WINNT') ? 'where' : 'which';
-	return `$whereIsCommand $fullpath`;
+	return function_exists('shell_exec') ? `$whereIsCommand $fullpath` : @is_executable($fullpath);
 }
 
 // Do we have a valid ImageMagick executable set?
