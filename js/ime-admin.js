@@ -12,6 +12,7 @@ function imeTestPath() {
 	jQuery( '#cli_path_progress' ).show();
 	jQuery.get( ajaxurl, {
 	action: 'ime_test_im_path',
+	ime_nonce: ime_admin.ime_nonce,
 	cli_path: jQuery( '#cli_path' ).val()
 	}, function( data ) {
 	jQuery( '#cli_path_progress' ).hide();
@@ -65,7 +66,7 @@ rt_precision = 0;
 
 //Regeneration of progressbar
 function imeRegenImages( id ) {
-	jQuery.post( ajaxurl, { action: 'ime_process_image', id: id, sizes: rt_sizes, force: rt_force }, function( data ) {
+	jQuery.post( ajaxurl, { action: 'ime_process_image', ime_nonce: ime_admin.ime_nonce, id: id, sizes: rt_sizes, force: rt_force }, function( data ) {
 	var n = parseInt( data, 10 );
 	if ( isNaN( n ) ) {
 		alert( data );
@@ -105,7 +106,7 @@ return false;
 	spinner.show();
 
 	var message = jQuery( '#ime-message-' + id ).show();
-	jQuery.post( ajaxurl, { action: 'ime_process_image', id: id, sizes: sizes, force: force }, function( data ) {
+	jQuery.post( ajaxurl, { action: 'ime_process_image', ime_nonce: ime_admin.ime_nonce, id: id, sizes: sizes, force: force }, function( data ) {
 	spinner.hide();
 	link.removeClass( 'disabled' );
 
@@ -141,7 +142,7 @@ jQuery( document ).ready( function( $ ) {
 
 	$( '#regenerate-images' ).click( function() {
 		$( '#regenerate-images-metabox img.ajax-feedback' ).show();
-		$.post( ajaxurl, { action: 'ime_regeneration_get_images' }, function( data ) {
+		$.post( ajaxurl, { action: 'ime_regeneration_get_images', ime_nonce: ime_admin.ime_nonce, }, function( data ) {
 			jQuery( '#regen-message' ).addClass( 'hidden' );
 			rt_images = data.split( ',' );
 			rt_total = rt_images.length;

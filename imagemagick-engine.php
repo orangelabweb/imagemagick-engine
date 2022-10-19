@@ -5,7 +5,7 @@
 	Description: Improve the quality of re-sized images by replacing standard GD library with ImageMagick
 	Author: Orangelab
 	Author URI: https://orangelab.com/
-	Version: 1.7.4
+	Version: 1.7.5
 	Text Domain: imagemagick-engine
 
 	Copyright @ 2022 Orangelab AB
@@ -35,7 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Constants
  */
 define( 'IME_OPTION_VERSION', 1 );
-define( 'IME_VERSION', '1.7.3' );
+define( 'IME_VERSION', '1.7.5' );
 
 /*
  * Global variables
@@ -659,19 +659,19 @@ function ime_im_cli_resize( $old_file, $new_file, $width, $height, $crop, $resiz
 
 // Test if a path is correct for IM binary
 function ime_ajax_test_im_path() {
-	if ( ! current_user_can( 'manage_options' ) ) {
-		die();
+	if ( ! current_user_can( 'manage_options' ) || ! wp_verify_nonce( $_REQUEST['ime_nonce'], 'ime-admin-nonce') ) {
+		wp_die( 'Sorry, but you do not have permissions to perform this action.' );
 	}
 	$r = ime_im_cli_check_command( $_REQUEST['cli_path'] );
 	echo empty( $r ) ? '0' : '1';
-	die();
+	wp_die();
 }
 
 // Get list of attachments to regenerate
 function ime_ajax_regeneration_get_images() {
 	global $wpdb;
 
-	if ( ! current_user_can( 'manage_options' ) ) {
+	if ( ! current_user_can( 'manage_options' ) || ! wp_verify_nonce( $_REQUEST['ime_nonce'], 'ime-admin-nonce') ) {
 		wp_die( 'Sorry, but you do not have permissions to perform this action.' );
 	}
 
@@ -685,7 +685,7 @@ function ime_ajax_regeneration_get_images() {
 	}
 	$ids = implode( ',', $ids );
 
-	die( $ids );
+	wp_die( $ids );
 }
 
 // Process single attachment ID
@@ -694,26 +694,26 @@ function ime_ajax_process_image() {
 
 	error_reporting( E_ERROR | E_WARNING );
 
-	if ( ! current_user_can( 'manage_options' ) || ! ime_mode_valid() ) {
-		die( '-1' );
+	if ( ! current_user_can( 'manage_options' ) || ! ime_mode_valid() || ! wp_verify_nonce( $_REQUEST['ime_nonce'], 'ime-admin-nonce') ) {
+		wp_die( '-1' );
 	}
 
 	if ( ! isset( $_REQUEST['id'] ) ) {
-		die( '-1' );
+		wp_die( '-1' );
 	}
 
 	$id = intval( $_REQUEST['id'] );
 	if ( $id <= 0 ) {
-		die( '-1' );
+		wp_die( '-1' );
 	}
 
 	$temp_sizes = $_REQUEST['sizes'];
 	if ( empty( $temp_sizes ) ) {
-		die( '-1' );
+		wp_die( '-1' );
 	}
 	$temp_sizes = explode( '|', $temp_sizes );
 	if ( count( $temp_sizes ) < 1 ) {
-		die( '-1' );
+		wp_die( '-1' );
 	}
 
 	$temp_sizes = apply_filters( 'intermediate_image_sizes', $temp_sizes );
@@ -749,7 +749,7 @@ function ime_ajax_process_image() {
 	$ime_image_file = function_exists('wp_get_original_image_path') ? wp_get_original_image_path( $id ) : get_attached_file( $id );
 
 	if ( false === $ime_image_file || ! file_exists( $ime_image_file ) ) {
-		die( '-1' );
+		wp_die( '-1' );
 	}
 
 	$metadata = wp_get_attachment_metadata( $id );
@@ -764,7 +764,7 @@ function ime_ajax_process_image() {
 			}
 		}
 		if ( count( $sizes ) < 1 ) {
-			die( 1 );
+			wp_die( 1 );
 		}
 	}
 
@@ -774,7 +774,7 @@ function ime_ajax_process_image() {
 
 	$new_meta = ime_filter_attachment_metadata( $metadata, $id );
 	if ( is_wp_error( $new_meta ) ) {
-		die( '-1' );
+		wp_die( '-1' );
 	}
 	wp_update_attachment_metadata( $id, $new_meta );
 
@@ -790,7 +790,7 @@ function ime_ajax_process_image() {
 
 	// No old sizes, nothing to check
 	if ( ! isset( $metadata['sizes'] ) || empty( $metadata['sizes'] ) ) {
-		die( '1' );
+		wp_die( '1' );
 	}
 
 	$dir = trailingslashit( dirname( $ime_image_file ) );
@@ -815,7 +815,7 @@ function ime_ajax_process_image() {
 		@ unlink( $dir . $old_file );
 	}
 
-	die( '1' );
+	wp_die( '1' );
 }
 
 
@@ -844,6 +844,7 @@ function ime_admin_print_scripts() {
 		'processed_fmt' => __( 'Processed %d images', 'imagemagick-engine' ),
 		'failed'        => '<strong>' . __( 'Failed to resize image!', 'imagemagick-engine' ) . '</strong>',
 		'resized'       => __( 'Resized using ImageMagick Engine', 'imagemagick-engine' ),
+		'ime_nonce'     => wp_create_nonce('ime-admin-nonce'),
 	];
 	wp_localize_script( 'ime-admin', 'ime_admin', $data );
 }
