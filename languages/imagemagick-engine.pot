@@ -70,8 +70,7 @@ msgstr ""
 
 #: imagemagick-engine.php:924
 msgid ""
-"No valid ImageMagick mode found! Please check %sFAQ%s for installation "
-"instructions."
+"No valid ImageMagick mode found!"
 msgstr ""
 
 #: imagemagick-engine.php:928

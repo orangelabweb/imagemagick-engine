@@ -6,13 +6,13 @@ msgstr ""
 "PO-Revision-Date: \n"
 "Last-Translator: Johan Eenfeldt <johan@orangelab.se>\n"
 "Language-Team: \n"
-"Language: \n"
+"Language: sv_SE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.2.2\n"
 
-#: imagemagick-engine.php:55
-#: imagemagick-engine.php:1003
+#: imagemagick-engine.php:55 imagemagick-engine.php:1003
 msgid "Imagick PHP module"
 msgstr "Imagick PHP modul"
 
@@ -48,13 +48,11 @@ msgstr "Skalat om %d bilder"
 msgid "Failed to resize image!"
 msgstr "Kunde inte skala om bild!"
 
-#: imagemagick-engine.php:736
-#: imagemagick-engine.php:782
+#: imagemagick-engine.php:736 imagemagick-engine.php:782
 msgid "Resized using ImageMagick Engine"
 msgstr "Omskalad av ImageMagick Engine"
 
-#: imagemagick-engine.php:750
-#: imagemagick-engine.php:978
+#: imagemagick-engine.php:750 imagemagick-engine.php:978
 msgid "Settings"
 msgstr "Inställningar"
 
@@ -71,8 +69,8 @@ msgid "Settings updated"
 msgstr "Inställningar uppdaterade"
 
 #: imagemagick-engine.php:924
-msgid "No valid ImageMagick mode found! Please check %sFAQ%s for installation instructions."
-msgstr "Ingen fungerande ImageMagick-installation hittades! Se %sFAQ%s för instruktioner hur du installerar."
+msgid "No valid ImageMagick mode found!"
+msgstr "Ingen fungerande ImageMagick-installation hittades!"
 
 #: imagemagick-engine.php:928
 msgid "ImageMagick Engine is not enabled."
@@ -159,8 +157,13 @@ msgid "Optimize for size"
 msgstr "Vid optimering f&ouml;r storlek"
 
 #: imagemagick-engine.php:1025
-msgid "Set to 0-100. Higher value gives better image quality but larger file size. Leave empty for default value, computed dynamically."
-msgstr "S&auml;tt till 0-100. H&ouml;gre v&auml;rden ger b&auml;ttre bildkvalité men st&ouml;rre filstorlek. L&auml;mna tomt f&ouml;r automatiskt ber&auml;knat v&auml;rde."
+msgid ""
+"Set to 0-100. Higher value gives better image quality but larger file size. "
+"Leave empty for default value, computed dynamically."
+msgstr ""
+"S&auml;tt till 0-100. H&ouml;gre v&auml;rden ger b&auml;ttre bildkvalité men "
+"st&ouml;rre filstorlek. L&auml;mna tomt f&ouml;r automatiskt ber&auml;knat "
+"v&auml;rde."
 
 #: imagemagick-engine.php:1033
 msgid "Optimize for"
@@ -191,8 +194,12 @@ msgid "http://wp.orangelab.se/imagemagick-engine/"
 msgstr "http://wp.orangelab.se/imagemagick-engine/"
 
 #. Description of the plugin/theme
-msgid "Improve the quality of re-sized images by replacing standard GD library with ImageMagick"
-msgstr "Förbättra kvalitén på dina omskalade bilder genom att ersätta GD med ImageMagick"
+msgid ""
+"Improve the quality of re-sized images by replacing standard GD library with "
+"ImageMagick"
+msgstr ""
+"Förbättra kvalitén på dina omskalade bilder genom att ersätta GD med "
+"ImageMagick"
 
 #. Author of the plugin/theme
 msgid "Orangelab"

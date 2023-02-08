@@ -1,136 +1,228 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ImageMagick Engine 1.2.0\n"
-"POT-Creation-Date: \n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/imagemagick-engine\n"
+"POT-Creation-Date: 2012-10-15 09:40:54+00:00\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Dirk Rottig <office@xenprovide.de>\n"
 "Language-Team: Dirk Rottig <office@xenprovide.de>\n"
+"Language: de_DE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-Language: German\n"
-"X-Poedit-Country: GERMANY\n"
 "X-Poedit-SourceCharset: utf-8\n"
 "X-Poedit-KeywordsList: __;_e\n"
 "X-Poedit-Basepath: .\n"
 "X-Textdomain-Support: yes\n"
+"X-Generator: Poedit 3.2.2\n"
 "X-Poedit-SearchPath-0: .\n"
 
-msgid "Settings"
-msgstr "Einstellungen"
-
-msgid "Resized using ImageMagick Engine"
-msgstr "Das Bild wurde mit ImageMagick Engine optimiert"
-
-msgid "Thumbnail"
-msgstr "Miniaturbild"
-
-msgid "Medium"
-msgstr "Mittlere Bildgröße"
-
-msgid "Large"
-msgstr "Maximale Bildgröße"
-
-
-msgid "Settings updated"
-msgstr "Einstellungen aktualisiert"
-
-msgid "No valid ImageMagick mode found! Please check %sFAQ%s for installation instructions."
-msgstr "Kein ImageMagick Modus gefunden! Bitte lesen Sie die %sFAQ% für Hinweise zur Installation."
-
-msgid "ImageMagick Engine is not enabled."
-msgstr "ImageMagick ist nicht aktiviert."
-
-msgid "ImageMagick Engine Settings"
-msgstr "ImageMagick Engine Einstellungen"
-
-msgid "You dont have any images to regenerate"
-msgstr "Sie haben keine Bilder zum regenerieren"
-
-msgid "All done!"
-msgstr "Alles erledigt!"
-
-msgid "Processed"
-msgstr "Erledigt"
-
-msgid "images"
-msgstr "Bilder"
-
-msgid "Regenerate Images"
-msgstr "Regenerierte Bilder"
-
-msgid "Sizes"
-msgstr "Größen"
-
-msgid "ImageMagick images too"
-msgstr "auch ImageMagick Bilder"
-
-msgid "Resize will use standard WordPress functions."
-msgstr "Änderung nutzt WordPress Standard-Funktionen."
-
-msgid "Regenerate"
-msgstr "Regenerieren"
-
-msgid "(this can take a long time)"
-msgstr "(das kann eine Weile dauern)"
-
-msgid "Regenerating images"
-msgstr "Regeneriere Bilder"
-
-msgid "You must enable Javascript in order to proceed!"
-msgstr "Sie müssen Javascript aktivieren, um fortzufahren!"
-
-msgid "Enable enhanced image engine"
-msgstr "Aktiviere verbesserte Image Engine"
-
-msgid "Image engine"
-msgstr "Image engine"
-
+#: imagemagick-engine.php:55 imagemagick-engine.php:1003
 msgid "Imagick PHP module"
 msgstr "Imagick PHP Modul"
 
+#: imagemagick-engine.php:56
+#, fuzzy
+#| msgid "ImageMagick Engine"
+msgid "ImageMagick command-line"
+msgstr "ImageMagick Engine"
+
+#: imagemagick-engine.php:142
+msgid "Thumbnail"
+msgstr "Miniaturbild"
+
+#: imagemagick-engine.php:143
+msgid "Medium"
+msgstr "Mittlere Bildgröße"
+
+#: imagemagick-engine.php:144
+msgid "Large"
+msgstr "Maximale Bildgröße"
+
+#: imagemagick-engine.php:732
+msgid "You dont have any images to regenerate"
+msgstr "Sie haben keine Bilder zum regenerieren"
+
+#: imagemagick-engine.php:733
+msgid "All done!"
+msgstr "Alles erledigt!"
+
+#: imagemagick-engine.php:734
+#, fuzzy
+#| msgid "Processed"
+msgid "Processed %d images"
+msgstr "Erledigt"
+
+#: imagemagick-engine.php:735
+msgid "Failed to resize image!"
+msgstr ""
+
+#: imagemagick-engine.php:736 imagemagick-engine.php:782
+msgid "Resized using ImageMagick Engine"
+msgstr "Das Bild wurde mit ImageMagick Engine optimiert"
+
+#: imagemagick-engine.php:750 imagemagick-engine.php:978
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: imagemagick-engine.php:783
+msgid "Resize image"
+msgstr ""
+
+#: imagemagick-engine.php:787
+#, fuzzy
+#| msgid "Resized using ImageMagick Engine"
+msgid "Resize using ImageMagick Engine"
+msgstr "Das Bild wurde mit ImageMagick Engine optimiert"
+
+#: imagemagick-engine.php:881
+msgid "Settings updated"
+msgstr "Einstellungen aktualisiert"
+
+#: imagemagick-engine.php:924
+msgid "No valid ImageMagick mode found!"
+msgstr "Kein ImageMagick Modus gefunden!"
+
+#: imagemagick-engine.php:928
+msgid "ImageMagick Engine is not enabled."
+msgstr "ImageMagick ist nicht aktiviert."
+
+#: imagemagick-engine.php:933
+msgid "ImageMagick Engine Settings"
+msgstr "ImageMagick Engine Einstellungen"
+
+#: imagemagick-engine.php:940
+msgid "Regenerate Images"
+msgstr "Regenerierte Bilder"
+
+#: imagemagick-engine.php:945
+msgid "Sizes"
+msgstr "Größen"
+
+#: imagemagick-engine.php:955
+msgid "ImageMagick images too"
+msgstr "auch ImageMagick Bilder"
+
+#: imagemagick-engine.php:959
+msgid "Resize will use standard WordPress functions."
+msgstr "Änderung nutzt WordPress Standard-Funktionen."
+
+#: imagemagick-engine.php:961
+msgid "Regenerate"
+msgstr "Regenerieren"
+
+#: imagemagick-engine.php:961
+msgid "(this can take a long time)"
+msgstr "(das kann eine Weile dauern)"
+
+#: imagemagick-engine.php:964
+msgid "Regenerating images"
+msgstr "Regeneriere Bilder"
+
+#: imagemagick-engine.php:965
+msgid "You must enable Javascript in order to proceed!"
+msgstr "Sie müssen Javascript aktivieren, um fortzufahren!"
+
+#: imagemagick-engine.php:982
+msgid "Enable enhanced image engine"
+msgstr "Aktiviere verbesserte Image Engine"
+
+#: imagemagick-engine.php:988
+msgid "Image engine"
+msgstr "Image engine"
+
+#: imagemagick-engine.php:1006
 msgid "Imagick PHP module found"
 msgstr "Imagick PHP Modul gefunden"
 
+#: imagemagick-engine.php:1006
 msgid "Imagick PHP module not found"
 msgstr "Imagick PHP Modul nicht gefunden"
 
+#: imagemagick-engine.php:1010
 msgid "ImageMagick path"
 msgstr "ImageMagick Pfad"
 
+#: imagemagick-engine.php:1013
 msgid "Command not found"
 msgstr "Befehl nicht gefunden"
 
+#: imagemagick-engine.php:1014
 msgid "Testing command..."
 msgstr "Teste Befehl..."
 
+#: imagemagick-engine.php:1016
 msgid "Test path"
 msgstr "Teste Pfad"
 
+#: imagemagick-engine.php:1020
 msgid "ImageMagick quality"
 msgstr "ImageMagick Qualität"
 
-msgid "(0-100, leave empty for default value, computed dynamically)"
+#: imagemagick-engine.php:1022
+msgid "Optimize for quality"
+msgstr ""
+
+#: imagemagick-engine.php:1023
+msgid "Optimize for size"
+msgstr ""
+
+#: imagemagick-engine.php:1025
+#, fuzzy
+#| msgid "(0-100, leave empty for default value, computed dynamically)"
+msgid ""
+"Set to 0-100. Higher value gives better image quality but larger file size. "
+"Leave empty for default value, computed dynamically."
 msgstr "(0-100, leer lassen für Standardwert, wird dynamisch berechnet)"
 
-msgid "Handle sizes"
-msgstr "Größen verarbeiten"
+#: imagemagick-engine.php:1033
+msgid "Optimize for"
+msgstr ""
 
+#: imagemagick-engine.php:1034
+msgid "Quality"
+msgstr ""
+
+#: imagemagick-engine.php:1035
+#, fuzzy
+#| msgid "Sizes"
+msgid "Size"
+msgstr "Größen"
+
+#: imagemagick-engine.php:1036
+msgid "None (use WP instead)"
+msgstr ""
+
+#: imagemagick-engine.php:1066
 msgid "Save Changes"
 msgstr "Änderungen speichern"
 
+#. Plugin Name of the plugin/theme
 msgid "ImageMagick Engine"
 msgstr "ImageMagick Engine"
 
+#. Plugin URI of the plugin/theme
 msgid "http://wp.orangelab.se/imagemagick-engine/"
 msgstr "http://wp.orangelab.se/imagemagick-engine/"
 
-msgid "Improve the quality of re-sized images by replacing standard GD library with ImageMagick"
-msgstr "Verbessert die Qualität bei Bildskalierungen, indem die Standard GD Library in Wordpress mit ImageMagick ersetzt wird."
+#. Description of the plugin/theme
+msgid ""
+"Improve the quality of re-sized images by replacing standard GD library with "
+"ImageMagick"
+msgstr ""
+"Verbessert die Qualität bei Bildskalierungen, indem die Standard GD Library "
+"in Wordpress mit ImageMagick ersetzt wird."
 
+#. Author of the plugin/theme
 msgid "Orangelab"
 msgstr "Orangelab"
 
+#. Author URI of the plugin/theme
 msgid "http://www.orangelab.se"
 msgstr "http://www.orangelab.se"
 
+#~ msgid "images"
+#~ msgstr "Bilder"
+
+#~ msgid "Handle sizes"
+#~ msgstr "Größen verarbeiten"
