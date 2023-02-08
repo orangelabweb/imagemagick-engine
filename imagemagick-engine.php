@@ -662,7 +662,7 @@ function ime_ajax_test_im_path() {
 	if ( ! current_user_can( 'manage_options' ) || ! wp_verify_nonce( $_REQUEST['ime_nonce'], 'ime-admin-nonce') ) {
 		wp_die( 'Sorry, but you do not have permissions to perform this action.' );
 	}
-	$r = ime_im_cli_check_command( $_REQUEST['cli_path'] );
+	$r = ime_im_cli_check_command( @realpath( $_REQUEST['cli_path'] ) );
 	echo empty( $r ) ? '0' : '1';
 	wp_die();
 }
