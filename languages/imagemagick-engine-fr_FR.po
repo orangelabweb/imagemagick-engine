@@ -5,18 +5,17 @@ msgstr ""
 "Project-Id-Version: ImageMagick Engine 1.5.0\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/imagemagick-engine\n"
 "POT-Creation-Date: 2012-10-15 09:40:54+00:00\n"
+"PO-Revision-Date: 2023-02-08 15:21+0100\n"
+"Last-Translator: Damien Fabreguettes <damien.fa@gmail.com>\n"
+"Language-Team: Damien Fa (France) <damien@katorze.com>\n"
+"Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2012-10-24 15:23+0100\n"
-"Last-Translator: Damien Fabreguettes <damien.fa@gmail.com>\n"
-"Language-Team: Damien Fa (France) <damien@katorze.com>\n"
-"X-Poedit-Language: French\n"
-"X-Poedit-Country: FRANCE\n"
 "X-Poedit-SourceCharset: utf-8\n"
+"X-Generator: Poedit 3.2.2\n"
 
-#: imagemagick-engine.php:55
-#: imagemagick-engine.php:1003
+#: imagemagick-engine.php:55 imagemagick-engine.php:1003
 msgid "Imagick PHP module"
 msgstr "module PHP Imagick"
 
@@ -52,13 +51,11 @@ msgstr "%d images en cours de traitement..."
 msgid "Failed to resize image!"
 msgstr "Échec lors du procédé de redimension de l'image."
 
-#: imagemagick-engine.php:736
-#: imagemagick-engine.php:782
+#: imagemagick-engine.php:736 imagemagick-engine.php:782
 msgid "Resized using ImageMagick Engine"
 msgstr "Redimensionné via ImageMagick."
 
-#: imagemagick-engine.php:750
-#: imagemagick-engine.php:978
+#: imagemagick-engine.php:750 imagemagick-engine.php:978
 msgid "Settings"
 msgstr "Paramètres."
 
@@ -75,8 +72,8 @@ msgid "Settings updated"
 msgstr "Paramètres mis à jour"
 
 #: imagemagick-engine.php:924
-msgid "No valid ImageMagick mode found! Please check %sFAQ%s for installation instructions."
-msgstr "Aucun mode ImageMagick valide. Veuillez consulter la %sFAQ%s pour d'éventuels conseils d'installation."
+msgid "No valid ImageMagick mode found!"
+msgstr "Imagick PHP module trouvé"
 
 #: imagemagick-engine.php:928
 msgid "ImageMagick Engine is not enabled."
@@ -163,8 +160,12 @@ msgid "Optimize for size"
 msgstr "basé sur la taille"
 
 #: imagemagick-engine.php:1025
-msgid "Set to 0-100. Higher value gives better image quality but larger file size. Leave empty for default value, computed dynamically."
-msgstr "(valeur de 0 à 100, indice de qualité. Pour la valeur automatique, ne rien entrer dans le champ)."
+msgid ""
+"Set to 0-100. Higher value gives better image quality but larger file size. "
+"Leave empty for default value, computed dynamically."
+msgstr ""
+"(valeur de 0 à 100, indice de qualité. Pour la valeur automatique, ne rien "
+"entrer dans le champ)."
 
 #: imagemagick-engine.php:1033
 msgid "Optimize for"
@@ -179,7 +180,9 @@ msgid "Size"
 msgstr "Taille"
 
 #: imagemagick-engine.php:1036
-msgid "Skip (use WP instead)"
+#, fuzzy
+#| msgid "Skip (use WP instead)"
+msgid "None (use WP instead)"
 msgstr "Aucun (utiliser WordPress)"
 
 #: imagemagick-engine.php:1066
@@ -195,8 +198,12 @@ msgid "http://wp.orangelab.se/imagemagick-engine/"
 msgstr "http://wp.orangelab.se/imagemagick-engine/"
 
 #. Description of the plugin/theme
-msgid "Improve the quality of re-sized images by replacing standard GD library with ImageMagick"
-msgstr "Améliore la qualité de la retaille d'image en remplaçant l'utilisation de GD par celle d'ImageMagick."
+msgid ""
+"Improve the quality of re-sized images by replacing standard GD library with "
+"ImageMagick"
+msgstr ""
+"Améliore la qualité de la retaille d'image en remplaçant l'utilisation de GD "
+"par celle d'ImageMagick."
 
 #. Author of the plugin/theme
 msgid "Orangelab"
@@ -206,3 +213,9 @@ msgstr "Orangelab"
 msgid "http://www.orangelab.se"
 msgstr "http://www.orangelab.se"
 
+#~ msgid ""
+#~ "No valid ImageMagick mode found! Please check %sFAQ%s for installation "
+#~ "instructions."
+#~ msgstr ""
+#~ "Aucun mode ImageMagick valide. Veuillez consulter la %sFAQ%s pour "
+#~ "d'éventuels conseils d'installation."

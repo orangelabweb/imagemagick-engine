@@ -5,16 +5,16 @@ msgstr ""
 "Project-Id-Version: ImageMagick Engine 1.5.0\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/imagemagick-engine\n"
 "POT-Creation-Date: 2012-10-15 09:40:54+00:00\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2020-06-22 16:35+0000\n"
+"PO-Revision-Date: 2023-02-08 15:21+0100\n"
 "Last-Translator: Haydar ŞAHİN\n"
 "Language-Team: Türkçe\n"
 "Language: tr_TR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Loco https://localise.biz/\n"
-"X-Loco-Version: 2.4.0; wp-5.4.2"
+"X-Generator: Poedit 3.2.2\n"
+"X-Loco-Version: 2.4.0; wp-5.4.2\n"
 
 #: imagemagick-engine.php:55 imagemagick-engine.php:1003
 msgid "Imagick PHP module"
@@ -46,7 +46,7 @@ msgstr "Tamamlandı!"
 
 #: imagemagick-engine.php:734
 msgid "Processed %d images"
-msgstr "%d görsel işlendi."
+msgstr "%d görsel işlendi"
 
 #: imagemagick-engine.php:735
 msgid "Failed to resize image!"
@@ -73,16 +73,12 @@ msgid "Settings updated"
 msgstr "Ayarlar güncellendi"
 
 #: imagemagick-engine.php:924
-msgid ""
-"No valid ImageMagick mode found! Please check %sFAQ%s for installation "
-"instructions."
-msgstr ""
-"Geçerli bir ImageMagick modu bulunamadı! Kurulum talimatları için% sFAQ% s."
-"'a bakın."
+msgid "No valid ImageMagick mode found!"
+msgstr "Imagick PHP modülü bulundu!"
 
 #: imagemagick-engine.php:928
 msgid "ImageMagick Engine is not enabled."
-msgstr "ImageMagick Engine etkin değil. "
+msgstr "ImageMagick Engine etkin değil."
 
 #: imagemagick-engine.php:933
 msgid "ImageMagick Engine Settings"
@@ -216,3 +212,10 @@ msgstr "Orangelab"
 #. Author URI of the plugin/theme
 msgid "http://www.orangelab.se"
 msgstr "http://www.orangelab.se"
+
+#~ msgid ""
+#~ "No valid ImageMagick mode found! Please check %sFAQ%s for installation "
+#~ "instructions."
+#~ msgstr ""
+#~ "Geçerli bir ImageMagick modu bulunamadı! Kurulum talimatları için% sFAQ% "
+#~ "s.'a bakın."
