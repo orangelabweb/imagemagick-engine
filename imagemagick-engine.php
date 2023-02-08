@@ -537,7 +537,7 @@ function ime_im_cli_valid() {
 
 // Test if we are allowed to exec executable!
 function ime_im_cli_check_executable($fullpath) {
-	if (!ime_is_executable($fullpath)) {
+	if ( ! ime_is_executable($fullpath) || ! function_exists('exec') ) {
 		return false;
 	}
 
@@ -1070,7 +1070,7 @@ function ime_option_page() {
 
 	if ( ! $any_valid ) {
 		echo '<div id="warning" class="error"><p>'
-			. sprintf( __( 'No valid ImageMagick mode found! Please check %1$sFAQ%2$s for installation instructions.', 'imagemagick-engine' ), '<a href="http://wp.orangelab.se/imagemagick-engine/documentation#installation">', '</a>' )
+			. __( 'No valid ImageMagick mode found!', 'imagemagick-engine' )
 			. '</p></div>';
 	} elseif ( ! $enabled ) {
 		echo '<div id="warning" class="error"><p>'
