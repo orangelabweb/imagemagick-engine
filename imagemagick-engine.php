@@ -5,10 +5,10 @@
 	Description: Improve the quality of re-sized images by replacing standard GD library with ImageMagick
 	Author: Orangelab
 	Author URI: https://orangelab.com/
-	Version: 1.7.7
+	Version: 1.7.8
 	Text Domain: imagemagick-engine
 
-	Copyright @ 2022 Orangelab AB
+	Copyright @ 2024 Orangelab AB
 
 	Licenced under the GNU GPL:
 
@@ -35,13 +35,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Constants
  */
 define( 'IME_OPTION_VERSION', 1 );
-define( 'IME_VERSION', '1.7.7' );
+define( 'IME_VERSION', '1.7.8' );
 
 /*
  * Global variables
  */
 
 // Plugin options default values -- change on plugin admin page
+global $ime_options_default;
 $ime_options_default = [
 	'enabled'      => false,
 	'mode'         => null,
@@ -177,7 +178,7 @@ function ime_setup_options() {
 	// No stored options yet?
 	if ( ! is_array( $ime_options ) ) {
 		global $ime_options_default;
-		$ime_options = $ime_options_default;
+		$ime_options = $ime_options_default ?? array();
 	}
 
 	// Do we need to upgrade options?
