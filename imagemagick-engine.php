@@ -42,6 +42,7 @@ define( 'IME_VERSION', '1.7.7' );
  */
 
 // Plugin options default values -- change on plugin admin page
+global $ime_options_default;
 $ime_options_default = [
 	'enabled'      => false,
 	'mode'         => null,
