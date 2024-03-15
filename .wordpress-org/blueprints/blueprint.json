@@ -1,0 +1,23 @@
+{
+    "landingPage": "/wp-admin/options-general.php?page=imagemagick-engine",
+    "preferredVersions": {
+        "php": "8.2",
+    },
+    "phpExtensionBundles": [
+        "kitchen-sink"
+    ],
+    "steps": [
+        {
+            "step": "installPlugin",
+            "pluginZipFile": {
+                "resource": "wordpress.org/plugins",
+                "slug": "imagemagick-engine"
+            }
+        },
+        {
+            "step": "login",
+            "username": "admin",
+            "password": "password"
+        }
+    ]
+}
