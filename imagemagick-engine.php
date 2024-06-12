@@ -5,7 +5,7 @@
 	Description: Improve the quality of re-sized images by replacing standard GD library with ImageMagick
 	Author: Orangelab
 	Author URI: https://orangelab.com/
-	Version: 1.7.8
+	Version: 1.7.9
 	Text Domain: imagemagick-engine
 
 	Copyright @ 2024 Orangelab AB
@@ -35,7 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Constants
  */
 define( 'IME_OPTION_VERSION', 1 );
-define( 'IME_VERSION', '1.7.8' );
+define( 'IME_VERSION', '1.7.9' );
 
 /*
  * Global variables
@@ -544,9 +544,15 @@ function ime_im_cli_check_executable($fullpath) {
 
 	@exec( '"' . $fullpath . '" --version', $output );
 
-	ime_set_option( 'imagemagick_version', $output, true );
+	if ( is_array($output) && (count( $output ) > 0) ) {
+		preg_match('/ImageMagick ([0-9]+\.[0-9]+\.[0-9]+)/', $output[0], $im_version);
 
-	return (is_array($output)) ? (count( $output ) > 0) : false;
+		ime_set_option( 'imagemagick_version', $im_version[1], true );
+
+		return true;
+	}
+
+	return false;
 }
 
 /*
@@ -564,28 +570,31 @@ function ime_try_realpath( $path ) {
 }
 
 // Check if path leads to ImageMagick executable
-function ime_im_cli_check_command( $path, $executable = 'convert' ) {
+function ime_im_cli_check_command( $path ) {
 	$path = ime_try_realpath( $path );
+	$executables = [ 'magick', 'convert' ];
 
-	$cmd = $path . '/' . $executable;
-	if ( ime_im_cli_check_executable( $cmd ) ) {
-		return $cmd;
-	}
+	foreach ( $executables as $executable ) {
+		$cmd = $path . '/' . $executable;
+		if ( ime_im_cli_check_executable( $cmd ) ) {
+			return $cmd;
+		}
 
-	$cmd = $cmd . '.exe';
-	if ( ime_im_cli_check_executable( $cmd ) ) {
-		return $cmd;
+		$cmd = $cmd . '.exe';
+		if ( ime_im_cli_check_executable( $cmd ) ) {
+			return $cmd;
+		}
 	}
 
 	return null;
 }
 
 // Try to find a valid ImageMagick executable
-function ime_im_cli_find_command( $executable = 'convert' ) {
+function ime_im_cli_find_command() {
 	$possible_paths = [ '/usr/bin', '/usr/local/bin' ];
 
 	foreach ( $possible_paths as $path ) {
-		if ( ime_im_cli_check_command( $path, $executable ) ) {
+		if ( ime_im_cli_check_command( $path ) ) {
 			return $path;
 		}
 	}
@@ -594,18 +603,18 @@ function ime_im_cli_find_command( $executable = 'convert' ) {
 }
 
 // Get ImageMagick executable
-function ime_im_cli_command( $executable = 'convert' ) {
+function ime_im_cli_command() {
 	$path = ime_get_option( 'cli_path' );
 	if ( ! empty( $path ) ) {
-		return ime_im_cli_check_command( $path, $executable );
+		return ime_im_cli_check_command( $path );
 	}
 
-	$path = ime_im_cli_find_command( $executable );
+	$path = ime_im_cli_find_command();
 	if ( empty( $path ) ) {
 		return null;
 	}
 	ime_set_option( 'cli_path', $path, true );
-	return ime_im_cli_check_command( $path, $executable );
+	return ime_im_cli_check_command( $path );
 }
 
 // Check if we are running under Windows (which differs for character escape)
@@ -1172,7 +1181,7 @@ function ime_option_page() {
 		<img id="cli_path_progress" src="<?php echo ime_option_admin_images_url(); ?>wpspin_light.gif" alt="<?php _e( 'Testing command...', 'qp-qie' ); ?>"  <?php ime_option_display( false ); ?> />
 		<input id="cli_path" type="text" name="cli_path" size="<?php echo max( 30, strlen( $cli_path ) + 5 ); ?>" value="<?php echo $cli_path; ?>" />
 		<input type="button" name="ime_cli_path_test" id="ime_cli_path_test" value="<?php _e( 'Test path', 'imagemagick-engine' ); ?>" class="button-secondary" />
-		<span <?php ime_option_display( $cli_path_ok ); ?>><br><br><?php if (ime_get_option( 'imagemagick_version' )) { echo ime_get_option( 'imagemagick_version' )[0]; } ?></span>
+		<span <?php ime_option_display( $cli_path_ok ); ?>><br><br><?php if (ime_get_option( 'imagemagick_version' )) { echo 'ImageMagick version ' . ime_get_option( 'imagemagick_version' ); } ?></span>
 			</td>
 		</tr>
 		<tr>
