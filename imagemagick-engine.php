@@ -565,9 +565,9 @@ function ime_im_cli_check_executable($fullpath) {
 function ime_try_realpath( $path ) {
 	$realpath = @realpath( $path );
 	if ( $realpath ) {
-		return $realpath;
+		return escapeshellcmd( $realpath );
 	} else {
-		return str_replace([';', ' ', '=', '`'], '', $path);
+		return str_replace([';', ' ', '=', '`'], '', escapeshellcmd( $path ));
 	}
 }
 
