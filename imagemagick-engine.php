@@ -7,6 +7,7 @@
 	Author URI: https://orangelab.com/
 	Version: 1.7.9
 	Text Domain: imagemagick-engine
+	License: GPLv2 or later
 
 	Copyright @ 2024 Orangelab AB
 
@@ -35,7 +36,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Constants
  */
 define( 'IME_OPTION_VERSION', 1 );
-define( 'IME_VERSION', '1.7.9' );
+define( 'IME_VERSION', '1.7.11' );
 
 /*
  * Global variables
@@ -107,7 +108,8 @@ function ime_init() {
 		add_action( 'wp_ajax_ime_process_image', 'ime_ajax_process_image' );
 		add_action( 'wp_ajax_ime_regeneration_get_images', 'ime_ajax_regeneration_get_images' );
 
-		wp_register_script( 'ime-admin', plugins_url( '/js/ime-admin.js', __FILE__ ), [ 'jquery', 'jquery-ui-progressbar' ], constant('IME_VERSION') );
+        wp_register_script( 'alpinejs', 'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js', [], constant('IME_VERSION'), ['strategy' => 'defer'] );
+		wp_register_script( 'ime-admin', plugins_url( '/js/ime-admin.js', __FILE__ ), [ 'jquery', 'jquery-ui-progressbar', 'alpinejs' ], constant('IME_VERSION') );
 	}
 }
 
@@ -563,9 +565,9 @@ function ime_im_cli_check_executable($fullpath) {
 function ime_try_realpath( $path ) {
 	$realpath = @realpath( $path );
 	if ( $realpath ) {
-		return $realpath;
+		return escapeshellcmd( $realpath );
 	} else {
-		return $path;
+		return str_replace([';', ' ', '=', '`'], '', escapeshellcmd( $path ));
 	}
 }
 
@@ -669,7 +671,7 @@ function ime_im_cli_resize( $old_file, $new_file, $width, $height, $crop, $resiz
 
 // Test if a path is correct for IM binary
 function ime_ajax_test_im_path() {
-	if ( ! current_user_can( 'manage_options' ) || ! wp_verify_nonce( $_REQUEST['ime_nonce'], 'ime-admin-nonce') ) {
+	if ( ! current_user_can( 'install_plugins' ) || ! wp_verify_nonce( $_REQUEST['ime_nonce'], 'ime-admin-nonce') ) {
 		wp_die( 'Sorry, but you do not have permissions to perform this action.' );
 	}
 	$r = ime_im_cli_check_command( @realpath( $_REQUEST['cli_path'] ) );
@@ -962,7 +964,7 @@ function ime_option_display( $display = true, $echo = true ) {
 function ime_option_page() {
 	global $ime_available_modes, $ime_available_quality_modes;
 
-	if ( ! current_user_can( 'manage_options' ) ) {
+	if ( ! current_user_can( 'install_plugins' ) ) {
 		wp_die( 'Sorry, but you do not have permissions to change settings.' );
 	}
 
