@@ -36,7 +36,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Constants
  */
 define( 'IME_OPTION_VERSION', 1 );
-define( 'IME_VERSION', '1.7.10' );
+define( 'IME_VERSION', '1.7.11' );
 
 /*
  * Global variables
