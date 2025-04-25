@@ -5,11 +5,11 @@
 	Description: Improve the quality of re-sized images by replacing standard GD library with ImageMagick
 	Author: Orangelab
 	Author URI: https://orangelab.com/
-	Version: 1.7.13
+	Version: 1.8.0
 	Text Domain: imagemagick-engine
 	License: GPLv2 or later
 
-	Copyright @ 2024 Orangelab AB
+	Copyright @ 2025 Orangelab AB
 
 	Licenced under the GNU GPL:
 
@@ -29,14 +29,14 @@
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	die( 'Must not be called directly' );
+	exit();
 }
 
 /*
  * Constants
  */
 define( 'IME_OPTION_VERSION', 1 );
-define( 'IME_VERSION', '1.7.13' );
+define( 'IME_VERSION', '1.8.0' );
 
 /*
  * Global variables
@@ -61,12 +61,6 @@ $ime_options_default = [
 	'interlace'    => false,
 	'quality'      => '',
 	'version'      => constant( 'IME_OPTION_VERSION' ),
-];
-
-// Available modes
-$ime_available_modes = [
-	'php' => __( 'Imagick PHP module', 'imagemagick-engine' ),
-	'cli' => __( 'ImageMagick command-line', 'imagemagick-engine' ),
 ];
 
 // Available quality modes
@@ -97,8 +91,6 @@ function ime_init_early() {
 
 /* Plugin setup */
 function ime_init() {
-    load_plugin_textdomain( 'imagemagick-engine', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
-
 	if ( is_admin() ) {
 		add_action( 'admin_menu', 'ime_admin_menu' );
 		add_filter( 'plugin_action_links', 'ime_filter_plugin_actions', 10, 2 );
@@ -948,6 +940,14 @@ function ime_option_status_icon( $yes = true ) {
 	return ime_option_admin_images_url() . ( $yes ? 'yes' : 'no' ) . '.png';
 }
 
+// Define available modes
+function ime_get_available_modes(): array {
+    return array(
+        'php' => __( 'Imagick PHP module', 'imagemagick-engine' ),
+        'cli' => __( 'ImageMagick command-line', 'imagemagick-engine' ),
+    );
+}
+
 // Display, or not
 function ime_option_display( $display = true, $echo = true ) {
 	if ( $display ) {
@@ -962,7 +962,7 @@ function ime_option_display( $display = true, $echo = true ) {
 
 /* Plugin admin / status page */
 function ime_option_page() {
-	global $ime_available_modes, $ime_available_quality_modes;
+	global $ime_available_quality_modes;
 
 	if ( ! current_user_can( 'install_plugins' ) ) {
 		wp_die( 'Sorry, but you do not have permissions to change settings.' );
@@ -984,7 +984,7 @@ function ime_option_page() {
 	if ( isset( $_POST['update_settings'] ) ) {
 		$new_enabled = isset( $_POST['enabled'] ) && ! ! $_POST['enabled'];
 		ime_set_option( 'enabled', $new_enabled );
-		if ( isset( $_POST['mode'] ) && array_key_exists( $_POST['mode'], $ime_available_modes ) ) {
+		if ( isset( $_POST['mode'] ) && array_key_exists( $_POST['mode'], ime_get_available_modes() ) ) {
 			ime_set_option( 'mode', $_POST['mode'] );
 		}
 		if ( isset( $_POST['cli_path'] ) ) {
@@ -1034,7 +1034,7 @@ function ime_option_page() {
 			. '</p></div>';
 	}
 
-	$modes_valid = $ime_available_modes;
+	$modes_valid = ime_get_available_modes();
 	$any_valid   = false;
 	foreach ( $modes_valid as $m => $ignore ) {
 		$modes_valid[ $m ] = ime_mode_valid( $m );
@@ -1162,7 +1162,7 @@ function ime_option_page() {
 				if ( $m == $current_mode ) {
 					echo ' selected=selected ';
 				}
-				echo '>' . $ime_available_modes[ $m ] . '</option>';
+				echo '>' . ime_get_available_modes()[ $m ] . '</option>';
 			}
 			?>
 		</select>
