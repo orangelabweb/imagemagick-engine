@@ -99,8 +99,7 @@ function ime_init() {
         add_action( 'wp_ajax_ime_process_image', 'ime_ajax_process_image' );
         add_action( 'wp_ajax_ime_regeneration_get_images', 'ime_ajax_regeneration_get_images' );
 
-        wp_register_script( 'alpinejs', 'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js', [], constant('IME_VERSION'), ['strategy' => 'defer'] );
-        wp_register_script( 'ime-admin', plugins_url( '/js/ime-admin.js', __FILE__ ), [ 'jquery', 'jquery-ui-progressbar', 'alpinejs' ], constant('IME_VERSION') );
+        wp_register_script( 'ime-admin', plugins_url( '/js/ime-admin.js', __FILE__ ), [ 'jquery', 'jquery-ui-progressbar' ], constant('IME_VERSION') );
     }
 }
 
@@ -842,6 +841,8 @@ function ime_admin_menu() {
 function ime_admin_print_scripts() {
     wp_enqueue_script( 'ime-admin' );
 
+    echo '<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>';
+
     $data = [
         'noimg'         => __( 'You dont have any images to regenerate', 'imagemagick-engine' ),
         'done'          => __( 'All done!', 'imagemagick-engine' ),
@@ -1102,7 +1103,7 @@ function ime_option_page() {
             </div>
         </div>
 
-        <form action="options-general.php?page=imagemagick-engine" method="post" name="update_options" x-data="{ enabled: <?php echo $enabled ? 'true' : 'false'; ?> }">
+        <form action="options-general.php?page=imagemagick-engine" method="post" name="update_options" x-data="ime">
             <?php wp_nonce_field( 'ime-options' ); ?>
             <div id="poststuff" class="metabox-holder has-right-sidebar">
                 <div class="inner-sidebar">
@@ -1258,6 +1259,13 @@ function ime_option_page() {
                 </div>
         </form>
     </div>
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('ime', () => ({
+                enabled: <?php echo $enabled ? 'true' : 'false'; ?>
+            }))
+        })
+    </script>
     <?php
 }
 ?>
