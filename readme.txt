@@ -3,7 +3,7 @@ Contributors: rickardw, orangelab
 Tags: image, picture, imagemagick, gd, regenerate
 Requires at least: 5.0
 Tested up to: 6.8.0
-Stable tag: 1.8.0
+Stable tag: 1.7.14
 License: GPLv2 or later
 
 Improve the quality of re-sized images by replacing standard GD library with ImageMagick.
