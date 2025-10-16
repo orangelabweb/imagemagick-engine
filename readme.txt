@@ -1,9 +1,9 @@
 === ImageMagick Engine ===
 Contributors: rickardw, orangelab
 Tags: image, picture, imagemagick, gd, regenerate
-Requires at least: 3.0
-Tested up to: 6.7.0
-Stable tag: 1.7.13
+Requires at least: 5.0
+Tested up to: 6.8.3
+Stable tag: 1.7.14
 License: GPLv2 or later
 
 Improve the quality of re-sized images by replacing standard GD library with ImageMagick.
@@ -60,20 +60,14 @@ Most Linux distributions have a package for "ImageMagick". Some have a package f
 
 You can also find binary releases at http://www.imagemagick.org including a Windows installer.
 
-= I get a fatal error when activating plugin =
-
-Some webhosts (1and1 for example) need to add a work-around to the .htaccess file.
-
-You might have to add the following line to your .htaccess file:
-AddType x-mapp-php5 .php
-
-You'll probably have problems with various other plugins too unless you fix this.
-
 == Screenshots ==
 
 1. Administration interface
 
 == Changelog ==
+
+= 1.7.14 =
+* Fix how translations was loaded again
 
 = 1.7.13 =
 * Fix how translations was loaded
