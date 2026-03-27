@@ -9,21 +9,23 @@ var rt_sizes = '';
 // Ajax test IM path
 function imeTestPath() {
 	jQuery( '.cli_path_icon' ).hide();
+	jQuery( '#cli_path_error' ).hide();
 	jQuery( '#cli_path_progress' ).show();
 	jQuery.get( ajaxurl, {
-	action: 'ime_test_im_path',
-	ime_nonce: ime_admin.ime_nonce,
-	cli_path: jQuery( '#cli_path' ).val()
+		action: 'ime_test_im_path',
+		ime_nonce: ime_admin.ime_nonce,
+		cli_path: jQuery( '#cli_path' ).val()
 	}, function( data ) {
-	jQuery( '#cli_path_progress' ).hide();
-	r = parseInt( data );
-	if ( r > 0 ) {
-		jQuery( '#cli_path_yes' ).show();
-		jQuery( '#cli_path_no' ).hide();
-	} else {
-		jQuery( '#cli_path_yes' ).hide();
-		jQuery( '#cli_path_no' ).show();
-	}
+		jQuery( '#cli_path_progress' ).hide();
+		if ( data && data.found ) {
+			jQuery( '#cli_path_yes' ).show();
+			jQuery( '#cli_path_no' ).hide();
+		} else {
+			jQuery( '#cli_path_yes' ).hide();
+			jQuery( '#cli_path_no' ).show();
+			var msg = ( data && data.open_basedir ) ? ime_admin.path_open_basedir : ime_admin.path_not_found;
+			jQuery( '#cli_path_error' ).text( msg ).show();
+		}
 	} );
 }
 
@@ -122,23 +124,14 @@ alert( data );
 	} );
 }
 
-function imeUpdateMode() {
-	jQuery( '#ime-select-mode option' ).each( function( i, e ) {
-	var o = jQuery( this );
-	var mode = o.val();
-	if ( o.is( ':selected' ) ) {
-jQuery( '#ime-row-' + mode ).show();
-} else {
-jQuery( '#ime-row-' + mode ).hide();
-}
-	} );
-}
-
 jQuery( document ).ready( function( $ ) {
 	jQuery( '#ime_cli_path_test' ).click( imeTestPath );
 
-	imeUpdateMode();
-	jQuery( '#ime-select-mode' ).change( imeUpdateMode );
+	jQuery( document ).on( 'click', '.ime-regen-button', function( e ) {
+		e.preventDefault();
+		var el = jQuery( this );
+		imeRegenMediaImage( el.data( 'post-id' ), el.data( 'sizes' ), el.data( 'force' ) );
+	} );
 
 	$( '#regenerate-images' ).click( function() {
 		$( '#regenerate-images-metabox img.ajax-feedback' ).show();
