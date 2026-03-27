@@ -3,9 +3,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ImageMagick Engine 1.5.0\n"
-"Report-Msgid-Bugs-To: http://wordpress.org/tag/imagemagick-engine\n"
-"POT-Creation-Date: 2012-10-15 09:40:54+00:00\n"
-"PO-Revision-Date: 2023-02-08 15:21+0100\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/imagemagick-"
+"engine\n"
+"POT-Creation-Date: 2026-03-27T13:33:27+00:00\n"
+"PO-Revision-Date: 2026-03-27 14:39+0100\n"
 "Last-Translator: Damien Fabreguettes <damien.fa@gmail.com>\n"
 "Language-Team: Damien Fa (France) <damien@katorze.com>\n"
 "Language: fr_FR\n"
@@ -13,153 +14,221 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 3.2.2\n"
+"X-Generator: Poedit 3.9\n"
 
-#: imagemagick-engine.php:55 imagemagick-engine.php:1003
-msgid "Imagick PHP module"
-msgstr "module PHP Imagick"
+#. Plugin Name of the plugin
+#: imagemagick-engine.php
+msgid "ImageMagick Engine"
+msgstr "ImageMagick Engine"
 
-#: imagemagick-engine.php:56
-msgid "ImageMagick command-line"
-msgstr "Ligne de commande Image Magick"
+#. Plugin URI of the plugin
+#: imagemagick-engine.php
+msgid "https://wordpress.org/plugins/imagemagick-engine/"
+msgstr "https://wordpress.org/plugins/imagemagick-engine/"
 
-#: imagemagick-engine.php:142
-msgid "Thumbnail"
-msgstr "Miniature"
+#. Description of the plugin
+#: imagemagick-engine.php
+msgid ""
+"Improve the quality of re-sized images by replacing standard GD library with "
+"ImageMagick"
+msgstr ""
+"Améliorer la qualité des images redimensionnées en remplaçant la "
+"bibliothèque GD standard par ImageMagick"
 
-#: imagemagick-engine.php:143
-msgid "Medium"
-msgstr "Medium"
+#. Author of the plugin
+#: imagemagick-engine.php
+msgid "Orangelab"
+msgstr "Orangelab"
 
-#: imagemagick-engine.php:144
-msgid "Large"
-msgstr "Grand"
+#. Author URI of the plugin
+#: imagemagick-engine.php
+msgid "https://orangelab.com/"
+msgstr "https://orangelab.com/"
 
-#: imagemagick-engine.php:732
+#: imagemagick-engine.php:1068
 msgid "You dont have any images to regenerate"
-msgstr "Il n'y a aucune image à regénérer."
+msgstr "Il n'y a aucune image à regénérer"
 
-#: imagemagick-engine.php:733
+#: imagemagick-engine.php:1069
 msgid "All done!"
-msgstr "Terminé."
+msgstr "C'est fait !"
 
-#: imagemagick-engine.php:734
+#: imagemagick-engine.php:1070
+#, php-format
 msgid "Processed %d images"
-msgstr "%d images en cours de traitement..."
+msgstr "Images %d en cours de traitement"
 
-#: imagemagick-engine.php:735
+#: imagemagick-engine.php:1071
 msgid "Failed to resize image!"
-msgstr "Échec lors du procédé de redimension de l'image."
+msgstr "Échec lors du procédé de redimension de l'image!"
 
-#: imagemagick-engine.php:736 imagemagick-engine.php:782
+#: imagemagick-engine.php:1072 imagemagick-engine.php:1124
 msgid "Resized using ImageMagick Engine"
-msgstr "Redimensionné via ImageMagick."
+msgstr "Redimensionné via ImageMagick"
 
-#: imagemagick-engine.php:750 imagemagick-engine.php:978
+#: imagemagick-engine.php:1074
+#, php-format
+msgid "%s not found at this path."
+msgstr "%s introuvable à cet emplacement."
+
+#: imagemagick-engine.php:1075
+#, php-format
+msgid ""
+"%s not found. Your PHP open_basedir setting is restricting access to this "
+"path. Add the path to your open_basedir configuration."
+msgstr ""
+"%s introuvable. Votre paramètre PHP open_basedir restreint l'accès à ce "
+"chemin. Ajoutez ce chemin à votre configuration open_basedir."
+
+#: imagemagick-engine.php:1089
 msgid "Settings"
-msgstr "Paramètres."
+msgstr "Réglages"
 
-#: imagemagick-engine.php:783
+#: imagemagick-engine.php:1125
 msgid "Resize image"
 msgstr "Redimensionner une image"
 
-#: imagemagick-engine.php:787
+#: imagemagick-engine.php:1129
 msgid "Resize using ImageMagick Engine"
 msgstr "Redimensionner via ImageMagick"
 
-#: imagemagick-engine.php:881
+#: imagemagick-engine.php:1166 imagemagick-engine.php:1407
+msgid "Imagick PHP module"
+msgstr "module PHP Imagick"
+
+#: imagemagick-engine.php:1167 imagemagick-engine.php:1414
+msgid "Gmagick PHP module"
+msgstr "Module PHP Gmagick"
+
+#: imagemagick-engine.php:1168
+msgid "ImageMagick command-line"
+msgstr "Ligne de commande Image Magick"
+
+#: imagemagick-engine.php:1169
+msgid "GraphicsMagick command-line"
+msgstr "Ligne de commande de GraphicsMagick"
+
+#: imagemagick-engine.php:1263
 msgid "Settings updated"
 msgstr "Paramètres mis à jour"
 
-#: imagemagick-engine.php:924
+#: imagemagick-engine.php:1322
 msgid "No valid ImageMagick mode found!"
-msgstr "Imagick PHP module trouvé"
+msgstr "Imagick PHP module trouvé!"
 
-#: imagemagick-engine.php:928
+#: imagemagick-engine.php:1326
 msgid "ImageMagick Engine is not enabled."
 msgstr "\"ImageMagick Engine\" n'est pas activé."
 
-#: imagemagick-engine.php:933
+#: imagemagick-engine.php:1332
 msgid "ImageMagick Engine Settings"
 msgstr "Paramètres de ImageMagick"
 
-#: imagemagick-engine.php:940
-msgid "Regenerate Images"
-msgstr "Regénérer les images."
-
-#: imagemagick-engine.php:945
-msgid "Sizes"
-msgstr "Tailles"
-
-#: imagemagick-engine.php:955
-msgid "ImageMagick images too"
-msgstr "Inclure les images ImageMagick "
-
-#: imagemagick-engine.php:959
-msgid "Resize will use standard WordPress functions."
-msgstr "Retaillera en utilisant les fonctions standards de Wordpress."
-
-#: imagemagick-engine.php:961
-msgid "Regenerate"
-msgstr "Regénérer"
-
-#: imagemagick-engine.php:961
-msgid "(this can take a long time)"
-msgstr "(cela peut prendre quelques minutes)"
-
-#: imagemagick-engine.php:964
+#: imagemagick-engine.php:1333 imagemagick-engine.php:1335
 msgid "Regenerating images"
 msgstr "Traitement des images en cours"
 
-#: imagemagick-engine.php:965
+#: imagemagick-engine.php:1334
 msgid "You must enable Javascript in order to proceed!"
-msgstr "Il est nécéssaire d'activer le Javascript pour continuer."
+msgstr "Il est nécéssaire d'activer le Javascript pour continuer!"
 
-#: imagemagick-engine.php:982
-msgid "Enable enhanced image engine"
-msgstr "Activer le traitement d'image avancé"
+#: imagemagick-engine.php:1347
+msgid "Regenerate Images"
+msgstr "Regénérer les images"
 
-#: imagemagick-engine.php:988
+#: imagemagick-engine.php:1352
+msgid "Sizes"
+msgstr "Tailles"
+
+#: imagemagick-engine.php:1362
+msgid "ImageMagick images too"
+msgstr "Inclure les images ImageMagick"
+
+#: imagemagick-engine.php:1366
+msgid "Resize will use standard WordPress functions."
+msgstr "Retaillera en utilisant les fonctions standards de Wordpress."
+
+#: imagemagick-engine.php:1369
+msgid "Regenerate"
+msgstr "Regénérer"
+
+#: imagemagick-engine.php:1370
+msgid "(this can take a long time)"
+msgstr "(cela peut prendre quelques minutes)"
+
+#: imagemagick-engine.php:1382
+msgid "Enable"
+msgstr "Activer"
+
+#: imagemagick-engine.php:1391
 msgid "Image engine"
 msgstr "Moteur d'image"
 
-#: imagemagick-engine.php:1006
+#: imagemagick-engine.php:1410
 msgid "Imagick PHP module found"
 msgstr "Imagick PHP module trouvé"
 
-#: imagemagick-engine.php:1006
+#: imagemagick-engine.php:1410
 msgid "Imagick PHP module not found"
 msgstr "Imagick PHP module introuvable."
 
-#: imagemagick-engine.php:1010
+#: imagemagick-engine.php:1417
+msgid "Gmagick PHP module found"
+msgstr "Le module PHP Gmagick a été trouvé"
+
+#: imagemagick-engine.php:1417
+msgid "Gmagick PHP module not found"
+msgstr "Module PHP Gmagick introuvable"
+
+#: imagemagick-engine.php:1421
 msgid "ImageMagick path"
 msgstr "Chemin d'accès vers ImageMagick"
 
-#: imagemagick-engine.php:1013
+#: imagemagick-engine.php:1424 imagemagick-engine.php:1437
 msgid "Command not found"
 msgstr "Commande introuvable."
 
-#: imagemagick-engine.php:1014
+#: imagemagick-engine.php:1425 imagemagick-engine.php:1438
 msgid "Testing command..."
 msgstr "Test de la commande ..."
 
-#: imagemagick-engine.php:1016
+#: imagemagick-engine.php:1427 imagemagick-engine.php:1440
 msgid "Test path"
 msgstr "Test du chemin d'accès ..."
 
-#: imagemagick-engine.php:1020
+#: imagemagick-engine.php:1430
+msgid ""
+"Enter the path where ImageMagick is installed on your server. This is "
+"usually /usr/bin or /usr/local/bin."
+msgstr ""
+"Indiquez le chemin d'accès à l'emplacement où ImageMagick est installé sur "
+"votre serveur. Il s'agit généralement de /usr/bin ou /usr/local/bin."
+
+#: imagemagick-engine.php:1434
+msgid "GraphicsMagick path"
+msgstr "Chemin d'accès à GraphicsMagick"
+
+#: imagemagick-engine.php:1443
+msgid ""
+"Enter the path where GraphicsMagick is installed on your server. This is "
+"usually /usr/bin or /usr/local/bin."
+msgstr ""
+"Indiquez le chemin d'accès à l'emplacement où GraphicsMagick est installé "
+"sur votre serveur. Il s'agit généralement de /usr/bin ou /usr/local/bin."
+
+#: imagemagick-engine.php:1447
 msgid "ImageMagick quality"
 msgstr "Qualité de ImageMagick"
 
-#: imagemagick-engine.php:1022
+#: imagemagick-engine.php:1449
 msgid "Optimize for quality"
-msgstr "basé sur la qualité"
+msgstr "Optimiser sur qualité"
 
-#: imagemagick-engine.php:1023
+#: imagemagick-engine.php:1450
 msgid "Optimize for size"
-msgstr "basé sur la taille"
+msgstr "Optimiser sur taille"
 
-#: imagemagick-engine.php:1025
+#: imagemagick-engine.php:1451
 msgid ""
 "Set to 0-100. Higher value gives better image quality but larger file size. "
 "Leave empty for default value, computed dynamically."
@@ -167,51 +236,64 @@ msgstr ""
 "(valeur de 0 à 100, indice de qualité. Pour la valeur automatique, ne rien "
 "entrer dans le champ)."
 
-#: imagemagick-engine.php:1033
-msgid "Optimize for"
-msgstr "Optimisé pour"
+#: imagemagick-engine.php:1455
+msgid "Image interlace?"
+msgstr "Entrelacement d'images ?"
 
-#: imagemagick-engine.php:1034
+#: imagemagick-engine.php:1460
+msgid "Adds interlace option to ImageMagick when images are processed."
+msgstr ""
+"Ajoute une option d'entrelacement à ImageMagick lors du traitement des "
+"images."
+
+#: imagemagick-engine.php:1464
+msgid "Preserve Exif data?"
+msgstr "Conserver les données EXIF ?"
+
+#: imagemagick-engine.php:1469
+msgid ""
+"When optimizing for size, preserve Exif metadata (including GPS location) "
+"instead of stripping it. Other non-essential metadata (IPTC, XMP) is still "
+"removed."
+msgstr ""
+"Lors de l'optimisation de la taille, conservez les métadonnées Exif (y "
+"compris la localisation GPS) au lieu de les supprimer. Les autres "
+"métadonnées non essentielles (IPTC, XMP) sont toujours supprimées."
+
+#: imagemagick-engine.php:1476
+msgid "Image size"
+msgstr "Taille de l'image"
+
+#: imagemagick-engine.php:1477
 msgid "Quality"
 msgstr "Qualité"
 
-#: imagemagick-engine.php:1035
+#: imagemagick-engine.php:1478
 msgid "Size"
 msgstr "Taille"
 
-#: imagemagick-engine.php:1036
-#, fuzzy
-#| msgid "Skip (use WP instead)"
+#: imagemagick-engine.php:1479
 msgid "None (use WP instead)"
-msgstr "Aucun (utiliser WordPress)"
+msgstr "Aucun (utilisez plutôt WP)"
 
-#: imagemagick-engine.php:1066
+#: imagemagick-engine.php:1511
 msgid "Save Changes"
 msgstr "Sauvegarder les modifications"
 
-#. Plugin Name of the plugin/theme
-msgid "ImageMagick Engine"
-msgstr "Moteur ImageMagick"
+#~ msgid "Thumbnail"
+#~ msgstr "Miniature"
 
-#. Plugin URI of the plugin/theme
-msgid "http://wp.orangelab.se/imagemagick-engine/"
-msgstr "http://wp.orangelab.se/imagemagick-engine/"
+#~ msgid "Medium"
+#~ msgstr "Medium"
 
-#. Description of the plugin/theme
-msgid ""
-"Improve the quality of re-sized images by replacing standard GD library with "
-"ImageMagick"
-msgstr ""
-"Améliore la qualité de la retaille d'image en remplaçant l'utilisation de GD "
-"par celle d'ImageMagick."
+#~ msgid "Large"
+#~ msgstr "Grand"
 
-#. Author of the plugin/theme
-msgid "Orangelab"
-msgstr "Orangelab"
+#~ msgid "Enable enhanced image engine"
+#~ msgstr "Activer le traitement d'image avancé"
 
-#. Author URI of the plugin/theme
-msgid "http://www.orangelab.se"
-msgstr "http://www.orangelab.se"
+#~ msgid "Optimize for"
+#~ msgstr "Optimisé pour"
 
 #~ msgid ""
 #~ "No valid ImageMagick mode found! Please check %sFAQ%s for installation "

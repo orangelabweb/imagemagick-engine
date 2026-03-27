@@ -2,8 +2,8 @@
 Contributors: rickardw, orangelab
 Tags: image, picture, imagemagick, gd, regenerate
 Requires at least: 5.0
-Tested up to: 6.8.3
-Stable tag: 1.7.14
+Tested up to: 6.9.4
+Stable tag: 1.8.0
 License: GPLv2 or later
 
 Improve the quality of re-sized images by replacing standard GD library with ImageMagick.
@@ -65,6 +65,19 @@ You can also find binary releases at http://www.imagemagick.org including a Wind
 1. Administration interface
 
 == Changelog ==
+
+= 1.8.0 =
+* Security fixes: output escaping, input sanitization, removed inline JS event handlers
+* Replace shell exec with proc_open to prevent shell injection without requiring escapeshellcmd
+* Fix translations not loading
+* Fix double-escaping bug in CLI path validation
+* Fix duplicate option key bug in default settings
+* Detect open_basedir restrictions when testing CLI path
+* Clean up plugin data on uninstall
+* Remove outdated WordPress 3.5 compatibility code
+* Fix resized images having wrong orientation when Exif orientation tag is set
+* Add option to preserve Exif metadata (including GPS) when optimizing for size
+* Add GraphicsMagick as an alternative to ImageMagick
 
 = 1.7.14 =
 * Fix how translations was loaded again
@@ -204,7 +217,7 @@ You can also find binary releases at http://www.imagemagick.org including a Wind
 = 1.1.2 =
 * Fix bug with forced resize of custom image sizes
 * Fix warning with open_basedir restriction during path test
-* German translation thanks to Dirk Rottig
+* German translation
 
 = 1.1.1 =
 * Fix search-and-replace error from 1.1 that made it impossible to change settings! Thanks to Marco M. Jaeger for report!

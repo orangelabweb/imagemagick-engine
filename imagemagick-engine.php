@@ -5,11 +5,11 @@
 	Description: Improve the quality of re-sized images by replacing standard GD library with ImageMagick
 	Author: Orangelab
 	Author URI: https://orangelab.com/
-	Version: 1.7.14
+	Version: 1.8.0
 	Text Domain: imagemagick-engine
 	License: GPLv2 or later
 
-	Copyright @ 2025 Orangelab AB
+	Copyright @ 2026 Orangelab AB
 
 	Licenced under the GNU GPL:
 
@@ -36,7 +36,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Constants
  */
 define( 'IME_OPTION_VERSION', 1 );
-define( 'IME_VERSION', '1.7.14' );
+define( 'IME_VERSION', '1.8.0' );
 
 /*
  * Global variables
@@ -48,6 +48,7 @@ $ime_options_default = [
     'enabled'      => false,
     'mode'         => null,
     'cli_path'     => null,
+    'gm_path'      => null,
     'handle_sizes' => [
         'thumbnail'    => 'size',
         'medium'       => 'quality',
@@ -59,7 +60,7 @@ $ime_options_default = [
         'size'    => 70,
     ],
     'interlace'    => false,
-    'quality'      => '',
+    'keep_exif'    => false,
     'version'      => constant( 'IME_OPTION_VERSION' ),
 ];
 
@@ -78,9 +79,12 @@ $ime_image_file  = null;
  */
 add_action( 'plugins_loaded', 'ime_init_early' );
 add_action( 'init', 'ime_init' );
+register_uninstall_hook( __FILE__, 'ime_uninstall' );
 
 /* Plugin setup (early) */
 function ime_init_early() {
+    load_plugin_textdomain( 'imagemagick-engine', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+
     if ( ime_active() ) {
         add_filter( 'intermediate_image_sizes_advanced', 'ime_filter_image_sizes', 99, 1 );
         add_filter( 'wp_read_image_metadata', 'ime_filter_read_image_metadata', 10, 3 );
@@ -99,9 +103,16 @@ function ime_init() {
         add_action( 'wp_ajax_ime_process_image', 'ime_ajax_process_image' );
         add_action( 'wp_ajax_ime_regeneration_get_images', 'ime_ajax_regeneration_get_images' );
 
-        wp_register_script( 'alpinejs', 'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js', [], constant('IME_VERSION'), ['strategy' => 'defer'] );
-        wp_register_script( 'ime-admin', plugins_url( '/js/ime-admin.js', __FILE__ ), [ 'jquery', 'jquery-ui-progressbar', 'alpinejs' ], constant('IME_VERSION') );
+        wp_register_script( 'alpinejs', 'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js', [], '3.15.9', true );
+        wp_register_script( 'ime-admin', plugins_url( '/js/ime-admin.js', __FILE__ ), [ 'jquery', 'jquery-ui-progressbar' ], constant('IME_VERSION'), true );
     }
+}
+
+/* Remove all plugin data on uninstall */
+function ime_uninstall() {
+    delete_option( 'ime_options' );
+    delete_transient( 'ime_cli_valid' );
+    delete_transient( 'ime_gm_valid' );
 }
 
 /* Are we enabled with valid mode? */
@@ -137,10 +148,10 @@ function ime_script_version_compare( $handle, $version, $compare = '>=' ) {
 function ime_available_image_sizes() {
     global $_wp_additional_image_sizes;
     $sizes = [
-        'thumbnail'    => __( 'Thumbnail', 'imagemagick-engine' ),
-        'medium'       => __( 'Medium', 'imagemagick-engine' ),
-        'medium_large' => __( 'Medium Large', 'imagemagick-engine' ),
-        'large'        => __( 'Large', 'imagemagick-engine' ),
+        'thumbnail'    => __( 'Thumbnail' ),
+        'medium'       => __( 'Medium' ),
+        'medium_large' => __( 'Medium Large' ),
+        'large'        => __( 'Large' ),
     ]; // Standard sizes
     if ( isset( $_wp_additional_image_sizes ) && count( $_wp_additional_image_sizes ) ) {
         foreach ( $_wp_additional_image_sizes as $name => $spec ) {
@@ -239,6 +250,11 @@ function ime_set_option( $option_name, $option_value, $store = false ) {
 // Should images be converted with interlace or not
 function ime_interlace() {
     return ime_get_option( 'interlace' );
+}
+
+// Should Exif data (including GPS) be preserved when stripping metadata
+function ime_keep_exif() {
+    return ime_get_option( 'keep_exif' );
 }
 
 // Get image quality setting for type
@@ -461,6 +477,12 @@ function ime_im_php_resize( $old_file, $new_file, $width, $height, $crop, $resiz
 
     try {
         $im->setImageFormat( ime_im_get_filetype( $old_file ) );
+
+        // Apply Exif orientation to actual pixels before any dimension calculations.
+        // Without this, getImageGeometry() returns pre-rotation dimensions and
+        // resized images end up with the wrong orientation.
+        $im->autoOrient();
+
         $quality = ime_get_quality( $resize_mode );
         if ( is_numeric( $quality ) && $quality >= 0 && $quality <= 100 && ime_im_filename_is_jpg( $new_file ) ) {
             $im->setImageCompression( Imagick::COMPRESSION_JPEG );
@@ -472,7 +494,14 @@ function ime_im_php_resize( $old_file, $new_file, $width, $height, $crop, $resiz
         }
 
         if ( $resize_mode == 'size' ) {
-            $im->stripImage();
+            if ( ime_keep_exif() ) {
+                // Strip everything except Exif (preserves GPS and other Exif data)
+                foreach ( [ 'iptc', '8bim', 'xmp', 'APP13' ] as $profile ) {
+                    @$im->removeImageProfile( $profile );
+                }
+            } else {
+                $im->stripImage();
+            }
         }
 
         if ( $crop ) {
@@ -513,37 +542,168 @@ function ime_im_php_resize( $old_file, $new_file, $width, $height, $crop, $resiz
     }
 }
 
+// Does Gmagick class exist?
+function ime_im_gmagick_valid() {
+    return class_exists( 'Gmagick' );
+}
+
+// Resize file using PHP Gmagick class
+function ime_im_gmagick_resize( $old_file, $new_file, $width, $height, $crop, $resize_mode = 'quality' ) {
+    try {
+        $im = new Gmagick( $old_file );
+
+        $im->setimageformat( ime_im_get_filetype( $old_file ) );
+
+        // Apply Exif orientation correction manually (Gmagick has no autoOrient())
+        $orientation = $im->getimageorientation();
+        switch ( $orientation ) {
+            case Gmagick::ORIENTATION_BOTTOMRIGHT: // 3 — rotated 180
+                $im->rotateimage( '#000000', 180 );
+                break;
+            case Gmagick::ORIENTATION_RIGHTTOP: // 6 — rotated 90 CW
+                $im->rotateimage( '#000000', 90 );
+                break;
+            case Gmagick::ORIENTATION_LEFTBOTTOM: // 8 — rotated 270 CW
+                $im->rotateimage( '#000000', 270 );
+                break;
+            case Gmagick::ORIENTATION_TOPRIGHT: // 2 — flipped horizontal
+                $im->flopimage();
+                break;
+            case Gmagick::ORIENTATION_BOTTOMLEFT: // 4 — flipped vertical
+                $im->flipimage();
+                break;
+            case Gmagick::ORIENTATION_LEFTTOP: // 5 — transpose
+                $im->flopimage();
+                $im->rotateimage( '#000000', 90 );
+                break;
+            case Gmagick::ORIENTATION_RIGHTBOTTOM: // 7 — transverse
+                $im->flopimage();
+                $im->rotateimage( '#000000', 270 );
+                break;
+        }
+        if ( $orientation > 1 ) {
+            $im->setimageorientation( Gmagick::ORIENTATION_TOPLEFT );
+        }
+
+        $quality = ime_get_quality( $resize_mode );
+        if ( is_numeric( $quality ) && $quality >= 0 && $quality <= 100 && ime_im_filename_is_jpg( $new_file ) ) {
+            $im->setimagecompression( Gmagick::COMPRESSION_JPEG );
+            $im->setimagecompressionquality( intval( $quality ) );
+        }
+
+        if ( ime_interlace() && defined( 'Gmagick::INTERLACE_PLANE' ) ) {
+            $im->setinterlacescheme( Gmagick::INTERLACE_PLANE );
+        }
+
+        if ( $resize_mode == 'size' ) {
+            if ( ime_keep_exif() ) {
+                foreach ( [ 'iptc', '8bim', 'xmp', 'APP13' ] as $profile ) {
+                    try {
+                        $im->removeimageprofile( $profile );
+                    } catch ( GmagickException $e ) {
+                        // Profile may not exist — not an error
+                    }
+                }
+            } else {
+                $im->stripimage();
+            }
+        }
+
+        $orig_width  = $im->getimagewidth();
+        $orig_height = $im->getimageheight();
+
+        if ( $crop ) {
+            if ( ( $orig_width / $width ) < ( $orig_height / $height ) ) {
+                $crop_width  = $orig_width;
+                $crop_height = ceil( ( $height * $orig_width ) / $width );
+                $off_x       = 0;
+                $off_y       = ceil( ( $orig_height - $crop_height ) / 2 );
+            } else {
+                $crop_width  = ceil( ( $width * $orig_height ) / $height );
+                $crop_height = $orig_height;
+                $off_x       = ceil( ( $orig_width - $crop_width ) / 2 );
+                $off_y       = 0;
+            }
+            $im->cropimage( intval( $crop_width ), intval( $crop_height ), intval( $off_x ), intval( $off_y ) );
+        }
+
+        $im->scaleimage( $width, $height, true );
+        $im->writeimage( $new_file );
+
+        return file_exists( $new_file );
+    } catch ( GmagickException $ge ) {
+        return false;
+    }
+}
+
 /*
  * ImageMagick executable handling
  */
 
 // Check if path is executable depending on OS
 function ime_is_executable($fullpath) {
+    if ( ! function_exists('proc_open') ) {
+        return @is_executable($fullpath);
+    }
     $whereIsCommand = (PHP_OS == 'WINNT') ? 'where' : 'which';
-    $escaped_path = escapeshellarg($fullpath);
-    return function_exists('shell_exec') ? `$whereIsCommand $escaped_path` : @is_executable($fullpath);
+    $process = proc_open(
+        [ $whereIsCommand, $fullpath ],
+        [ 1 => [ 'pipe', 'w' ], 2 => [ 'pipe', 'w' ] ],
+        $pipes
+    );
+    if ( ! is_resource($process) ) {
+        return false;
+    }
+    $output = trim( stream_get_contents( $pipes[1] ) );
+    fclose( $pipes[1] );
+    fclose( $pipes[2] );
+    proc_close( $process );
+    return ! empty( $output );
 }
 
-// Do we have a valid ImageMagick executable set?
-function ime_im_cli_valid() {
-    $cmd = ime_im_cli_command();
-    return !empty($cmd) && ime_is_executable($cmd);
+// Do we have a valid CLI executable set? Pass $is_gm = true for GraphicsMagick.
+function ime_im_cli_valid( $is_gm = false ) {
+    $transient = $is_gm ? 'ime_gm_valid' : 'ime_cli_valid';
+    if ( WP_DEBUG || false === ( $valid = get_transient( $transient ) ) ) {
+        $cmd   = ime_im_cli_command( $is_gm );
+        $valid = ( ! empty( $cmd ) && ime_is_executable( $cmd ) ) ? 'yes' : 'no';
+        set_transient( $transient, $valid, DAY_IN_SECONDS );
+    }
+    return $valid === 'yes';
 }
 
-// Test if we are allowed to exec executable!
-function ime_im_cli_check_executable($fullpath) {
-    if ( ! ime_is_executable($fullpath) || ! function_exists('exec') ) {
+// Test if executable is a working IM or GM binary.
+function ime_im_cli_check_executable( $fullpath, $is_gm = false ) {
+    if ( ! @is_executable( $fullpath ) || ! function_exists( 'proc_open' ) ) {
         return false;
     }
 
-    @exec( '"' . $fullpath . '" --version', $output );
+    $args    = $is_gm ? [ $fullpath, 'version' ] : [ $fullpath, '--version' ];
+    $process = proc_open(
+        $args,
+        [ 1 => [ 'pipe', 'w' ], 2 => [ 'pipe', 'w' ] ],
+        $pipes
+    );
+    if ( ! is_resource( $process ) ) {
+        return false;
+    }
+    $output = stream_get_contents( $pipes[1] );
+    fclose( $pipes[1] );
+    fclose( $pipes[2] );
+    proc_close( $process );
 
-    if ( is_array($output) && (count( $output ) > 0) ) {
-        preg_match('/ImageMagick ([0-9]+\.[0-9]+\.[0-9]+)/', $output[0], $im_version);
-
-        ime_set_option( 'imagemagick_version', $im_version[1], true );
-
-        return true;
+    if ( $is_gm ) {
+        preg_match( '/GraphicsMagick ([0-9]+\.[0-9]+(?:\.[0-9]+)?)/', $output, $version );
+        if ( isset( $version[1] ) ) {
+            ime_set_option( 'graphicsmagick_version', $version[1], true );
+            return true;
+        }
+    } else {
+        preg_match( '/ImageMagick ([0-9]+\.[0-9]+\.[0-9]+)/', $output, $version );
+        if ( isset( $version[1] ) ) {
+            ime_set_option( 'imagemagick_version', $version[1], true );
+            return true;
+        }
     }
 
     return false;
@@ -557,38 +717,37 @@ function ime_im_cli_check_executable($fullpath) {
 function ime_try_realpath( $path ) {
     $realpath = @realpath( $path );
     if ( $realpath ) {
-        return escapeshellcmd( $realpath );
+        return $realpath;
     } else {
-        return str_replace([';', ' ', '=', '`'], '', escapeshellcmd( $path ));
+        return $path;
     }
 }
 
-// Check if path leads to ImageMagick executable
-function ime_im_cli_check_command( $path ) {
-    $path = ime_try_realpath( $path );
-    $executables = [ 'magick', 'convert' ];
+// Check if a directory contains a working IM or GM executable.
+function ime_im_cli_check_command( $path, $is_gm = false ) {
+    $path        = ime_try_realpath( $path );
+    $executables = $is_gm ? [ 'gm' ] : [ 'magick', 'convert' ];
 
     foreach ( $executables as $executable ) {
-        $cmd = $path . '/' . $executable;
-        if ( ime_im_cli_check_executable( $cmd ) ) {
-            return $cmd;
+        $full_path = $path . DIRECTORY_SEPARATOR . $executable;
+        if ( ime_im_cli_check_executable( $full_path, $is_gm ) ) {
+            return $full_path;
         }
-
-        $cmd = $cmd . '.exe';
-        if ( ime_im_cli_check_executable( $cmd ) ) {
-            return $cmd;
+        $full_path_exe = $full_path . '.exe';
+        if ( ime_im_cli_check_executable( $full_path_exe, $is_gm ) ) {
+            return $full_path_exe;
         }
     }
 
     return null;
 }
 
-// Try to find a valid ImageMagick executable
-function ime_im_cli_find_command() {
-    $possible_paths = [ '/usr/bin', '/usr/local/bin' ];
+// Try to auto-discover an IM or GM executable in common paths.
+function ime_im_cli_find_command( $is_gm = false ) {
+    $possible_paths = [ '/usr/bin', '/usr/local/bin', '/opt/homebrew/bin' ];
 
     foreach ( $possible_paths as $path ) {
-        if ( ime_im_cli_check_command( $path ) ) {
+        if ( ime_im_cli_check_command( $path, $is_gm ) ) {
             return $path;
         }
     }
@@ -596,19 +755,26 @@ function ime_im_cli_find_command() {
     return null;
 }
 
-// Get ImageMagick executable
-function ime_im_cli_command() {
-    $path = ime_get_option( 'cli_path' );
+// Get the full path to the IM or GM executable.
+function ime_im_cli_command( $is_gm = false ) {
+    $path_option = $is_gm ? 'gm_path' : 'cli_path';
+    $path        = ime_get_option( $path_option );
+
     if ( ! empty( $path ) ) {
-        return ime_im_cli_check_command( $path );
+        return ime_im_cli_check_command( $path, $is_gm );
     }
 
-    $path = ime_im_cli_find_command();
+    $path = ime_im_cli_find_command( $is_gm );
     if ( empty( $path ) ) {
         return null;
     }
-    ime_set_option( 'cli_path', $path, true );
-    return ime_im_cli_check_command( $path );
+    ime_set_option( $path_option, $path, true );
+    return ime_im_cli_check_command( $path, $is_gm );
+}
+
+// Thin wrappers so the mode dispatch system finds ime_im_graphicsmagick_valid().
+function ime_im_graphicsmagick_valid() {
+    return ime_im_cli_valid( true );
 }
 
 // Check if we are running under Windows (which differs for character escape)
@@ -616,46 +782,74 @@ function ime_is_windows() {
     return ( constant( 'PHP_SHLIB_SUFFIX' ) == 'dll' );
 }
 
-// Resize using ImageMagick executable
-function ime_im_cli_resize( $old_file, $new_file, $width, $height, $crop, $resize_mode = 'quality' ) {
-    $cmd = ime_im_cli_command();
-    if ( empty( $cmd ) ) {
-        return false;
-    }
+// Shared resize implementation for both ImageMagick and GraphicsMagick CLI.
+// GraphicsMagick requires 'convert' as a subcommand; ImageMagick does not.
+function ime_im_cli_do_resize( $cmd_path, $is_gm, $old_file, $new_file, $width, $height, $crop, $resize_mode ) {
+    $geometry = intval( $width ) . 'x' . intval( $height );
+    $prefix   = $is_gm ? [ $cmd_path, 'convert' ] : [ $cmd_path ];
 
-    $old_file = addslashes( $old_file );
-    $new_file = addslashes( $new_file );
+    // Build command args array — passed directly to proc_open, no shell interpretation
+    $cmd_args = array_merge( $prefix, [
+        $old_file,
+        '-auto-orient',        // apply Exif rotation to pixels before resizing
+        '-limit', 'memory', '157286400',
+        '-limit', 'map', '134217728',
+        '-resize', $geometry . ( $crop ? '^' : '!' ),
+    ] );
 
-    $geometry = $width . 'x' . $height;
-
-    // limits are 150mb and 128mb
-    $cmd = "\"$cmd\" \"$old_file\" -limit memory 157286400 -limit map 134217728 -resize $geometry";
     if ( $crop ) {
-        // '^' is an escape character on Windows
-        $cmd .= ( ime_is_windows() ? '^^' : '^' ) . " -gravity center -extent $geometry";
-    } else {
-        $cmd .= '!'; // force these dimensions
+        $cmd_args = array_merge( $cmd_args, [ '-gravity', 'center', '-extent', $geometry ] );
     }
 
     $quality = ime_get_quality( $resize_mode );
     if ( is_numeric( $quality ) && $quality >= 0 && $quality <= 100 && ime_im_filename_is_jpg( $new_file ) ) {
-        $cmd .= ' -quality ' . intval( $quality );
+        $cmd_args = array_merge( $cmd_args, [ '-quality', (string) intval( $quality ) ] );
     }
 
     if ( ime_interlace() ) {
-        $cmd .= ' -interlace Plane';
+        $cmd_args = array_merge( $cmd_args, [ '-interlace', 'Plane' ] );
     }
 
     if ( $resize_mode == 'size' ) {
-        $cmd .= ' -strip';
+        if ( ime_keep_exif() ) {
+            // Remove bulky non-Exif profiles; preserve Exif (contains GPS)
+            $cmd_args = array_merge( $cmd_args, [ '+profile', '8bim', '+profile', 'iptc', '+profile', 'xmp' ] );
+        } else {
+            $cmd_args[] = '-strip';
+        }
     }
 
-    $cmd .= ' "' . $new_file . '"';
-    exec( $cmd );
+    $cmd_args[] = $new_file;
+
+    $process = proc_open(
+        $cmd_args,
+        [ 1 => [ 'pipe', 'w' ], 2 => [ 'pipe', 'w' ] ],
+        $pipes
+    );
+    if ( is_resource( $process ) ) {
+        fclose( $pipes[1] );
+        fclose( $pipes[2] );
+        proc_close( $process );
+    }
 
     return file_exists( $new_file );
 }
 
+function ime_im_cli_resize( $old_file, $new_file, $width, $height, $crop, $resize_mode = 'quality' ) {
+    $cmd_path = ime_im_cli_command();
+    if ( empty( $cmd_path ) ) {
+        return false;
+    }
+    return ime_im_cli_do_resize( $cmd_path, false, $old_file, $new_file, $width, $height, $crop, $resize_mode );
+}
+
+function ime_im_graphicsmagick_resize( $old_file, $new_file, $width, $height, $crop, $resize_mode = 'quality' ) {
+    $cmd_path = ime_im_cli_command( true );
+    if ( empty( $cmd_path ) ) {
+        return false;
+    }
+    return ime_im_cli_do_resize( $cmd_path, true, $old_file, $new_file, $width, $height, $crop, $resize_mode );
+}
 
 /*
  * AJAX functions
@@ -666,9 +860,36 @@ function ime_ajax_test_im_path() {
     if ( ! current_user_can( 'manage_options' ) || ! wp_verify_nonce( $_REQUEST['ime_nonce'], 'ime-admin-nonce') ) {
         wp_die( 'Sorry, but you do not have permissions to perform this action.' );
     }
-    $r = ime_im_cli_check_command( @realpath( $_REQUEST['cli_path'] ) );
-    echo empty( $r ) ? '0' : '1';
-    wp_die();
+
+    $mode = sanitize_text_field( wp_unslash( $_REQUEST['mode'] ?? 'cli' ) );
+
+    $is_gm      = ( $mode === 'graphicsmagick' );
+    $path_key   = $is_gm ? 'gm_path' : 'cli_path';
+    $input_path = sanitize_text_field( wp_unslash( $_REQUEST[ $path_key ] ?? '' ) );
+    $check_path = @realpath( $input_path ) ?: $input_path;
+    $r          = ime_im_cli_check_command( $check_path, $is_gm );
+    $found = ! empty( $r );
+
+    $open_basedir_issue = false;
+    if ( ! $found ) {
+        $open_basedir = ini_get( 'open_basedir' );
+        if ( $open_basedir ) {
+            $covered = false;
+            foreach ( explode( PATH_SEPARATOR, $open_basedir ) as $dir ) {
+                if ( $dir !== '' && strpos( $check_path, rtrim( $dir, '/\\' ) ) === 0 ) {
+                    $covered = true;
+                    break;
+                }
+            }
+            $open_basedir_issue = ! $covered;
+        }
+    }
+
+    wp_send_json( [
+        'found'        => $found,
+        'open_basedir' => $open_basedir_issue,
+        'engine'       => $is_gm ? 'GraphicsMagick' : 'ImageMagick',
+    ] );
 }
 
 // Get list of attachments to regenerate
@@ -696,8 +917,6 @@ function ime_ajax_regeneration_get_images() {
 function ime_ajax_process_image() {
     global $ime_image_sizes, $ime_image_file, $_wp_additional_image_sizes;
 
-    error_reporting( E_ERROR | E_WARNING );
-
     if ( ! current_user_can( 'manage_options' ) || ! ime_mode_valid() || ! wp_verify_nonce( $_REQUEST['ime_nonce'], 'ime-admin-nonce') ) {
         wp_die( '-1' );
     }
@@ -711,7 +930,7 @@ function ime_ajax_process_image() {
         wp_die( '-1' );
     }
 
-    $temp_sizes = $_REQUEST['sizes'];
+    $temp_sizes = sanitize_text_field( wp_unslash( $_REQUEST['sizes'] ?? '' ) );
     if ( empty( $temp_sizes ) ) {
         wp_die( '-1' );
     }
@@ -836,6 +1055,9 @@ function ime_admin_menu() {
         add_action( 'admin_print_scripts-' . $page, 'ime_admin_print_scripts' );
         add_action( 'admin_print_styles-' . $page, 'ime_admin_print_styles' );
     }
+    add_action( 'admin_print_scripts-' . $ime_page, function() {
+        wp_enqueue_script( 'alpinejs' );
+    } );
 }
 
 /* Enqueue admin page scripts */
@@ -843,12 +1065,14 @@ function ime_admin_print_scripts() {
     wp_enqueue_script( 'ime-admin' );
 
     $data = [
-        'noimg'         => __( 'You dont have any images to regenerate', 'imagemagick-engine' ),
-        'done'          => __( 'All done!', 'imagemagick-engine' ),
-        'processed_fmt' => __( 'Processed %d images', 'imagemagick-engine' ),
-        'failed'        => '<strong>' . __( 'Failed to resize image!', 'imagemagick-engine' ) . '</strong>',
-        'resized'       => __( 'Resized using ImageMagick Engine', 'imagemagick-engine' ),
-        'ime_nonce'     => wp_create_nonce('ime-admin-nonce'),
+        'noimg'              => __( 'You dont have any images to regenerate', 'imagemagick-engine' ),
+        'done'               => __( 'All done!', 'imagemagick-engine' ),
+        'processed_fmt'      => __( 'Processed %d images', 'imagemagick-engine' ),
+        'failed'             => '<strong>' . __( 'Failed to resize image!', 'imagemagick-engine' ) . '</strong>',
+        'resized'            => __( 'Resized using ImageMagick Engine', 'imagemagick-engine' ),
+        'ime_nonce'          => wp_create_nonce('ime-admin-nonce'),
+        'path_not_found'     => __( '%s not found at this path.', 'imagemagick-engine' ),
+        'path_open_basedir'  => __( '%s not found. Your PHP open_basedir setting is restricting access to this path. Add the path to your open_basedir configuration.', 'imagemagick-engine' ),
     ];
     wp_localize_script( 'ime-admin', 'ime_admin', $data );
 }
@@ -873,22 +1097,12 @@ function ime_filter_plugin_actions( $links, $file ) {
  * Add admin information if attachment is converted using plugin
  */
 function ime_filter_media_meta( $content, $post ) {
-    global $wp_version;
-
     if ( ! ime_mode_valid() ) {
         return $content;
     }
 
-    if ( version_compare( $wp_version, '3.5.0', '>=' ) ) {
-        // WordPress 3.5 and newer
-        if ( ! wp_image_editor_supports( [ 'mime_type' => $post->post_mime_type ] ) ) {
-            return $content;
-        }
-    } else {
-        // WordPress older than 3.5
-        if ( ! gd_edit_image_support( $post->post_mime_type ) ) {
-            return $content;
-        }
+    if ( ! wp_image_editor_supports( [ 'mime_type' => $post->post_mime_type ] ) ) {
+        return $content;
     }
 
     $metadata = wp_get_attachment_metadata( $post->ID );
@@ -923,9 +1137,14 @@ function ime_filter_media_meta( $content, $post ) {
         }
         $sizes[] = $s;
     }
-    $sizes       = implode( '|', $sizes );
-    $resize_call = 'imeRegenMediaImage(' . $post->ID . ', \'' . $sizes . '\', ' . $force . '); return false;';
-    $content    .= '<a href="#" id="ime-regen-link-' . $post->ID . '" class="button ime-regen-button" onclick="' . $resize_call . '">' . $resize . '</a> ' . $message . ' <div id="ime-spinner-' . $post->ID . '" class="ime-spinner"><img src="' . admin_url( 'images/wpspin_light.gif' ) . '" /></div>';
+    $sizes    = implode( '|', $sizes );
+    $content .= '<a href="#" id="ime-regen-link-' . absint( $post->ID ) . '" class="button ime-regen-button"'
+        . ' data-post-id="' . absint( $post->ID ) . '"'
+        . ' data-sizes="' . esc_attr( $sizes ) . '"'
+        . ' data-force="' . esc_attr( $force ) . '">'
+        . esc_html( $resize ) . '</a> '
+        . $message
+        . ' <div id="ime-spinner-' . absint( $post->ID ) . '" class="ime-spinner"><img src="' . esc_url( admin_url( 'images/wpspin_light.gif' ) ) . '" alt="" /></div>';
 
     return $content;
 }
@@ -944,8 +1163,10 @@ function ime_option_status_icon( $yes = true ) {
 // Define available modes
 function ime_get_available_modes(): array {
     return array(
-        'php' => __( 'Imagick PHP module', 'imagemagick-engine' ),
-        'cli' => __( 'ImageMagick command-line', 'imagemagick-engine' ),
+        'php'             => __( 'Imagick PHP module', 'imagemagick-engine' ),
+        'gmagick'         => __( 'Gmagick PHP module', 'imagemagick-engine' ),
+        'cli'             => __( 'ImageMagick command-line', 'imagemagick-engine' ),
+        'graphicsmagick'  => __( 'GraphicsMagick command-line', 'imagemagick-engine' ),
     );
 }
 
@@ -989,7 +1210,12 @@ function ime_option_page() {
             ime_set_option( 'mode', $_POST['mode'] );
         }
         if ( isset( $_POST['cli_path'] ) ) {
-            ime_set_option( 'cli_path', ime_try_realpath( trim( $_POST['cli_path'] ) ) );
+            ime_set_option( 'cli_path', ime_try_realpath( sanitize_text_field( wp_unslash( $_POST['cli_path'] ) ) ) );
+            delete_transient( 'ime_cli_valid' );
+        }
+        if ( isset( $_POST['gm_path'] ) ) {
+            ime_set_option( 'gm_path', ime_try_realpath( sanitize_text_field( wp_unslash( $_POST['gm_path'] ) ) ) );
+            delete_transient( 'ime_gm_valid' );
         }
 
         $new_quality = [
@@ -1014,6 +1240,9 @@ function ime_option_page() {
 
         $new_interlace = isset( $_POST['interlace'] ) && ! ! $_POST['interlace'];
         ime_set_option( 'interlace', $new_interlace );
+
+        $new_keep_exif = isset( $_POST['keep_exif'] ) && ! ! $_POST['keep_exif'];
+        ime_set_option( 'keep_exif', $new_keep_exif );
 
         $new_handle_sizes = [];
         foreach ( $sizes as $s => $name ) {
@@ -1065,6 +1294,12 @@ function ime_option_page() {
     }
     $cli_path_ok = ime_im_cli_check_command( $cli_path );
 
+    $gm_path = ime_get_option( 'gm_path' );
+    if ( is_null( $gm_path ) ) {
+        $gm_path = ime_im_cli_command( true );
+    }
+    $gm_path_ok = ime_im_cli_check_command( $gm_path, true );
+
     $quality = ime_get_option( 'quality' );
     if ( ! is_array( $quality ) ) {
         $n = [
@@ -1077,7 +1312,8 @@ function ime_option_page() {
         $quality = $n;
     }
 
-    $interlace = ime_get_option( 'interlace' );
+    $interlace  = ime_get_option( 'interlace' );
+    $keep_exif  = ime_get_option( 'keep_exif' );
 
     $handle_sizes = ime_get_option( 'handle_sizes' );
 
@@ -1102,7 +1338,7 @@ function ime_option_page() {
             </div>
         </div>
 
-        <form action="options-general.php?page=imagemagick-engine" method="post" name="update_options" x-data="{ enabled: <?php echo $enabled ? 'true' : 'false'; ?> }">
+        <form action="options-general.php?page=imagemagick-engine" method="post" name="update_options" x-data="ime">
             <?php wp_nonce_field( 'ime-options' ); ?>
             <div id="poststuff" class="metabox-holder has-right-sidebar">
                 <div class="inner-sidebar">
@@ -1139,12 +1375,7 @@ function ime_option_page() {
                 </div>
                 <div id="post-body">
                     <div id="post-body-content">
-                        <div id="ime-settings" class="postbox">
-                            <h3 class="hndle">
-                    <span>
-                        <?php _e( 'Settings', 'imagemagick-engine' ); ?>
-                    </span>
-                            </h3>
+                        <div id="ime-settings" class="postbox" x-cloak>
                             <div class="inside">
                                 <table class="form-table">
                                     <tr>
@@ -1159,42 +1390,64 @@ function ime_option_page() {
                                         <tr>
                                             <th scope="row" valign="top"><?php _e( 'Image engine', 'imagemagick-engine' ); ?>:</th>
                                             <td>
-                                                <select id="ime-select-mode" name="mode">
+                                                <select id="ime-select-mode" name="mode" x-model="mode">
                                                     <?php
                                                     foreach ( $modes_valid as $m => $valid ) {
-                                                        echo '<option value="' . $m . '"';
-                                                        if ( $m == $current_mode ) {
+                                                        echo '<option value="' . esc_attr( $m ) . '"';
+                                                        if ( $m === $current_mode ) {
                                                             echo ' selected=selected ';
                                                         }
-                                                        echo '>' . ime_get_available_modes()[ $m ] . '</option>';
+                                                        echo '>' . esc_html( ime_get_available_modes()[ $m ] ) . '</option>';
                                                     }
                                                     ?>
                                                 </select>
                                             </td>
                                         </tr>
-                                        <tr id="ime-row-php">
+                                        <tr id="ime-row-php" x-show="mode === 'php'">
                                             <th scope="row" valign="top"><?php _e( 'Imagick PHP module', 'imagemagick-engine' ); ?>:</th>
                                             <td>
-                                                <img src="<?php echo ime_option_status_icon( $modes_valid['php'] ); ?>" />
-                                                <?php echo $modes_valid['php'] ? __( 'Imagick PHP module found', 'imagemagick-engine' ) : __( 'Imagick PHP module not found', 'imagemagick-engine' ); ?>
+                                                <img src="<?php echo esc_url( ime_option_status_icon( $modes_valid['php'] ) ); ?>" alt="" />
+                                                <?php echo $modes_valid['php'] ? esc_html__( 'Imagick PHP module found', 'imagemagick-engine' ) : esc_html__( 'Imagick PHP module not found', 'imagemagick-engine' ); ?>
                                             </td>
                                         </tr>
-                                        <tr id="ime-row-cli">
+                                        <tr id="ime-row-gmagick" x-show="mode === 'gmagick'">
+                                            <th scope="row" valign="top"><?php _e( 'Gmagick PHP module', 'imagemagick-engine' ); ?>:</th>
+                                            <td>
+                                                <img src="<?php echo esc_url( ime_option_status_icon( $modes_valid['gmagick'] ) ); ?>" alt="" />
+                                                <?php echo $modes_valid['gmagick'] ? esc_html__( 'Gmagick PHP module found', 'imagemagick-engine' ) : esc_html__( 'Gmagick PHP module not found', 'imagemagick-engine' ); ?>
+                                            </td>
+                                        </tr>
+                                        <tr id="ime-row-cli" x-show="mode === 'cli'">
                                             <th scope="row" valign="top"><?php _e( 'ImageMagick path', 'imagemagick-engine' ); ?>:</th>
                                             <td>
-                                                <img id="cli_path_yes" class="cli_path_icon" src="<?php echo ime_option_status_icon( true ); ?>" alt="" <?php ime_option_display( $cli_path_ok ); ?> />
-                                                <img id="cli_path_no" class="cli_path_icon" src="<?php echo ime_option_status_icon( false ); ?>" alt="<?php _e( 'Command not found', 'qp-qie' ); ?>"  <?php ime_option_display( ! $cli_path_ok ); ?> />
-                                                <img id="cli_path_progress" src="<?php echo ime_option_admin_images_url(); ?>wpspin_light.gif" alt="<?php _e( 'Testing command...', 'qp-qie' ); ?>"  <?php ime_option_display( false ); ?> />
-                                                <input id="cli_path" type="text" name="cli_path" size="<?php echo max( 30, strlen( $cli_path ) + 5 ); ?>" value="<?php echo $cli_path; ?>" />
-                                                <input type="button" name="ime_cli_path_test" id="ime_cli_path_test" value="<?php _e( 'Test path', 'imagemagick-engine' ); ?>" class="button-secondary" />
-                                                <span <?php ime_option_display( $cli_path_ok ); ?>><br><br><?php if (ime_get_option( 'imagemagick_version' )) { echo 'ImageMagick version ' . ime_get_option( 'imagemagick_version' ); } ?></span>
+                                                <img id="cli_path_yes" class="cli_path_icon" src="<?php echo esc_url( ime_option_status_icon( true ) ); ?>" alt="" <?php ime_option_display( $cli_path_ok ); ?> />
+                                                <img id="cli_path_no" class="cli_path_icon" src="<?php echo esc_url( ime_option_status_icon( false ) ); ?>" alt="<?php esc_attr_e( 'Command not found', 'imagemagick-engine' ); ?>"  <?php ime_option_display( ! $cli_path_ok ); ?> />
+                                                <img id="cli_path_progress" src="<?php echo esc_url( ime_option_admin_images_url() . 'wpspin_light.gif' ); ?>" alt="<?php esc_attr_e( 'Testing command...', 'imagemagick-engine' ); ?>"  <?php ime_option_display( false ); ?> />
+                                                <input id="cli_path" type="text" name="cli_path" size="<?php echo absint( max( 30, strlen( $cli_path ) + 5 ) ); ?>" value="<?php echo esc_attr( $cli_path ); ?>" />
+                                                <input type="button" name="ime_cli_path_test" id="ime_cli_path_test" value="<?php esc_attr_e( 'Test path', 'imagemagick-engine' ); ?>" class="button-secondary" />
+                                                <span <?php ime_option_display( $cli_path_ok ); ?>><br><br><?php if ( ime_get_option( 'imagemagick_version' ) ) { echo 'ImageMagick version ' . esc_html( ime_get_option( 'imagemagick_version' ) ); } ?></span>
+                                                <p id="cli_path_error" class="ime-path-error" style="display:none;"></p>
+                                                <?php if ($current_mode !== 'cli') { ?><p class="ime-description"><?php _e( 'Enter the path where ImageMagick is installed on your server. This is usually /usr/bin or /usr/local/bin.', 'imagemagick-engine' ); ?></p><?php } ?>
+                                            </td>
+                                        </tr>
+                                        <tr id="ime-row-graphicsmagick" x-show="mode === 'graphicsmagick'">
+                                            <th scope="row" valign="top"><?php _e( 'GraphicsMagick path', 'imagemagick-engine' ); ?>:</th>
+                                            <td>
+                                                <img id="gm_path_yes" class="gm_path_icon" src="<?php echo esc_url( ime_option_status_icon( true ) ); ?>" alt="" <?php ime_option_display( $gm_path_ok ); ?> />
+                                                <img id="gm_path_no" class="gm_path_icon" src="<?php echo esc_url( ime_option_status_icon( false ) ); ?>" alt="<?php esc_attr_e( 'Command not found', 'imagemagick-engine' ); ?>"  <?php ime_option_display( ! $gm_path_ok ); ?> />
+                                                <img id="gm_path_progress" src="<?php echo esc_url( ime_option_admin_images_url() . 'wpspin_light.gif' ); ?>" alt="<?php esc_attr_e( 'Testing command...', 'imagemagick-engine' ); ?>"  <?php ime_option_display( false ); ?> />
+                                                <input id="gm_path" type="text" name="gm_path" size="<?php echo absint( max( 30, strlen( $gm_path ) + 5 ) ); ?>" value="<?php echo esc_attr( $gm_path ); ?>" />
+                                                <input type="button" name="ime_gm_path_test" id="ime_gm_path_test" value="<?php esc_attr_e( 'Test path', 'imagemagick-engine' ); ?>" class="button-secondary" />
+                                                <span <?php ime_option_display( $gm_path_ok ); ?>><br><br><?php if ( ime_get_option( 'graphicsmagick_version' ) ) { echo 'GraphicsMagick version ' . esc_html( ime_get_option( 'graphicsmagick_version' ) ); } ?></span>
+                                                <p id="gm_path_error" class="ime-path-error" style="display:none;"></p>
+                                                <?php if ($current_mode !== 'graphicsmagick') { ?><p class="ime-description"><?php _e( 'Enter the path where GraphicsMagick is installed on your server. This is usually /usr/bin or /usr/local/bin.', 'imagemagick-engine' ); ?></p><?php } ?>
                                             </td>
                                         </tr>
                                         <tr>
                                             <th scope="row" valign="top"><?php _e( 'ImageMagick quality', 'imagemagick-engine' ); ?>:</th>
                                             <td>
-                                                <p><input id="quality-quality" type="text" name="quality-quality" size="3" value="<?php echo ( ( isset( $quality['quality'] ) && $quality['quality'] > 0 ) ? $quality['quality'] : '' ); ?>" /> <?php _e( 'Optimize for quality', 'imagemagick-engine' ); ?></p>
-                                                <p><input id="quality-size" type="text" name="quality-size" size="3" value="<?php echo ( ( isset( $quality['size'] ) && $quality['size'] > 0 ) ? $quality['size'] : '' ); ?>" /> <?php _e( 'Optimize for size', 'imagemagick-engine' ); ?></p>
+                                                <p><input id="quality-quality" type="text" name="quality-quality" size="3" value="<?php echo esc_attr( ( isset( $quality['quality'] ) && $quality['quality'] > 0 ) ? $quality['quality'] : '' ); ?>" /> <?php _e( 'Optimize for quality', 'imagemagick-engine' ); ?></p>
+                                                <p><input id="quality-size" type="text" name="quality-size" size="3" value="<?php echo esc_attr( ( isset( $quality['size'] ) && $quality['size'] > 0 ) ? $quality['size'] : '' ); ?>" /> <?php _e( 'Optimize for size', 'imagemagick-engine' ); ?></p>
                                                 <p class="ime-description"><?php _e( 'Set to 0-100. Higher value gives better image quality but larger file size. Leave empty for default value, computed dynamically.', 'imagemagick-engine' ); ?></p>
                                             </td>
                                         </tr>
@@ -1202,18 +1455,25 @@ function ime_option_page() {
                                             <th scope="row" valign="top"><?php _e( 'Image interlace?', 'imagemagick-engine' ); ?>:</th>
                                             <td>
                                                 <input type="checkbox" id="interlace" name="interlace" value="1"
-                                                    <?php
-                                                    echo $interlace ? ' CHECKED ' : '';
-                                                    ?>
+                                                    <?php checked( $interlace, true ); ?>
                                                 />
                                                 <p class="ime-description"><?php _e( 'Adds interlace option to ImageMagick when images are processed.', 'imagemagick-engine' ); ?></p>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" valign="top"><?php _e( 'Preserve Exif data?', 'imagemagick-engine' ); ?>:</th>
+                                            <td>
+                                                <input type="checkbox" id="keep_exif" name="keep_exif" value="1"
+                                                    <?php checked( $keep_exif, true ); ?>
+                                                />
+                                                <p class="ime-description"><?php _e( 'When optimizing for size, preserve Exif metadata (including GPS location) instead of stripping it. Other non-essential metadata (IPTC, XMP) is still removed.', 'imagemagick-engine' ); ?></p>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td colspan="2" class="ime-handle-table-wrapper">
                                                 <table border='0' class="ime-handle-table" id="ime-handle-table">
                                                     <tr>
-                                                        <th scope="row" class="ime-headline" valign="top"><?php _e( 'Optimize for', 'imagemagick-engine' ); ?></th>
+                                                        <th scope="row" class="ime-headline" valign="top"><strong><?php _e( 'Image size', 'imagemagick-engine' ); ?></strong></th>
                                                         <td class="ime-headline ime-fixed-width"><?php _e( 'Quality', 'imagemagick-engine' ); ?></td>
                                                         <td class="ime-headline ime-fixed-width"><?php _e( 'Size', 'imagemagick-engine' ); ?></td>
                                                         <td class="ime-headline"><?php _e( 'None (use WP instead)', 'imagemagick-engine' ); ?></td>
@@ -1228,15 +1488,15 @@ function ime_option_page() {
                                                         }
                                                         ?>
                                                         <tr>
-                                                            <th scope="row" valign="top"><?php echo $name; ?></th>
+                                                            <th scope="row" valign="top"><?php echo esc_html( $name ); ?></th>
                                                             <td class="ime-fixed-width">
-                                                                <input type="radio" name="handle-mode-<?php echo $s; ?>" value="quality" <?php checked( 'quality', $handle_sizes[ $s ] ); ?> />
+                                                                <input type="radio" name="handle-mode-<?php echo esc_attr( $s ); ?>" value="quality" <?php checked( 'quality', $handle_sizes[ $s ] ); ?> />
                                                             </td>
                                                             <td class="ime-fixed-width">
-                                                                <input type="radio" name="handle-mode-<?php echo $s; ?>" value="size" <?php checked( 'size', $handle_sizes[ $s ] ); ?> />
+                                                                <input type="radio" name="handle-mode-<?php echo esc_attr( $s ); ?>" value="size" <?php checked( 'size', $handle_sizes[ $s ] ); ?> />
                                                             </td>
                                                             <td>
-                                                                <input type="radio" name="handle-mode-<?php echo $s; ?>" value="skip" <?php checked( 'skip', $handle_sizes[ $s ] ); ?> />
+                                                                <input type="radio" name="handle-mode-<?php echo esc_attr( $s ); ?>" value="skip" <?php checked( 'skip', $handle_sizes[ $s ] ); ?> />
                                                             </td>
                                                         </tr>
                                                         <?php
@@ -1258,6 +1518,14 @@ function ime_option_page() {
                 </div>
         </form>
     </div>
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('ime', () => ({
+                enabled: <?php echo $enabled ? 'true' : 'false'; ?>,
+                mode: '<?php echo esc_js( $current_mode ); ?>'
+            }))
+        })
+    </script>
     <?php
 }
 ?>

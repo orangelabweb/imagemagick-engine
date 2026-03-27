@@ -1,9 +1,12 @@
+[x-cloak] { display: none !important; }
+
 .form-table td.ime-handle-table-wrapper {
     padding: 0;
 }
 
 #ime-handle-table th {
-    padding: 5px 10px 0 10px;
+    padding: 5px 10px 0 0;
+	font-weight: normal;
 }
 
 #ime-handle-table td {
@@ -93,4 +96,13 @@
 
     font-style: italic;
     line-height: 22px;
+}
+
+.ime-path-error {
+    margin: 6px 0 0;
+    padding: 6px 10px;
+    background: #fce8e8;
+    border-left: 4px solid #d63638;
+    color: #3c3c3c;
+    font-size: 13px;
 }
