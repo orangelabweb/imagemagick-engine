@@ -102,7 +102,7 @@ function ime_init() {
         add_action( 'wp_ajax_ime_regeneration_get_images', 'ime_ajax_regeneration_get_images' );
 
         wp_register_script( 'alpinejs', 'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js', [], '3.15.9', true );
-        wp_register_script( 'ime-admin', plugins_url( '/js/ime-admin.js', __FILE__ ), [ 'jquery', 'jquery-ui-progressbar', 'alpinejs' ], constant('IME_VERSION'), true );
+        wp_register_script( 'ime-admin', plugins_url( '/js/ime-admin.js', __FILE__ ), [ 'jquery', 'jquery-ui-progressbar' ], constant('IME_VERSION'), true );
     }
 }
 
@@ -909,6 +909,9 @@ function ime_admin_menu() {
         add_action( 'admin_print_scripts-' . $page, 'ime_admin_print_scripts' );
         add_action( 'admin_print_styles-' . $page, 'ime_admin_print_styles' );
     }
+    add_action( 'admin_print_scripts-' . $ime_page, function() {
+        wp_enqueue_script( 'alpinejs' );
+    } );
 }
 
 /* Enqueue admin page scripts */
