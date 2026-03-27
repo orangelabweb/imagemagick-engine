@@ -73,9 +73,9 @@ You can also find binary releases at http://www.imagemagick.org including a Wind
 * Fix double-escaping bug in CLI path validation
 * Fix duplicate option key bug in default settings
 * Detect open_basedir restrictions when testing CLI path
-* Add /opt/homebrew/bin to auto-detection paths (Apple Silicon)
 * Clean up plugin data on uninstall
 * Remove outdated WordPress 3.5 compatibility code
+* Fix resized images having wrong orientation when Exif orientation tag is set
 
 = 1.7.14 =
 * Fix how translations was loaded again

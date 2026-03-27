@@ -469,6 +469,12 @@ function ime_im_php_resize( $old_file, $new_file, $width, $height, $crop, $resiz
 
     try {
         $im->setImageFormat( ime_im_get_filetype( $old_file ) );
+
+        // Apply Exif orientation to actual pixels before any dimension calculations.
+        // Without this, getImageGeometry() returns pre-rotation dimensions and
+        // resized images end up with the wrong orientation.
+        $im->autoOrient();
+
         $quality = ime_get_quality( $resize_mode );
         if ( is_numeric( $quality ) && $quality >= 0 && $quality <= 100 && ime_im_filename_is_jpg( $new_file ) ) {
             $im->setImageCompression( Imagick::COMPRESSION_JPEG );
@@ -664,6 +670,7 @@ function ime_im_cli_resize( $old_file, $new_file, $width, $height, $crop, $resiz
     $cmd_args = array(
         $cmd_path,
         $old_file,
+        '-auto-orient',        // apply Exif rotation to pixels before resizing
         '-limit', 'memory', '157286400',
         '-limit', 'map', '134217728',
         '-resize', $geometry . ($crop ? '^' : '!'),
