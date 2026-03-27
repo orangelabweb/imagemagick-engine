@@ -76,6 +76,7 @@ You can also find binary releases at http://www.imagemagick.org including a Wind
 * Clean up plugin data on uninstall
 * Remove outdated WordPress 3.5 compatibility code
 * Fix resized images having wrong orientation when Exif orientation tag is set
+* Add option to preserve Exif metadata (including GPS) when optimizing for size
 
 = 1.7.14 =
 * Fix how translations was loaded again

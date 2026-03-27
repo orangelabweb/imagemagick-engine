@@ -59,6 +59,7 @@ $ime_options_default = [
         'size'    => 70,
     ],
     'interlace'    => false,
+    'keep_exif'    => false,
     'version'      => constant( 'IME_OPTION_VERSION' ),
 ];
 
@@ -247,6 +248,11 @@ function ime_set_option( $option_name, $option_value, $store = false ) {
 // Should images be converted with interlace or not
 function ime_interlace() {
     return ime_get_option( 'interlace' );
+}
+
+// Should Exif data (including GPS) be preserved when stripping metadata
+function ime_keep_exif() {
+    return ime_get_option( 'keep_exif' );
 }
 
 // Get image quality setting for type
@@ -486,7 +492,14 @@ function ime_im_php_resize( $old_file, $new_file, $width, $height, $crop, $resiz
         }
 
         if ( $resize_mode == 'size' ) {
-            $im->stripImage();
+            if ( ime_keep_exif() ) {
+                // Strip everything except Exif (preserves GPS and other Exif data)
+                foreach ( [ 'iptc', '8bim', 'xmp', 'APP13' ] as $profile ) {
+                    @$im->removeImageProfile( $profile );
+                }
+            } else {
+                $im->stripImage();
+            }
         }
 
         if ( $crop ) {
@@ -697,7 +710,12 @@ function ime_im_cli_resize( $old_file, $new_file, $width, $height, $crop, $resiz
     }
 
     if ( $resize_mode == 'size' ) {
-        $cmd_args[] = '-strip';
+        if ( ime_keep_exif() ) {
+            // Remove bulky non-Exif profiles; preserve Exif (contains GPS)
+            $cmd_args = array_merge( $cmd_args, [ '+profile', '8bim', '+profile', 'iptc', '+profile', 'xmp' ] );
+        } else {
+            $cmd_args[] = '-strip';
+        }
     }
 
     $cmd_args[] = $new_file;
@@ -1096,6 +1114,9 @@ function ime_option_page() {
         $new_interlace = isset( $_POST['interlace'] ) && ! ! $_POST['interlace'];
         ime_set_option( 'interlace', $new_interlace );
 
+        $new_keep_exif = isset( $_POST['keep_exif'] ) && ! ! $_POST['keep_exif'];
+        ime_set_option( 'keep_exif', $new_keep_exif );
+
         $new_handle_sizes = [];
         foreach ( $sizes as $s => $name ) {
             $new_mode = isset( $_POST[ 'handle-mode-' . $s ] ) ? $_POST[ 'handle-mode-' . $s ] : 'skip';
@@ -1158,7 +1179,8 @@ function ime_option_page() {
         $quality = $n;
     }
 
-    $interlace = ime_get_option( 'interlace' );
+    $interlace  = ime_get_option( 'interlace' );
+    $keep_exif  = ime_get_option( 'keep_exif' );
 
     $handle_sizes = ime_get_option( 'handle_sizes' );
 
@@ -1280,11 +1302,18 @@ function ime_option_page() {
                                             <th scope="row" valign="top"><?php _e( 'Image interlace?', 'imagemagick-engine' ); ?>:</th>
                                             <td>
                                                 <input type="checkbox" id="interlace" name="interlace" value="1"
-                                                    <?php
-                                                    checked( $interlace, true );
-                                                    ?>
+                                                    <?php checked( $interlace, true ); ?>
                                                 />
                                                 <p class="ime-description"><?php _e( 'Adds interlace option to ImageMagick when images are processed.', 'imagemagick-engine' ); ?></p>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" valign="top"><?php _e( 'Preserve Exif data?', 'imagemagick-engine' ); ?>:</th>
+                                            <td>
+                                                <input type="checkbox" id="keep_exif" name="keep_exif" value="1"
+                                                    <?php checked( $keep_exif, true ); ?>
+                                                />
+                                                <p class="ime-description"><?php _e( 'When optimizing for size, preserve Exif metadata (including GPS location) instead of stripping it. Other non-essential metadata (IPTC, XMP) is still removed.', 'imagemagick-engine' ); ?></p>
                                             </td>
                                         </tr>
                                         <tr>
