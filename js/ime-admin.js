@@ -14,6 +14,7 @@ function imeTestPath() {
 	jQuery.get( ajaxurl, {
 		action: 'ime_test_im_path',
 		ime_nonce: ime_admin.ime_nonce,
+		mode: 'cli',
 		cli_path: jQuery( '#cli_path' ).val()
 	}, function( data ) {
 		jQuery( '#cli_path_progress' ).hide();
@@ -23,8 +24,34 @@ function imeTestPath() {
 		} else {
 			jQuery( '#cli_path_yes' ).hide();
 			jQuery( '#cli_path_no' ).show();
-			var msg = ( data && data.open_basedir ) ? ime_admin.path_open_basedir : ime_admin.path_not_found;
-			jQuery( '#cli_path_error' ).text( msg ).show();
+			var engine = ( data && data.engine ) ? data.engine : 'ImageMagick';
+			var tpl = ( data && data.open_basedir ) ? ime_admin.path_open_basedir : ime_admin.path_not_found;
+			jQuery( '#cli_path_error' ).text( tpl.replace( '%s', engine ) ).show();
+		}
+	} );
+}
+
+// Ajax test GraphicsMagick path
+function imeTestGmPath() {
+	jQuery( '.gm_path_icon' ).hide();
+	jQuery( '#gm_path_error' ).hide();
+	jQuery( '#gm_path_progress' ).show();
+	jQuery.get( ajaxurl, {
+		action: 'ime_test_im_path',
+		ime_nonce: ime_admin.ime_nonce,
+		mode: 'graphicsmagick',
+		gm_path: jQuery( '#gm_path' ).val()
+	}, function( data ) {
+		jQuery( '#gm_path_progress' ).hide();
+		if ( data && data.found ) {
+			jQuery( '#gm_path_yes' ).show();
+			jQuery( '#gm_path_no' ).hide();
+		} else {
+			jQuery( '#gm_path_yes' ).hide();
+			jQuery( '#gm_path_no' ).show();
+			var engine = ( data && data.engine ) ? data.engine : 'GraphicsMagick';
+			var tpl = ( data && data.open_basedir ) ? ime_admin.path_open_basedir : ime_admin.path_not_found;
+			jQuery( '#gm_path_error' ).text( tpl.replace( '%s', engine ) ).show();
 		}
 	} );
 }
@@ -126,6 +153,7 @@ alert( data );
 
 jQuery( document ).ready( function( $ ) {
 	jQuery( '#ime_cli_path_test' ).click( imeTestPath );
+	jQuery( '#ime_gm_path_test' ).click( imeTestGmPath );
 
 	jQuery( document ).on( 'click', '.ime-regen-button', function( e ) {
 		e.preventDefault();
