@@ -165,7 +165,7 @@ jQuery( document ).ready( function( $ ) {
 		$( '#regenerate-images-metabox img.ajax-feedback' ).show();
 		$.post( ajaxurl, { action: 'ime_regeneration_get_images', ime_nonce: ime_admin.ime_nonce, }, function( data ) {
 			jQuery( '#regen-message' ).addClass( 'hidden' );
-			rt_images = data.split( ',' );
+			rt_images = Array.isArray( data ) ? data : [];
 			rt_total = rt_images.length;
 
 			if ( rt_total > 0 ) {
@@ -173,6 +173,6 @@ jQuery( document ).ready( function( $ ) {
 			} else {
 				alert( ime_admin.noimg );
 			}
-		} );
+		}, 'json' );
 	} );
 } );

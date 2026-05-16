@@ -103,7 +103,7 @@ function ime_init() {
         add_action( 'wp_ajax_ime_process_image', 'ime_ajax_process_image' );
         add_action( 'wp_ajax_ime_regeneration_get_images', 'ime_ajax_regeneration_get_images' );
 
-        wp_register_script( 'alpinejs', 'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js', [], '3.15.9', true );
+        wp_register_script( 'alpinejs', plugins_url( '/js/alpine.min.js', __FILE__ ), [], '3.15.9', true );
         wp_register_script( 'ime-admin', plugins_url( '/js/ime-admin.js', __FILE__ ), [ 'jquery', 'jquery-ui-progressbar' ], constant('IME_VERSION'), true );
     }
 }
@@ -146,17 +146,14 @@ function ime_script_version_compare( $handle, $version, $compare = '>=' ) {
 
 // Get array of available image sizes
 function ime_available_image_sizes() {
-    global $_wp_additional_image_sizes;
     $sizes = [
         'thumbnail'    => __( 'Thumbnail' ),
         'medium'       => __( 'Medium' ),
         'medium_large' => __( 'Medium Large' ),
         'large'        => __( 'Large' ),
     ]; // Standard sizes
-    if ( isset( $_wp_additional_image_sizes ) && count( $_wp_additional_image_sizes ) ) {
-        foreach ( $_wp_additional_image_sizes as $name => $spec ) {
-            $sizes[ $name ] = $name;
-        }
+    foreach ( wp_get_additional_image_sizes() as $name => $spec ) {
+        $sizes[ $name ] = $name;
     }
 
     return $sizes;
@@ -356,7 +353,7 @@ function ime_filter_attachment_metadata( $metadata, $attachment_id ) {
     if ( is_wp_error( $editor ) ) {
         // Display a more helpful error message.
         if ( 'image_no_editor' === $editor->get_error_code() ) {
-            $editor = new WP_Error( 'image_no_editor', __( 'The current image editor cannot process this file type.', 'regenerate-thumbnails' ) );
+            $editor = new WP_Error( 'image_no_editor', __( 'The current image editor cannot process this file type.', 'imagemagick-engine' ) );
         }
 
         $editor->add_data( array(
@@ -470,12 +467,12 @@ function ime_im_php_valid() {
 
 // Resize file using PHP Imagick class
 function ime_im_php_resize( $old_file, $new_file, $width, $height, $crop, $resize_mode = 'quality' ) {
-    $im = new Imagick( $old_file );
-    if ( ! $im->valid() ) {
-        return false;
-    }
-
     try {
+        $im = new Imagick( $old_file );
+        if ( ! $im->valid() ) {
+            return false;
+        }
+
         $im->setImageFormat( ime_im_get_filetype( $old_file ) );
 
         // Apply Exif orientation to actual pixels before any dimension calculations.
@@ -857,7 +854,8 @@ function ime_im_graphicsmagick_resize( $old_file, $new_file, $width, $height, $c
 
 // Test if a path is correct for IM binary
 function ime_ajax_test_im_path() {
-    if ( ! current_user_can( 'manage_options' ) || ! wp_verify_nonce( $_REQUEST['ime_nonce'], 'ime-admin-nonce') ) {
+    $nonce = isset( $_REQUEST['ime_nonce'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['ime_nonce'] ) ) : '';
+    if ( ! current_user_can( 'manage_options' ) || ! wp_verify_nonce( $nonce, 'ime-admin-nonce' ) ) {
         wp_die( 'Sorry, but you do not have permissions to perform this action.' );
     }
 
@@ -874,9 +872,14 @@ function ime_ajax_test_im_path() {
     if ( ! $found ) {
         $open_basedir = ini_get( 'open_basedir' );
         if ( $open_basedir ) {
-            $covered = false;
+            $covered    = false;
+            $check_norm = rtrim( $check_path, '/\\' ) . DIRECTORY_SEPARATOR;
             foreach ( explode( PATH_SEPARATOR, $open_basedir ) as $dir ) {
-                if ( $dir !== '' && strpos( $check_path, rtrim( $dir, '/\\' ) ) === 0 ) {
+                if ( $dir === '' ) {
+                    continue;
+                }
+                $dir_norm = rtrim( $dir, '/\\' ) . DIRECTORY_SEPARATOR;
+                if ( strpos( $check_norm, $dir_norm ) === 0 ) {
                     $covered = true;
                     break;
                 }
@@ -896,28 +899,28 @@ function ime_ajax_test_im_path() {
 function ime_ajax_regeneration_get_images() {
     global $wpdb;
 
-    if ( ! current_user_can( 'manage_options' ) || ! wp_verify_nonce( $_REQUEST['ime_nonce'], 'ime-admin-nonce') ) {
+    $nonce = isset( $_REQUEST['ime_nonce'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['ime_nonce'] ) ) : '';
+    if ( ! current_user_can( 'manage_options' ) || ! wp_verify_nonce( $nonce, 'ime-admin-nonce' ) ) {
         wp_die( 'Sorry, but you do not have permissions to perform this action.' );
     }
 
     // Query for the IDs only to reduce memory usage
     $images = $wpdb->get_results( "SELECT ID FROM $wpdb->posts WHERE post_type = 'attachment' AND post_mime_type LIKE 'image/%' AND post_mime_type != 'image/svg+xml'" );
 
-    // Generate the list of IDs
-    $ids = [];
+    $ids = array();
     foreach ( $images as $image ) {
-        $ids[] = $image->ID;
+        $ids[] = (int) $image->ID;
     }
-    $ids = implode( ',', $ids );
 
-    wp_die( $ids );
+    wp_send_json( $ids );
 }
 
 // Process single attachment ID
 function ime_ajax_process_image() {
-    global $ime_image_sizes, $ime_image_file, $_wp_additional_image_sizes;
+    global $ime_image_sizes, $ime_image_file;
 
-    if ( ! current_user_can( 'manage_options' ) || ! ime_mode_valid() || ! wp_verify_nonce( $_REQUEST['ime_nonce'], 'ime-admin-nonce') ) {
+    $nonce = isset( $_REQUEST['ime_nonce'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['ime_nonce'] ) ) : '';
+    if ( ! current_user_can( 'manage_options' ) || ! ime_mode_valid() || ! wp_verify_nonce( $nonce, 'ime-admin-nonce' ) ) {
         wp_die( '-1' );
     }
 
@@ -941,24 +944,26 @@ function ime_ajax_process_image() {
 
     $temp_sizes = apply_filters( 'intermediate_image_sizes', $temp_sizes );
 
+    $additional_sizes = wp_get_additional_image_sizes();
+
     foreach ( $temp_sizes as $s ) {
         $sizes[ $s ] = [
             'width'  => '',
             'height' => '',
             'crop'   => false,
         ];
-        if ( isset( $_wp_additional_image_sizes[ $s ]['width'] ) ) {
-            $sizes[ $s ]['width'] = intval( $_wp_additional_image_sizes[ $s ]['width'] ); // For theme-added sizes
+        if ( isset( $additional_sizes[ $s ]['width'] ) ) {
+            $sizes[ $s ]['width'] = intval( $additional_sizes[ $s ]['width'] ); // For theme-added sizes
         } else {
             $sizes[ $s ]['width'] = get_option( "{$s}_size_w" ); // For default sizes set in options
         }
-        if ( isset( $_wp_additional_image_sizes[ $s ]['height'] ) ) {
-            $sizes[ $s ]['height'] = intval( $_wp_additional_image_sizes[ $s ]['height'] ); // For theme-added sizes
+        if ( isset( $additional_sizes[ $s ]['height'] ) ) {
+            $sizes[ $s ]['height'] = intval( $additional_sizes[ $s ]['height'] ); // For theme-added sizes
         } else {
             $sizes[ $s ]['height'] = get_option( "{$s}_size_h" ); // For default sizes set in options
         }
-        if ( isset( $_wp_additional_image_sizes[ $s ]['crop'] ) ) {
-            $sizes[ $s ]['crop'] = intval( $_wp_additional_image_sizes[ $s ]['crop'] ); // For theme-added sizes
+        if ( isset( $additional_sizes[ $s ]['crop'] ) ) {
+            $sizes[ $s ]['crop'] = intval( $additional_sizes[ $s ]['crop'] ); // For theme-added sizes
         } else {
             $sizes[ $s ]['crop'] = get_option( "{$s}_crop" ); // For default sizes set in options
         }
@@ -1206,8 +1211,11 @@ function ime_option_page() {
     if ( isset( $_POST['update_settings'] ) ) {
         $new_enabled = isset( $_POST['enabled'] ) && ! ! $_POST['enabled'];
         ime_set_option( 'enabled', $new_enabled );
-        if ( isset( $_POST['mode'] ) && array_key_exists( $_POST['mode'], ime_get_available_modes() ) ) {
-            ime_set_option( 'mode', $_POST['mode'] );
+        if ( isset( $_POST['mode'] ) ) {
+            $posted_mode = sanitize_key( wp_unslash( $_POST['mode'] ) );
+            if ( array_key_exists( $posted_mode, ime_get_available_modes() ) ) {
+                ime_set_option( 'mode', $posted_mode );
+            }
         }
         if ( isset( $_POST['cli_path'] ) ) {
             ime_set_option( 'cli_path', ime_try_realpath( sanitize_text_field( wp_unslash( $_POST['cli_path'] ) ) ) );
@@ -1353,7 +1361,8 @@ function ime_option_page() {
                                             <td>
                                                 <?php
                                                 foreach ( $sizes as $s => $name ) {
-                                                    echo '<input type="checkbox" name="regen-size-' . $s . '" value="1" ' . ( ( isset( $handle_sizes[ $s ] ) && $handle_sizes[ $s ] != 'skip' && $handle_sizes[ $s ] != false ) ? ' checked="checked" ' : '' ) . ' /> ' . $name . '<br />';
+                                                    $checked = ( isset( $handle_sizes[ $s ] ) && $handle_sizes[ $s ] != 'skip' && $handle_sizes[ $s ] != false ) ? ' checked="checked" ' : '';
+                                                    echo '<input type="checkbox" name="regen-size-' . esc_attr( $s ) . '" value="1" ' . $checked . ' /> ' . esc_html( $name ) . '<br />';
                                                 }
                                                 ?>
                                             </td>

@@ -1,9 +1,9 @@
 === ImageMagick Engine ===
 Contributors: rickardw, orangelab
 Tags: image, picture, imagemagick, gd, regenerate
-Requires at least: 5.0
-Tested up to: 6.9.4
-Stable tag: 1.8.0
+Requires at least: 5.3
+Tested up to: 7.0.0
+Stable tag: 1.8.1
 License: GPLv2 or later
 
 Improve the quality of re-sized images by replacing standard GD library with ImageMagick.

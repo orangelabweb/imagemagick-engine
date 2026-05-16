@@ -219,11 +219,11 @@ msgstr "ImageMagick bildkvalité"
 
 #: imagemagick-engine.php:1449
 msgid "Optimize for quality"
-msgstr "Vid optimering f&ouml;r kvalité"
+msgstr "Vid optimering för kvalité"
 
 #: imagemagick-engine.php:1450
 msgid "Optimize for size"
-msgstr "Vid optimering f&ouml;r storlek"
+msgstr "Vid optimering för storlek"
 
 #: imagemagick-engine.php:1451
 msgid ""
