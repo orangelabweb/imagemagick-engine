@@ -2,8 +2,8 @@
 Contributors: rickardw, orangelab
 Tags: image, picture, imagemagick, gd, regenerate
 Requires at least: 5.3
-Tested up to: 7.0.0
-Stable tag: 1.8.1
+Tested up to: 7.1
+Stable tag: 1.9.0
 License: GPLv2 or later
 
 Improve the quality of re-sized images by replacing standard GD library with ImageMagick.
@@ -66,6 +66,14 @@ You can also find binary releases at http://www.imagemagick.org including a Wind
 
 == Changelog ==
 
+= 1.9.0 =
+* Tested compability with WordPress 7.0 and 7.1
+* Add option to keep generating all image sizes with ImageMagick on WordPress 7.1, which otherwise creates some sizes in the browser
+* Fix wrong size and wrong stored dimensions for images with an Exif orientation tag (rotated photos came out too small, or stretched when using the ImageMagick/GraphicsMagick binary)
+* Fix resized images having wrong orientation when Exif orientation tag is set
+* Add option to preserve Exif metadata (including GPS) when optimizing for size
+* Add GraphicsMagick as an alternative to ImageMagick
+
 = 1.8.0 =
 * Security fixes: output escaping, input sanitization, removed inline JS event handlers
 * Replace shell exec with proc_open to prevent shell injection without requiring escapeshellcmd
@@ -75,9 +83,6 @@ You can also find binary releases at http://www.imagemagick.org including a Wind
 * Detect open_basedir restrictions when testing CLI path
 * Clean up plugin data on uninstall
 * Remove outdated WordPress 3.5 compatibility code
-* Fix resized images having wrong orientation when Exif orientation tag is set
-* Add option to preserve Exif metadata (including GPS) when optimizing for size
-* Add GraphicsMagick as an alternative to ImageMagick
 
 = 1.7.14 =
 * Fix how translations was loaded again

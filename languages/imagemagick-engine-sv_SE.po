@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: ImageMagick Engine\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/imagemagick-"
 "engine\n"
-"POT-Creation-Date: 2026-03-27T13:33:27+00:00\n"
+"POT-Creation-Date: 2026-08-14T21:52:38+00:00\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Johan Eenfeldt <johan@orangelab.se>\n"
 "Language-Team: \n"
@@ -42,33 +42,37 @@ msgstr "Orangelab"
 msgid "https://orangelab.com/"
 msgstr "https://orangelab.com/"
 
-#: imagemagick-engine.php:1068
+#: imagemagick-engine.php:384
+msgid "The current image editor cannot process this file type."
+msgstr "Den nuvarande bildredigeraren kan inte hantera den här filtypen."
+
+#: imagemagick-engine.php:1138
 msgid "You dont have any images to regenerate"
 msgstr "Du har inga bilder att skala om"
 
-#: imagemagick-engine.php:1069
+#: imagemagick-engine.php:1139
 msgid "All done!"
 msgstr "Färdigt!"
 
-#: imagemagick-engine.php:1070
+#: imagemagick-engine.php:1140
 #, php-format
 msgid "Processed %d images"
 msgstr "Skalat om %d bilder"
 
-#: imagemagick-engine.php:1071
+#: imagemagick-engine.php:1141
 msgid "Failed to resize image!"
 msgstr "Kunde inte skala om bild!"
 
-#: imagemagick-engine.php:1072 imagemagick-engine.php:1124
+#: imagemagick-engine.php:1142 imagemagick-engine.php:1194
 msgid "Resized using ImageMagick Engine"
 msgstr "Omskalad av ImageMagick Engine"
 
-#: imagemagick-engine.php:1074
+#: imagemagick-engine.php:1144
 #, php-format
 msgid "%s not found at this path."
 msgstr "%s finns inte på den här sökvägen."
 
-#: imagemagick-engine.php:1075
+#: imagemagick-engine.php:1145
 #, php-format
 msgid ""
 "%s not found. Your PHP open_basedir setting is restricting access to this "
@@ -77,123 +81,123 @@ msgstr ""
 "%s hittades inte. Din inställning för open_basedir i PHP begränsar åtkomsten "
 "till den här sökvägen. Lägg till sökvägen i din open_basedir-konfiguration."
 
-#: imagemagick-engine.php:1089
+#: imagemagick-engine.php:1159
 msgid "Settings"
 msgstr "Inställningar"
 
-#: imagemagick-engine.php:1125
+#: imagemagick-engine.php:1195
 msgid "Resize image"
 msgstr "Skala om bild"
 
-#: imagemagick-engine.php:1129
+#: imagemagick-engine.php:1199
 msgid "Resize using ImageMagick Engine"
 msgstr "Omskala med ImageMagick Engine"
 
-#: imagemagick-engine.php:1166 imagemagick-engine.php:1407
+#: imagemagick-engine.php:1236 imagemagick-engine.php:1488
 msgid "Imagick PHP module"
 msgstr "Imagick PHP modul"
 
-#: imagemagick-engine.php:1167 imagemagick-engine.php:1414
+#: imagemagick-engine.php:1237 imagemagick-engine.php:1495
 msgid "Gmagick PHP module"
 msgstr "Gmagick PHP-modul"
 
-#: imagemagick-engine.php:1168
+#: imagemagick-engine.php:1238
 msgid "ImageMagick command-line"
 msgstr "ImageMagick kommando"
 
-#: imagemagick-engine.php:1169
+#: imagemagick-engine.php:1239
 msgid "GraphicsMagick command-line"
 msgstr "GraphicsMagick-kommando"
 
-#: imagemagick-engine.php:1263
+#: imagemagick-engine.php:1342
 msgid "Settings updated"
 msgstr "Inställningar uppdaterade"
 
-#: imagemagick-engine.php:1322
+#: imagemagick-engine.php:1402
 msgid "No valid ImageMagick mode found!"
 msgstr "Ingen fungerande ImageMagick-installation hittades!"
 
-#: imagemagick-engine.php:1326
+#: imagemagick-engine.php:1406
 msgid "ImageMagick Engine is not enabled."
 msgstr "ImageMagick Engine är inte aktiverad."
 
-#: imagemagick-engine.php:1332
+#: imagemagick-engine.php:1412
 msgid "ImageMagick Engine Settings"
 msgstr "ImageMagick Engine Inställningar"
 
-#: imagemagick-engine.php:1333 imagemagick-engine.php:1335
+#: imagemagick-engine.php:1413 imagemagick-engine.php:1415
 msgid "Regenerating images"
 msgstr "Skalar om bilder"
 
-#: imagemagick-engine.php:1334
+#: imagemagick-engine.php:1414
 msgid "You must enable Javascript in order to proceed!"
 msgstr "Du måste tillåta Javascript i din webbläsare för att kunna fortsätta!"
 
-#: imagemagick-engine.php:1347
+#: imagemagick-engine.php:1427
 msgid "Regenerate Images"
 msgstr "Skala om bilder"
 
-#: imagemagick-engine.php:1352
+#: imagemagick-engine.php:1432
 msgid "Sizes"
 msgstr "Bilder"
 
-#: imagemagick-engine.php:1362
+#: imagemagick-engine.php:1443
 msgid "ImageMagick images too"
 msgstr "ImageMagick bilder också"
 
-#: imagemagick-engine.php:1366
+#: imagemagick-engine.php:1447
 msgid "Resize will use standard WordPress functions."
 msgstr "Omskalningen kommer använda Wordpress standardfunktioner."
 
-#: imagemagick-engine.php:1369
+#: imagemagick-engine.php:1450
 msgid "Regenerate"
 msgstr "Skala om"
 
-#: imagemagick-engine.php:1370
+#: imagemagick-engine.php:1451
 msgid "(this can take a long time)"
 msgstr "(det här kan ta lång tid)"
 
-#: imagemagick-engine.php:1382
+#: imagemagick-engine.php:1463
 msgid "Enable"
 msgstr "Aktivera"
 
-#: imagemagick-engine.php:1391
+#: imagemagick-engine.php:1472
 msgid "Image engine"
 msgstr "Bildmotor"
 
-#: imagemagick-engine.php:1410
+#: imagemagick-engine.php:1491
 msgid "Imagick PHP module found"
 msgstr "Imagick PHP modul finns."
 
-#: imagemagick-engine.php:1410
+#: imagemagick-engine.php:1491
 msgid "Imagick PHP module not found"
 msgstr "Imagick PHP modul finns ej."
 
-#: imagemagick-engine.php:1417
+#: imagemagick-engine.php:1498
 msgid "Gmagick PHP module found"
 msgstr "Gmagick PHP-modul hittad"
 
-#: imagemagick-engine.php:1417
+#: imagemagick-engine.php:1498
 msgid "Gmagick PHP module not found"
 msgstr "PHP-modulen Gmagick hittades inte"
 
-#: imagemagick-engine.php:1421
+#: imagemagick-engine.php:1502
 msgid "ImageMagick path"
 msgstr "ImageMagick sökväg"
 
-#: imagemagick-engine.php:1424 imagemagick-engine.php:1437
+#: imagemagick-engine.php:1505 imagemagick-engine.php:1518
 msgid "Command not found"
 msgstr "Kommando hittades inte"
 
-#: imagemagick-engine.php:1425 imagemagick-engine.php:1438
+#: imagemagick-engine.php:1506 imagemagick-engine.php:1519
 msgid "Testing command..."
 msgstr "Testar kommando..."
 
-#: imagemagick-engine.php:1427 imagemagick-engine.php:1440
+#: imagemagick-engine.php:1508 imagemagick-engine.php:1521
 msgid "Test path"
 msgstr "Testa sökväg"
 
-#: imagemagick-engine.php:1430
+#: imagemagick-engine.php:1511
 msgid ""
 "Enter the path where ImageMagick is installed on your server. This is "
 "usually /usr/bin or /usr/local/bin."
@@ -201,11 +205,11 @@ msgstr ""
 "Ange sökvägen till den mapp där ImageMagick är installerat på din server. "
 "Vanligtvis är det /usr/bin eller /usr/local/bin."
 
-#: imagemagick-engine.php:1434
+#: imagemagick-engine.php:1515
 msgid "GraphicsMagick path"
 msgstr "GraphicsMagick-sökväg"
 
-#: imagemagick-engine.php:1443
+#: imagemagick-engine.php:1524
 msgid ""
 "Enter the path where GraphicsMagick is installed on your server. This is "
 "usually /usr/bin or /usr/local/bin."
@@ -213,19 +217,19 @@ msgstr ""
 "Ange sökvägen till den mapp där GraphicsMagick är installerat på din server. "
 "Det är vanligtvis /usr/bin eller /usr/local/bin."
 
-#: imagemagick-engine.php:1447
+#: imagemagick-engine.php:1528
 msgid "ImageMagick quality"
 msgstr "ImageMagick bildkvalité"
 
-#: imagemagick-engine.php:1449
+#: imagemagick-engine.php:1530
 msgid "Optimize for quality"
 msgstr "Vid optimering för kvalité"
 
-#: imagemagick-engine.php:1450
+#: imagemagick-engine.php:1531
 msgid "Optimize for size"
 msgstr "Vid optimering för storlek"
 
-#: imagemagick-engine.php:1451
+#: imagemagick-engine.php:1532
 msgid ""
 "Set to 0-100. Higher value gives better image quality but larger file size. "
 "Leave empty for default value, computed dynamically."
@@ -234,19 +238,19 @@ msgstr ""
 "st&ouml;rre filstorlek. L&auml;mna tomt f&ouml;r automatiskt ber&auml;knat "
 "v&auml;rde."
 
-#: imagemagick-engine.php:1455
+#: imagemagick-engine.php:1536
 msgid "Image interlace?"
 msgstr "Bildinterlacing?"
 
-#: imagemagick-engine.php:1460
+#: imagemagick-engine.php:1541
 msgid "Adds interlace option to ImageMagick when images are processed."
 msgstr "Lägger till alternativet för interlace i ImageMagick vid bearbetning."
 
-#: imagemagick-engine.php:1464
+#: imagemagick-engine.php:1545
 msgid "Preserve Exif data?"
 msgstr "Ska Exif-data bevaras?"
 
-#: imagemagick-engine.php:1469
+#: imagemagick-engine.php:1550
 msgid ""
 "When optimizing for size, preserve Exif metadata (including GPS location) "
 "instead of stripping it. Other non-essential metadata (IPTC, XMP) is still "
@@ -256,25 +260,51 @@ msgstr ""
 "position) istället för att ta bort dem. Övriga icke-väsentliga metadata "
 "(IPTC, XMP) tas fortfarande bort."
 
-#: imagemagick-engine.php:1476
+#: imagemagick-engine.php:1555
+msgid "Disable client-side media processing?"
+msgstr "Stäng av bildbehandling i webbläsaren?"
+
+#: imagemagick-engine.php:1560
+msgid ""
+"WordPress 7.1 and later lets the browser generate image sizes during upload, "
+"bypassing ImageMagick for those sizes. Keep this checked so every size is "
+"generated on the server with the settings above."
+msgstr ""
+"WordPress 7.1 och senare låter webbläsaren skapa bildstorlekar vid "
+"uppladdning, vilket förbigår ImageMagick för de storlekarna. Låt rutan vara "
+"ikryssad så att alla storlekar skapas på servern med inställningarna ovan."
+
+#: imagemagick-engine.php:1568
 msgid "Image size"
 msgstr "Bildstorlek"
 
-#: imagemagick-engine.php:1477
+#: imagemagick-engine.php:1569
 msgid "Quality"
 msgstr "Kvalité"
 
-#: imagemagick-engine.php:1478
+#: imagemagick-engine.php:1570
 msgid "Size"
 msgstr "Storlek"
 
-#: imagemagick-engine.php:1479
+#: imagemagick-engine.php:1571
 msgid "None (use WP instead)"
 msgstr "Inget (anv&auml;nd WP ist&auml;llet)"
 
-#: imagemagick-engine.php:1511
+#: imagemagick-engine.php:1603
 msgid "Save Changes"
 msgstr "Spara ändringar"
+
+#~ msgid "Handle all image sizes?"
+#~ msgstr "Hantera alla bildstorlekar?"
+
+#~ msgid ""
+#~ "WordPress 7.1 and later can generate image sizes in the browser instead "
+#~ "of on the server. Keep this checked to turn that off, so every size is "
+#~ "generated by ImageMagick with the settings above."
+#~ msgstr ""
+#~ "WordPress 7.1 och senare kan skapa bildstorlekar i webbläsaren istället "
+#~ "för på servern. Låt rutan vara ikryssad för att stänga av det, så att "
+#~ "alla storlekar skapas av ImageMagick med inställningarna ovan."
 
 #~ msgid "Thumbnail"
 #~ msgstr "Miniatyr"
