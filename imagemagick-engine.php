@@ -124,7 +124,7 @@ function ime_init() {
         add_action( 'wp_ajax_ime_regen_cancel', 'ime_ajax_regen_cancel' );
         add_action( 'wp_ajax_ime_regen_state', 'ime_ajax_regen_state' );
 
-        wp_register_script( 'alpinejs', plugins_url( '/js/alpine.csp.min.js', __FILE__ ), [], '3.15.9', true );
+        wp_register_script( 'alpinejs', plugins_url( '/js/alpine.csp.min.js', __FILE__ ), [ 'ime-admin' ], '3.15.9', true );
         wp_register_script( 'ime-admin', plugins_url( '/js/ime-admin.js', __FILE__ ), [], constant( 'IME_VERSION' ), true );
     }
 }
