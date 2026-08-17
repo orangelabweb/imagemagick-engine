@@ -583,6 +583,11 @@ function ime_option_page() {
                                 </thead>
                                 <tbody>
                                 <?php
+                                $mode_labels = [
+                                    'quality' => __( 'Quality', 'imagemagick-engine' ),
+                                    'size'    => __( 'Size', 'imagemagick-engine' ),
+                                    'skip'    => __( 'None', 'imagemagick-engine' ),
+                                ];
                                 foreach ( $sizes as $s => $name ) {
                                     // Fixup for options stored before 1.5.0.
                                     if ( ! isset( $handle_sizes[ $s ] ) || ! $handle_sizes[ $s ] ) {
@@ -592,11 +597,6 @@ function ime_option_page() {
                                     }
 
                                     $group = 'handle-mode-' . $s;
-                                    $mode_labels = [
-                                        'quality' => __( 'Quality', 'imagemagick-engine' ),
-                                        'size'    => __( 'Size', 'imagemagick-engine' ),
-                                        'skip'    => __( 'None', 'imagemagick-engine' ),
-                                    ];
                                     ?>
                                     <tr>
                                         <th scope="row"><?php echo esc_html( $name ); ?></th>
@@ -635,79 +635,78 @@ function ime_option_page() {
         </div>
 
         <div x-show="isTabRegenerate" x-cloak>
-    <div x-data="imeRegen">
-        <h2><?php esc_html_e( 'Regenerate images', 'imagemagick-engine' ); ?></h2>
+            <div x-data="imeRegen">
+                <h2><?php esc_html_e( 'Regenerate images', 'imagemagick-engine' ); ?></h2>
 
-        <?php if ( ! ime_active() ) { ?>
-            <div class="notice notice-warning inline">
-                <p><?php esc_html_e( 'ImageMagick Engine is not active, so resizing will use standard WordPress functions.', 'imagemagick-engine' ); ?></p>
-            </div>
-        <?php } ?>
-
-        <div x-show="isIdle" x-cloak>
-            <fieldset class="ime-regen-sizes">
-                <legend><?php esc_html_e( 'Sizes', 'imagemagick-engine' ); ?></legend>
-                <?php
-                foreach ( $sizes as $s => $name ) {
-                    $checked = isset( $handle_sizes[ $s ] ) && 'skip' !== $handle_sizes[ $s ] && $handle_sizes[ $s ];
-                    ?>
-                    <label>
-                        <input type="checkbox" class="ime-regen-size" value="<?php echo esc_attr( $s ); ?>"
-                            data-default="<?php echo $checked ? '1' : '0'; ?>"
-                            <?php checked( $checked ); ?> />
-                        <?php echo esc_html( $name ); ?>
-                    </label>
+                <?php if ( ! ime_active() ) { ?>
+                    <div class="notice notice-warning inline">
+                        <p><?php esc_html_e( 'ImageMagick Engine is not active, so resizing will use standard WordPress functions.', 'imagemagick-engine' ); ?></p>
+                    </div>
                 <?php } ?>
-                <p>
-                    <button type="button" class="button-link" x-on:click="selectAllSizes"><?php esc_html_e( 'All', 'imagemagick-engine' ); ?></button> ·
-                    <button type="button" class="button-link" x-on:click="selectNoSizes"><?php esc_html_e( 'None', 'imagemagick-engine' ); ?></button> ·
-                    <button type="button" class="button-link" x-on:click="selectDefaultSizes"><?php esc_html_e( 'Match settings', 'imagemagick-engine' ); ?></button>
-                </p>
-            </fieldset>
 
-            <p>
-                <label>
-                    <input type="checkbox" id="ime-regen-force" x-model="force" />
-                    <?php esc_html_e( 'Also regenerate images already handled by ImageMagick Engine', 'imagemagick-engine' ); ?>
-                </label>
-            </p>
+                <div x-show="isIdle" x-cloak>
+                    <fieldset class="ime-regen-sizes">
+                        <legend><?php esc_html_e( 'Sizes', 'imagemagick-engine' ); ?></legend>
+                        <?php
+                        foreach ( $sizes as $s => $name ) {
+                            $checked = isset( $handle_sizes[ $s ] ) && 'skip' !== $handle_sizes[ $s ] && $handle_sizes[ $s ];
+                            ?>
+                            <label>
+                                <input type="checkbox" class="ime-regen-size" value="<?php echo esc_attr( $s ); ?>"
+                                    data-default="<?php echo $checked ? '1' : '0'; ?>"
+                                    <?php checked( $checked ); ?> />
+                                <?php echo esc_html( $name ); ?>
+                            </label>
+                        <?php } ?>
+                        <p>
+                            <button type="button" class="button-link" x-on:click="selectAllSizes"><?php esc_html_e( 'All', 'imagemagick-engine' ); ?></button> ·
+                            <button type="button" class="button-link" x-on:click="selectNoSizes"><?php esc_html_e( 'None', 'imagemagick-engine' ); ?></button> ·
+                            <button type="button" class="button-link" x-on:click="selectDefaultSizes"><?php esc_html_e( 'Match settings', 'imagemagick-engine' ); ?></button>
+                        </p>
+                    </fieldset>
 
-            <p>
-                <button type="button" class="button button-primary" x-on:click="start"><?php esc_html_e( 'Start regeneration', 'imagemagick-engine' ); ?></button>
-            </p>
-            <p class="description"><?php esc_html_e( 'This can take a long time.', 'imagemagick-engine' ); ?></p>
+                    <p>
+                        <label>
+                            <input type="checkbox" id="ime-regen-force" x-model="force" />
+                            <?php esc_html_e( 'Also regenerate images already handled by ImageMagick Engine', 'imagemagick-engine' ); ?>
+                        </label>
+                    </p>
 
-            <div class="notice notice-error inline" x-show="hasError" x-cloak>
-                <p x-text="errorMessage"></p>
+                    <p>
+                        <button type="button" class="button button-primary" x-on:click="start"><?php esc_html_e( 'Start regeneration', 'imagemagick-engine' ); ?></button>
+                    </p>
+                    <p class="description"><?php esc_html_e( 'This can take a long time.', 'imagemagick-engine' ); ?></p>
+                </div>
+
+                <div x-show="isRunning" x-cloak>
+                    <p><strong x-text="headingText"></strong></p>
+                    <progress class="ime-progress" max="100" :value="percent"></progress>
+                    <p class="ime-regen-status" aria-live="polite" x-text="statusText"></p>
+                    <p>
+                        <button type="button" class="button button-primary" x-show="isPaused" x-cloak x-on:click="resume"><?php esc_html_e( 'Resume', 'imagemagick-engine' ); ?></button>
+                        <button type="button" class="button" x-on:click="cancel"><?php esc_html_e( 'Cancel', 'imagemagick-engine' ); ?></button>
+                    </p>
+                </div>
+
+                <div x-show="isDone" x-cloak>
+                    <div class="notice notice-success inline"><p x-text="doneText"></p></div>
+                </div>
+
+                <div class="notice notice-error inline" x-show="hasError" x-cloak>
+                    <p x-text="errorMessage"></p>
+                </div>
+
+                <div x-show="hasFailures" x-cloak>
+                    <div class="notice notice-warning inline">
+                        <p x-text="failedText"></p>
+                        <ul class="ime-regen-failures">
+                            <template x-for="item in failed" :key="item.id">
+                                <li><span x-text="item.title"></span> — <span x-text="item.error"></span></li>
+                            </template>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
-
-        <div x-show="isRunning" x-cloak>
-            <p><strong x-text="headingText"></strong></p>
-            <progress class="ime-progress" max="100" :value="percent"></progress>
-            <p class="ime-regen-status" aria-live="polite" x-text="statusText"></p>
-            <p>
-                <button type="button" class="button button-primary" x-show="isPaused" x-cloak x-on:click="resume"><?php esc_html_e( 'Resume', 'imagemagick-engine' ); ?></button>
-                <button type="button" class="button" x-on:click="cancel"><?php esc_html_e( 'Cancel', 'imagemagick-engine' ); ?></button>
-            </p>
-        </div>
-
-        <div x-show="isDone" x-cloak>
-            <div class="notice notice-success inline"><p x-text="doneText"></p></div>
-        </div>
-
-        <div x-show="hasFailures" x-cloak>
-            <div class="notice notice-warning inline">
-                <p x-text="failedText"></p>
-                <ul class="ime-regen-failures">
-                    <template x-for="item in failed" :key="item.id">
-                        <li><span x-text="item.title"></span> — <span x-text="item.error"></span></li>
-                    </template>
-                </ul>
-            </div>
-        </div>
-    </div>
-        </div>
-    </div>
     <?php
 }

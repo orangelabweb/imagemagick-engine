@@ -87,6 +87,7 @@
 	width: 100%;
 	max-width: 600px;
 	height: 24px;
+	accent-color: var( --wp-admin-theme-color, #2271b1 );
 }
 
 .ime-regen-status {

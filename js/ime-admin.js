@@ -140,6 +140,7 @@ document.addEventListener( 'alpine:init', function() {
 			force: false,
 			errorMessage: '',
 			cancelRequested: false,
+			runToken: 0,
 			batchTimes: [],
 
 			// Alpine calls init() automatically on the component root, so the
@@ -266,6 +267,8 @@ document.addEventListener( 'alpine:init', function() {
 				var self = this;
 				var sizes = this.selectedSizes();
 
+				this.runToken++;
+
 				self.errorMessage = '';
 				self.failed = [];
 				self.failedCount = 0;
@@ -280,21 +283,25 @@ document.addEventListener( 'alpine:init', function() {
 					self.paused = false;
 					self.done = 0;
 					self.total = data.total;
-					self.runBatch();
+					self.runBatch( self.runToken );
 				} ).catch( function( error ) {
 					self.errorMessage = error.message;
 				} );
 			},
 
 			resume: function() {
+				this.runToken++;
+
 				this.errorMessage = '';
 				this.paused = false;
 				this.cancelRequested = false;
-				this.runBatch();
+				this.runBatch( this.runToken );
 			},
 
 			cancel: function() {
 				var self = this;
+
+				this.runToken++;
 
 				self.cancelRequested = true;
 
@@ -303,22 +310,24 @@ document.addEventListener( 'alpine:init', function() {
 					self.paused = false;
 					self.done = 0;
 					self.total = 0;
+					self.failed = [];
+					self.failedCount = 0;
 				} ).catch( function( error ) {
 					self.errorMessage = error.message;
 				} );
 			},
 
-			runBatch: function() {
+			runBatch: function( token ) {
 				var self = this;
 				var startedAt = Date.now();
 				var before = self.done;
 
-				if ( self.cancelRequested ) {
+				if ( self.cancelRequested || token !== self.runToken ) {
 					return;
 				}
 
 				imeRequest( 'ime_regen_batch', {} ).then( function( data ) {
-					if ( self.cancelRequested ) {
+					if ( self.cancelRequested || token !== self.runToken ) {
 						return;
 					}
 
@@ -326,6 +335,16 @@ document.addEventListener( 'alpine:init', function() {
 						seconds: ( Date.now() - startedAt ) / 1000,
 						images: Math.max( 1, data.done - before )
 					} );
+
+					if ( data.cancelled ) {
+						self.state = 'idle';
+						self.paused = false;
+						self.done = 0;
+						self.total = 0;
+						self.failed = [];
+						self.failedCount = 0;
+						return;
+					}
 
 					self.done = data.done;
 					self.total = data.total;
@@ -337,8 +356,11 @@ document.addEventListener( 'alpine:init', function() {
 						return;
 					}
 
-					self.runBatch();
+					self.runBatch( token );
 				} ).catch( function( error ) {
+					if ( token !== self.runToken ) {
+						return;
+					}
 					self.errorMessage = error.message;
 					self.state = 'idle';
 				} );
