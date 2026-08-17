@@ -63,7 +63,8 @@ You can also find binary releases at http://www.imagemagick.org including a Wind
 
 == Screenshots ==
 
-1. Administration interface
+1. Settings: choose an image engine, see which ones your server actually has, and set how each image size is generated.
+2. Regenerating existing images in adaptive batches, with progress, a time estimate and a cancel button.
 
 == Changelog ==
 
