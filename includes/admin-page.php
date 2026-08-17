@@ -49,6 +49,8 @@ function ime_admin_print_scripts() {
         /* translators: %d: number of images */
         'regen_failed_fmt'   => __( '%d failed', 'imagemagick-engine' ),
         'regen_ended'        => __( 'This run is no longer active. It either finished or expired.', 'imagemagick-engine' ),
+        /* translators: 1: number of images processed, 2: total number of images */
+        'regen_ended_progress_fmt' => __( 'Last known progress: %1$s of %2$s images.', 'imagemagick-engine' ),
     ];
 
     // Engine detection (ime_mode_valid() for all four engines) is only read by
@@ -526,14 +528,7 @@ function ime_option_page() {
                                             value="<?php echo esc_attr( ( isset( $quality['size'] ) && $quality['size'] > 0 ) ? $quality['size'] : '' ); ?>"
                                             aria-describedby="ime-quality-help" />
                                         <p class="description" id="ime-quality-help">
-                                            <?php
-                                            printf(
-                                                /* translators: 1: computed quality value, 2: computed size value */
-                                                esc_html__( 'Set to 0-100. A higher value means better image quality and a larger file. Leave empty to compute the value dynamically, which currently gives %1$d when optimizing for quality and %2$d when optimizing for size.', 'imagemagick-engine' ),
-                                                absint( ime_get_quality( 'quality' ) ),
-                                                absint( ime_get_quality( 'size' ) )
-                                            );
-                                            ?>
+                                            <?php esc_html_e( 'Set to 0-100. A higher value means better image quality and a larger file. Leave a field empty to pass no quality setting at all, so the image engine applies its own default.', 'imagemagick-engine' ); ?>
                                         </p>
                                     </td>
                                 </tr>
@@ -714,6 +709,7 @@ function ime_option_page() {
 
                 <div class="notice notice-info inline" x-show="hasEnded" x-cloak>
                     <p x-text="endedText"></p>
+                    <p x-show="hasEndedProgress" x-text="endedProgressText"></p>
                 </div>
 
                 <div class="notice notice-error inline" x-show="hasError" x-cloak>

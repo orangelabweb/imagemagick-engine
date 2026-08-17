@@ -220,7 +220,14 @@ function ime_ajax_process_image() {
 /**
  * Read the current regeneration queue.
  *
- * Deletes and reports absent any queue older than IME_REGEN_TTL.
+ * Deletes and reports absent any queue idle for longer than IME_REGEN_TTL.
+ * The TTL measures time since the last batch, not the age of the run: a
+ * library big enough to need a resumable queue can take longer than the TTL
+ * to get through, and killing it mid-flight would restart it from offset 0.
+ * An abandoned queue still expires, because nobody is writing to it.
+ *
+ * 'updated' is absent from a queue written by an earlier version that was
+ * still in flight when the plugin updated, so fall back to 'started' there.
  *
  * @return array|null
  */
@@ -231,7 +238,9 @@ function ime_regen_queue_get() {
         return null;
     }
 
-    if ( ( time() - (int) $queue['started'] ) > IME_REGEN_TTL ) {
+    $last_activity = isset( $queue['updated'] ) ? (int) $queue['updated'] : (int) $queue['started'];
+
+    if ( ( time() - $last_activity ) > IME_REGEN_TTL ) {
         ime_regen_queue_clear();
         return null;
     }
@@ -372,7 +381,10 @@ function ime_ajax_regen_start() {
         'failed'  => [],
         'failed_count' => 0,
         'batch'   => IME_REGEN_BATCH_START,
+        // 'started' is the run's real start time; 'updated' is what the TTL
+        // reads and is refreshed after every batch.
         'started' => time(),
+        'updated' => time(),
     ];
 
     ime_regen_queue_save( $queue );
@@ -472,6 +484,10 @@ function ime_ajax_regen_batch() {
     if ( $finished ) {
         ime_regen_queue_clear();
     } else {
+        // The TTL expires an idle queue, so mark this batch as activity —
+        // otherwise a run longer than IME_REGEN_TTL is killed while it is
+        // still making progress.
+        $queue['updated'] = time();
         ime_regen_queue_save( $queue );
     }
 

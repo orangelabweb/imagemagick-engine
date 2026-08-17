@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: ImageMagick Engine 1.5.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/imagemagick-"
 "engine\n"
-"POT-Creation-Date: 2026-08-17T21:25:01+00:00\n"
+"POT-Creation-Date: 2026-08-17T21:57:49+00:00\n"
 "PO-Revision-Date: 2026-03-27 14:39+0100\n"
 "Last-Translator: Damien Fabreguettes <damien.fa@gmail.com>\n"
 "Language-Team: Damien Fa (France) <damien@katorze.com>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "X-Generator: Poedit 3.9\n"
 
 #. Plugin Name of the plugin
-#: imagemagick-engine.php includes/admin-page.php:421
+#: imagemagick-engine.php includes/admin-page.php:423
 msgid "ImageMagick Engine"
 msgstr "ImageMagick Engine"
 
@@ -89,55 +89,61 @@ msgstr ""
 msgid "This run is no longer active. It either finished or expired."
 msgstr ""
 
-#: includes/admin-page.php:76 includes/admin-page.php:431
+#. translators: 1: number of images processed, 2: total number of images
+#: includes/admin-page.php:53
+#, php-format
+msgid "Last known progress: %1$s of %2$s images."
+msgstr ""
+
+#: includes/admin-page.php:78 includes/admin-page.php:433
 msgid "Settings"
 msgstr "Réglages"
 
-#: includes/admin-page.php:110 includes/ajax.php:217
+#: includes/admin-page.php:112 includes/ajax.php:217
 msgid "Resized using ImageMagick Engine"
 msgstr "Redimensionné via ImageMagick"
 
-#: includes/admin-page.php:111
+#: includes/admin-page.php:113
 msgid "Resize image"
 msgstr "Redimensionner une image"
 
-#: includes/admin-page.php:115
+#: includes/admin-page.php:117
 msgid "Resize using ImageMagick Engine"
 msgstr "Redimensionner via ImageMagick"
 
-#: includes/admin-page.php:154 includes/admin-page.php:461
+#: includes/admin-page.php:156 includes/admin-page.php:463
 msgid "Imagick PHP module"
 msgstr "module PHP Imagick"
 
-#: includes/admin-page.php:155 includes/admin-page.php:471
+#: includes/admin-page.php:157 includes/admin-page.php:473
 msgid "Gmagick PHP module"
 msgstr "Module PHP Gmagick"
 
-#: includes/admin-page.php:156 includes/admin-page.php:485
+#: includes/admin-page.php:158 includes/admin-page.php:487
 msgid "ImageMagick command-line"
 msgstr "Ligne de commande Image Magick"
 
-#: includes/admin-page.php:157 includes/admin-page.php:500
+#: includes/admin-page.php:159 includes/admin-page.php:502
 msgid "GraphicsMagick command-line"
 msgstr "Ligne de commande de GraphicsMagick"
 
-#: includes/admin-page.php:212
+#: includes/admin-page.php:214
 msgid "Available"
 msgstr ""
 
-#: includes/admin-page.php:213
+#: includes/admin-page.php:215
 msgid "Not available"
 msgstr ""
 
-#: includes/admin-page.php:261
+#: includes/admin-page.php:263
 msgid "Path to the binary"
 msgstr ""
 
-#: includes/admin-page.php:267
+#: includes/admin-page.php:269
 msgid "Test path"
 msgstr "Test du chemin d'accès ..."
 
-#: includes/admin-page.php:275
+#: includes/admin-page.php:277
 #, fuzzy
 msgid ""
 "Enter the path where the binary is installed on your server. This is "
@@ -146,93 +152,91 @@ msgstr ""
 "Indiquez le chemin d'accès à l'emplacement où ImageMagick est installé sur "
 "votre serveur. Il s'agit généralement de /usr/bin ou /usr/local/bin."
 
-#: includes/admin-page.php:286
+#: includes/admin-page.php:288
 msgid "Sorry, but you do not have permissions to change settings."
 msgstr ""
 
-#: includes/admin-page.php:363
+#: includes/admin-page.php:365
 msgid "Settings updated"
 msgstr "Paramètres mis à jour"
 
-#: includes/admin-page.php:409
+#: includes/admin-page.php:411
 msgid "No valid ImageMagick mode found!"
 msgstr "Aucun module Imagick PHP valide trouvé !"
 
-#: includes/admin-page.php:414
+#: includes/admin-page.php:416
 msgid "ImageMagick Engine is not enabled."
 msgstr "\"ImageMagick Engine\" n'est pas activé."
 
-#: includes/admin-page.php:425
+#: includes/admin-page.php:427
 msgid ""
 "This settings page requires JavaScript. Please enable JavaScript in your "
 "browser and reload the page to configure ImageMagick Engine."
 msgstr ""
 
-#: includes/admin-page.php:429
+#: includes/admin-page.php:431
 msgid "Secondary menu"
 msgstr ""
 
-#: includes/admin-page.php:434
+#: includes/admin-page.php:436
 msgid "Regenerate"
 msgstr "Regénérer"
 
-#: includes/admin-page.php:445
+#: includes/admin-page.php:447
 msgid "Enable"
 msgstr "Activer"
 
-#: includes/admin-page.php:454 includes/admin-page.php:457
+#: includes/admin-page.php:456 includes/admin-page.php:459
 msgid "Image engine"
 msgstr "Moteur d'image"
 
-#: includes/admin-page.php:464 includes/admin-page.php:474
+#: includes/admin-page.php:466 includes/admin-page.php:476
 msgid "Module loaded"
 msgstr ""
 
-#: includes/admin-page.php:465 includes/admin-page.php:475
+#: includes/admin-page.php:467 includes/admin-page.php:477
 #, fuzzy
 msgid "Module not found"
 msgstr "Commande introuvable."
 
-#: includes/admin-page.php:489 includes/admin-page.php:504
+#: includes/admin-page.php:491 includes/admin-page.php:506
 msgid "Command not found"
 msgstr "Commande introuvable."
 
-#: includes/admin-page.php:513
+#: includes/admin-page.php:515
 msgid "Optimize for quality"
 msgstr "Optimiser sur qualité"
 
-#: includes/admin-page.php:516 includes/admin-page.php:525
+#: includes/admin-page.php:518 includes/admin-page.php:527
 msgid "auto"
 msgstr ""
 
-#: includes/admin-page.php:522
+#: includes/admin-page.php:524
 msgid "Optimize for size"
 msgstr "Optimiser sur taille"
 
-#. translators: 1: computed quality value, 2: computed size value
-#: includes/admin-page.php:532
-#, php-format
+#: includes/admin-page.php:531
 msgid ""
 "Set to 0-100. A higher value means better image quality and a larger file. "
-"Leave empty to compute the value dynamically, which currently gives %1$d "
-"when optimizing for quality and %2$d when optimizing for size."
+"Leave a field empty to pass no quality setting at all, so the image engine "
+"applies its own default."
 msgstr ""
 
-#: includes/admin-page.php:541
+#: includes/admin-page.php:536
 msgid "Image interlace?"
 msgstr "Entrelacement d'images ?"
 
-#: includes/admin-page.php:546
+#: includes/admin-page.php:541
 msgid "Adds interlace option to ImageMagick when images are processed."
 msgstr ""
 "Ajoute une option d'entrelacement à ImageMagick lors du traitement des "
 "images."
 
-#: includes/admin-page.php:550
+#: includes/admin-page.php:545
 msgid "Preserve Exif data?"
 msgstr "Conserver les données EXIF ?"
 
-#: includes/admin-page.php:555
+#: includes/admin-page.php:550
 msgid ""
 "When optimizing for size, preserve Exif metadata (including GPS location) "
 "instead of stripping it. Other non-essential metadata (IPTC, XMP) is still "
@@ -242,103 +246,103 @@ msgstr ""
 "compris la localisation GPS) au lieu de les supprimer. Les autres "
 "métadonnées non essentielles (IPTC, XMP) sont toujours supprimées."
 
-#: includes/admin-page.php:560
+#: includes/admin-page.php:555
 msgid "Disable client-side media processing?"
 msgstr ""
 
-#: includes/admin-page.php:565
+#: includes/admin-page.php:560
 msgid ""
 "WordPress 7.1 and later lets the browser generate image sizes during upload, "
 "bypassing ImageMagick for those sizes. Keep this checked so every size is "
 "generated on the server with the settings above."
 msgstr ""
 
-#: includes/admin-page.php:570
+#: includes/admin-page.php:565
 #, fuzzy
 msgid "Image sizes"
 msgstr "Taille de l'image"
 
-#: includes/admin-page.php:572
+#: includes/admin-page.php:567
 msgid ""
 "Choose how each image size is generated. Sizes set to None are left to "
 "WordPress."
 msgstr ""
 
-#: includes/admin-page.php:577
+#: includes/admin-page.php:572
 msgid "Image size"
 msgstr "Taille de l'image"
 
-#: includes/admin-page.php:579 includes/admin-page.php:595
+#: includes/admin-page.php:574 includes/admin-page.php:590
 msgid "Quality"
 msgstr "Qualité"
 
-#: includes/admin-page.php:580 includes/admin-page.php:584
-#: includes/admin-page.php:588
+#: includes/admin-page.php:575 includes/admin-page.php:579
+#: includes/admin-page.php:583
 msgid "Select all"
 msgstr ""
 
-#: includes/admin-page.php:583 includes/admin-page.php:596
+#: includes/admin-page.php:578 includes/admin-page.php:591
 msgid "Size"
 msgstr "Taille"
 
-#: includes/admin-page.php:587 includes/admin-page.php:597
-#: includes/admin-page.php:683
+#: includes/admin-page.php:582 includes/admin-page.php:592
+#: includes/admin-page.php:678
 msgid "None"
 msgstr ""
 
 #. translators: %s: image size name
-#: includes/admin-page.php:618
+#: includes/admin-page.php:613
 #, php-format
 msgid "Handling for %s"
 msgstr ""
 
-#: includes/admin-page.php:650
+#: includes/admin-page.php:645
 msgid "Save Changes"
 msgstr "Sauvegarder les modifications"
 
-#: includes/admin-page.php:659
+#: includes/admin-page.php:654
 #, fuzzy
 msgid "Regenerate images"
 msgstr "Regénérer les images"
 
-#: includes/admin-page.php:663
+#: includes/admin-page.php:658
 #, fuzzy
 msgid ""
 "ImageMagick Engine is not active, so resizing will use standard WordPress "
 "functions."
 msgstr "Retaillera en utilisant les fonctions standards de Wordpress."
 
-#: includes/admin-page.php:669
+#: includes/admin-page.php:664
 msgid "Sizes"
 msgstr "Tailles"
 
-#: includes/admin-page.php:682
+#: includes/admin-page.php:677
 msgid "All"
 msgstr ""
 
-#: includes/admin-page.php:684
+#: includes/admin-page.php:679
 #, fuzzy
 msgid "Match settings"
 msgstr "Réglages"
 
-#: includes/admin-page.php:691
+#: includes/admin-page.php:686
 msgid "Also regenerate images already handled by ImageMagick Engine"
 msgstr ""
 
-#: includes/admin-page.php:696
+#: includes/admin-page.php:691
 msgid "Start regeneration"
 msgstr ""
 
-#: includes/admin-page.php:698
+#: includes/admin-page.php:693
 #, fuzzy
 msgid "This can take a long time."
 msgstr "(cela peut prendre quelques minutes)"
 
-#: includes/admin-page.php:706
+#: includes/admin-page.php:701
 msgid "Resume"
 msgstr ""
 
-#: includes/admin-page.php:707
+#: includes/admin-page.php:702
 msgid "Cancel"
 msgstr ""
 
@@ -372,7 +376,7 @@ msgstr ""
 msgid "Could not resize: %s"
 msgstr ""
 
-#: includes/ajax.php:195 includes/ajax.php:350 includes/ajax.php:395
+#: includes/ajax.php:195 includes/ajax.php:359 includes/ajax.php:407
 msgid "No valid image engine is configured."
 msgstr ""
 
@@ -380,16 +384,16 @@ msgstr ""
 msgid "Invalid attachment."
 msgstr ""
 
-#: includes/ajax.php:208 includes/ajax.php:358
+#: includes/ajax.php:208 includes/ajax.php:367
 msgid "Select at least one image size."
 msgstr ""
 
-#: includes/ajax.php:363
+#: includes/ajax.php:372
 #, fuzzy
 msgid "There are no images to regenerate."
 msgstr "Il n'y a aucune image à regénérer"
 
-#: includes/ajax.php:402
+#: includes/ajax.php:414
 #, fuzzy
 msgid "No regeneration is in progress."
 msgstr "Traitement des images en cours"
@@ -439,13 +443,6 @@ msgstr "Traitement des images en cours"
 
 #~ msgid "ImageMagick quality"
 #~ msgstr "Qualité de ImageMagick"
-
-#~ msgid ""
-#~ "Set to 0-100. Higher value gives better image quality but larger file "
-#~ "size. Leave empty for default value, computed dynamically."
-#~ msgstr ""
-#~ "(valeur de 0 à 100, indice de qualité. Pour la valeur automatique, ne "
-#~ "rien entrer dans le champ)."
 
 #~ msgid "None (use WP instead)"
 #~ msgstr "Aucun (utilisez plutôt WP)"

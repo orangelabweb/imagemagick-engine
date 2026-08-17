@@ -164,13 +164,20 @@ document.addEventListener( 'alpine:init', function() {
 			// The server cannot tell "the run finished" from "the queue expired
 			// and was deleted" (both surface as the no_queue error code), so this
 			// says only what is true of both cases. Keeping done/total instead of
-			// zeroing them means the last known progress stays visible here too.
+			// zeroing them means the last known progress stays visible here too,
+			// on its own line — see endedProgressText.
 			get endedText() {
-				var text = ime_admin.regen_ended;
-				if ( this.total ) {
-					text += ' ' + this.done.toLocaleString() + ' / ' + this.total.toLocaleString();
-				}
-				return text;
+				return ime_admin.regen_ended;
+			},
+
+			get hasEndedProgress() { return this.total > 0; },
+
+			// Labelled, because in the "it finished" half of that disjunction the
+			// run did not stop at this number, it reached the total.
+			get endedProgressText() {
+				return ime_admin.regen_ended_progress_fmt
+					.replace( '%1$s', this.done.toLocaleString() )
+					.replace( '%2$s', this.total.toLocaleString() );
 			},
 
 			get percent() {

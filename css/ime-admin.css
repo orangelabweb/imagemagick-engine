@@ -92,15 +92,19 @@
  * of what they're set to, so the row itself has to be put back to
  * table-row first, or the th/td override below has no effect. Keep this
  * table tabular; its columns are narrow enough to still fit.
+ *
+ * No !important is needed: both core rules have the same specificity as
+ * these, and this stylesheet is enqueued after core's, so source order
+ * already decides it.
  */
 @media screen and ( max-width: 782px ) {
 	.ime-sizes-table tr {
-		display: table-row !important;
+		display: table-row;
 	}
 
 	.ime-sizes-table th,
 	.ime-sizes-table td {
-		display: table-cell !important;
+		display: table-cell;
 	}
 }
 
