@@ -9,12 +9,25 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit();
 }
 
+/**
+ * Reject the request unless the caller may manage options and the nonce is valid.
+ *
+ * Sends a JSON error and exits on failure.
+ */
+function ime_ajax_require_admin() {
+    $nonce = isset( $_REQUEST['ime_nonce'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['ime_nonce'] ) ) : '';
+
+    if ( ! current_user_can( 'manage_options' ) || ! wp_verify_nonce( $nonce, 'ime-admin-nonce' ) ) {
+        wp_send_json_error(
+            [ 'message' => __( 'You do not have permission to perform this action.', 'imagemagick-engine' ) ],
+            403
+        );
+    }
+}
+
 // Test if a path is correct for IM binary
 function ime_ajax_test_im_path() {
-    $nonce = isset( $_REQUEST['ime_nonce'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['ime_nonce'] ) ) : '';
-    if ( ! current_user_can( 'manage_options' ) || ! wp_verify_nonce( $nonce, 'ime-admin-nonce' ) ) {
-        wp_die( 'Sorry, but you do not have permissions to perform this action.' );
-    }
+    ime_ajax_require_admin();
 
     $mode = sanitize_text_field( wp_unslash( $_REQUEST['mode'] ?? 'cli' ) );
 
@@ -72,33 +85,107 @@ function ime_ajax_test_im_path() {
     );
 }
 
-// Get list of attachments to regenerate
-function ime_ajax_regeneration_get_images() {
-    global $wpdb;
+/**
+ * Regenerate one attachment's sub-sizes with the configured engine.
+ *
+ * @param int      $id         Attachment ID.
+ * @param string[] $size_names Size slugs to generate.
+ * @param bool     $force      Regenerate sizes already produced by this plugin.
+ * @return true|WP_Error
+ */
+function ime_process_attachment( $id, $size_names, $force ) {
+    global $ime_image_sizes, $ime_image_file;
 
-    $nonce = isset( $_REQUEST['ime_nonce'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['ime_nonce'] ) ) : '';
-    if ( ! current_user_can( 'manage_options' ) || ! wp_verify_nonce( $nonce, 'ime-admin-nonce' ) ) {
-        wp_die( 'Sorry, but you do not have permissions to perform this action.' );
+    $size_names = apply_filters( 'intermediate_image_sizes', $size_names );
+
+    $additional_sizes = wp_get_additional_image_sizes();
+    $sizes            = [];
+
+    foreach ( $size_names as $s ) {
+        $sizes[ $s ] = [
+            'width'  => isset( $additional_sizes[ $s ]['width'] )
+                ? intval( $additional_sizes[ $s ]['width'] )
+                : get_option( "{$s}_size_w" ),
+            'height' => isset( $additional_sizes[ $s ]['height'] )
+                ? intval( $additional_sizes[ $s ]['height'] )
+                : get_option( "{$s}_size_h" ),
+            'crop'   => isset( $additional_sizes[ $s ]['crop'] )
+                ? intval( $additional_sizes[ $s ]['crop'] )
+                : get_option( "{$s}_crop" ),
+        ];
     }
 
-    // Query for the IDs only to reduce memory usage
-    $images = $wpdb->get_results( "SELECT ID FROM $wpdb->posts WHERE post_type = 'attachment' AND post_mime_type LIKE 'image/%' AND post_mime_type != 'image/svg+xml'" );
+    remove_filter( 'intermediate_image_sizes_advanced', 'ime_filter_image_sizes', 99 );
+    $sizes = apply_filters( 'intermediate_image_sizes_advanced', $sizes );
 
-    $ids = array();
-    foreach ( $images as $image ) {
-        $ids[] = (int) $image->ID;
+    $ime_image_file = function_exists( 'wp_get_original_image_path' )
+        ? wp_get_original_image_path( $id )
+        : get_attached_file( $id );
+
+    if ( false === $ime_image_file || ! file_exists( $ime_image_file ) ) {
+        return new WP_Error( 'ime_missing_file', __( 'The source file is missing.', 'imagemagick-engine' ) );
     }
 
-    wp_send_json( $ids );
+    $metadata = wp_get_attachment_metadata( $id );
+
+    // Do not re-encode images this plugin already produced, unless forced.
+    if ( ! $force && isset( $metadata['image-converter'] ) && is_array( $metadata['image-converter'] ) ) {
+        foreach ( $sizes as $s => $ignore ) {
+            if ( isset( $metadata['image-converter'][ $s ] ) && 'IME' === $metadata['image-converter'][ $s ] ) {
+                unset( $sizes[ $s ] );
+            }
+        }
+        if ( count( $sizes ) < 1 ) {
+            return true;
+        }
+    }
+
+    $ime_image_sizes = $sizes;
+
+    set_time_limit( 60 );
+
+    $new_meta = ime_filter_attachment_metadata( $metadata, $id );
+    if ( is_wp_error( $new_meta ) ) {
+        return $new_meta;
+    }
+    wp_update_attachment_metadata( $id, $new_meta );
+
+    /*
+     * Resized files are normally overwritten in place. If the size
+     * definitions changed, the new files get different names, so the old
+     * ones must be deleted explicitly.
+     */
+    if ( empty( $metadata['sizes'] ) ) {
+        return true;
+    }
+
+    $dir = trailingslashit( dirname( $ime_image_file ) );
+
+    foreach ( $metadata['sizes'] as $size => $sizeinfo ) {
+        $old_file = $sizeinfo['file'];
+        $exists   = false;
+
+        foreach ( $new_meta['sizes'] as $ignore => $new_sizeinfo ) {
+            if ( $old_file === $new_sizeinfo['file'] ) {
+                $exists = true;
+                break;
+            }
+        }
+
+        if ( ! $exists ) {
+            wp_delete_file( $dir . $old_file );
+        }
+    }
+
+    return true;
 }
 
 // Process single attachment ID
 function ime_ajax_process_image() {
-    global $ime_image_sizes, $ime_image_file;
+    ime_ajax_require_admin();
 
-    $nonce = isset( $_REQUEST['ime_nonce'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['ime_nonce'] ) ) : '';
-    if ( ! current_user_can( 'manage_options' ) || ! ime_mode_valid() || ! wp_verify_nonce( $nonce, 'ime-admin-nonce' ) ) {
-        wp_die( '-1' );
+    if ( ! ime_mode_valid() ) {
+        wp_send_json_error( [ 'message' => __( 'No valid image engine is configured.', 'imagemagick-engine' ) ] );
     }
 
     if ( ! isset( $_REQUEST['id'] ) ) {
@@ -119,106 +206,276 @@ function ime_ajax_process_image() {
         wp_die( '-1' );
     }
 
-    $temp_sizes = apply_filters( 'intermediate_image_sizes', $temp_sizes );
-
-    $additional_sizes = wp_get_additional_image_sizes();
-
-    foreach ( $temp_sizes as $s ) {
-        $sizes[ $s ] = [
-            'width'  => '',
-            'height' => '',
-            'crop'   => false,
-        ];
-        if ( isset( $additional_sizes[ $s ]['width'] ) ) {
-            $sizes[ $s ]['width'] = intval( $additional_sizes[ $s ]['width'] ); // For theme-added sizes
-        } else {
-            $sizes[ $s ]['width'] = get_option( "{$s}_size_w" ); // For default sizes set in options
-        }
-        if ( isset( $additional_sizes[ $s ]['height'] ) ) {
-            $sizes[ $s ]['height'] = intval( $additional_sizes[ $s ]['height'] ); // For theme-added sizes
-        } else {
-            $sizes[ $s ]['height'] = get_option( "{$s}_size_h" ); // For default sizes set in options
-        }
-        if ( isset( $additional_sizes[ $s ]['crop'] ) ) {
-            $sizes[ $s ]['crop'] = intval( $additional_sizes[ $s ]['crop'] ); // For theme-added sizes
-        } else {
-            $sizes[ $s ]['crop'] = get_option( "{$s}_crop" ); // For default sizes set in options
-        }
-    }
-
-    remove_filter( 'intermediate_image_sizes_advanced', 'ime_filter_image_sizes', 99, 1 );
-    $sizes = apply_filters( 'intermediate_image_sizes_advanced', $sizes );
-
     $force = isset( $_REQUEST['force'] ) && ! ! $_REQUEST['force'];
 
-    $ime_image_file = function_exists('wp_get_original_image_path') ? wp_get_original_image_path( $id ) : get_attached_file( $id );
+    $result = ime_process_attachment( $id, $temp_sizes, $force );
 
-    if ( false === $ime_image_file || ! file_exists( $ime_image_file ) ) {
+    if ( is_wp_error( $result ) ) {
         wp_die( '-1' );
-    }
-
-    $metadata = wp_get_attachment_metadata( $id );
-
-    // Do not re-encode IME images unless forced
-    if ( ! $force && isset( $metadata['image-converter'] ) && is_array( $metadata['image-converter'] ) ) {
-        $converter = $metadata['image-converter'];
-
-        foreach ( $sizes as $s => $ignore ) {
-            if ( isset( $converter[ $s ] ) && $converter[ $s ] == 'IME' ) {
-                unset( $sizes[ $s ] );
-            }
-        }
-        if ( count( $sizes ) < 1 ) {
-            wp_die( 1 );
-        }
-    }
-
-    $ime_image_sizes = $sizes;
-
-    set_time_limit( 60 );
-
-    $new_meta = ime_filter_attachment_metadata( $metadata, $id );
-    if ( is_wp_error( $new_meta ) ) {
-        wp_die( '-1' );
-    }
-    wp_update_attachment_metadata( $id, $new_meta );
-
-    /*
-     * Normally the old file gets overwritten by the new one when
-     * regenerating resized images.
-     *
-     * However, if the specifications of image sizes were changed this
-     * will result in different resized file names.
-     *
-     * Make sure they get deleted.
-     */
-
-    // No old sizes, nothing to check
-    if ( ! isset( $metadata['sizes'] ) || empty( $metadata['sizes'] ) ) {
-        wp_die( '1' );
-    }
-
-    $dir = trailingslashit( dirname( $ime_image_file ) );
-
-    foreach ( $metadata['sizes'] as $size => $sizeinfo ) {
-        $old_file = $sizeinfo['file'];
-
-        // Does file exist in new meta?
-        $exists = false;
-        foreach ( $new_meta['sizes'] as $ignore => $new_sizeinfo ) {
-            if ( $old_file != $new_sizeinfo['file'] ) {
-                continue;
-            }
-            $exists = true;
-            break;
-        }
-        if ( $exists ) {
-            continue;
-        }
-
-        // Old file did not exist in new meta. Delete it!
-        @ unlink( $dir . $old_file );
     }
 
     wp_die( '1' );
+}
+
+/**
+ * Read the current regeneration queue.
+ *
+ * Deletes and reports absent any queue older than IME_REGEN_TTL.
+ *
+ * @return array|null
+ */
+function ime_regen_queue_get() {
+    $queue = get_option( IME_REGEN_OPTION );
+
+    if ( ! is_array( $queue ) || ! isset( $queue['started'] ) ) {
+        return null;
+    }
+
+    if ( ( time() - (int) $queue['started'] ) > IME_REGEN_TTL ) {
+        ime_regen_queue_clear();
+        return null;
+    }
+
+    return $queue;
+}
+
+/**
+ * Write the regeneration queue.
+ *
+ * @param array $queue Queue state.
+ */
+function ime_regen_queue_save( $queue ) {
+    update_option( IME_REGEN_OPTION, $queue, false );
+}
+
+/** Remove the regeneration queue. */
+function ime_regen_queue_clear() {
+    delete_option( IME_REGEN_OPTION );
+}
+
+/**
+ * Count attachments eligible for regeneration.
+ *
+ * @return int
+ */
+function ime_regen_count_images() {
+    global $wpdb;
+
+    return (int) $wpdb->get_var(
+        "SELECT COUNT(*) FROM $wpdb->posts
+         WHERE post_type = 'attachment'
+           AND post_mime_type LIKE 'image/%'
+           AND post_mime_type != 'image/svg+xml'"
+    );
+}
+
+/**
+ * Fetch the next page of attachment IDs.
+ *
+ * Ordering by ID is required for correctness: without a stable sort,
+ * OFFSET silently skips rows between batches.
+ *
+ * @param int $offset Rows already processed.
+ * @param int $limit  Rows to fetch.
+ * @return int[]
+ */
+function ime_regen_next_ids( $offset, $limit ) {
+    global $wpdb;
+
+    $rows = $wpdb->get_col(
+        $wpdb->prepare(
+            "SELECT ID FROM $wpdb->posts
+             WHERE post_type = 'attachment'
+               AND post_mime_type LIKE 'image/%%'
+               AND post_mime_type != 'image/svg+xml'
+             ORDER BY ID ASC
+             LIMIT %d OFFSET %d",
+            $limit,
+            $offset
+        )
+    );
+
+    return array_map( 'intval', (array) $rows );
+}
+
+/**
+ * Choose the next batch size from how long the last batch took.
+ *
+ * A single image can take 0.2s or 30s depending on its dimensions, so a
+ * fixed batch size times out on shared hosting.
+ *
+ * @param int   $current Batch size just used.
+ * @param float $elapsed Seconds the batch took.
+ * @return int
+ */
+function ime_regen_next_batch_size( $current, $elapsed ) {
+    if ( $elapsed < 5.0 ) {
+        $next = $current * 2;
+    } elseif ( $elapsed > 15.0 ) {
+        $next = (int) floor( $current / 2 );
+    } else {
+        $next = $current;
+    }
+
+    return max( IME_REGEN_BATCH_MIN, min( IME_REGEN_BATCH_MAX, $next ) );
+}
+
+/** Begin a regeneration run. */
+function ime_ajax_regen_start() {
+    ime_ajax_require_admin();
+
+    if ( ! ime_mode_valid() ) {
+        wp_send_json_error( [ 'message' => __( 'No valid image engine is configured.', 'imagemagick-engine' ) ] );
+    }
+
+    $raw_sizes = sanitize_text_field( wp_unslash( $_REQUEST['sizes'] ?? '' ) );
+    $sizes     = array_values( array_filter( array_map( 'sanitize_key', explode( '|', $raw_sizes ) ) ) );
+    $sizes     = array_values( array_intersect( $sizes, array_keys( ime_available_image_sizes() ) ) );
+
+    if ( empty( $sizes ) ) {
+        wp_send_json_error( [ 'message' => __( 'Select at least one image size.', 'imagemagick-engine' ) ] );
+    }
+
+    $total = ime_regen_count_images();
+    if ( $total < 1 ) {
+        wp_send_json_error( [ 'message' => __( 'There are no images to regenerate.', 'imagemagick-engine' ) ] );
+    }
+
+    $queue = [
+        'id'      => wp_generate_uuid4(),
+        'sizes'   => $sizes,
+        'force'   => ! empty( $_REQUEST['force'] ),
+        'offset'  => 0,
+        'total'   => $total,
+        'failed'  => [],
+        'failed_count' => 0,
+        'batch'   => IME_REGEN_BATCH_START,
+        'started' => time(),
+    ];
+
+    ime_regen_queue_save( $queue );
+
+    wp_send_json_success(
+        [
+            'run_id' => $queue['id'],
+            'total'  => $total,
+            'done'   => 0,
+            'batch'  => $queue['batch'],
+        ]
+    );
+}
+
+/** Process the next batch. */
+function ime_ajax_regen_batch() {
+    ime_ajax_require_admin();
+
+    $queue = ime_regen_queue_get();
+    if ( null === $queue ) {
+        wp_send_json_error( [ 'message' => __( 'No regeneration is in progress.', 'imagemagick-engine' ) ] );
+    }
+
+    $ids = ime_regen_next_ids( $queue['offset'], $queue['batch'] );
+
+    if ( empty( $ids ) ) {
+        ime_regen_queue_clear();
+        wp_send_json_success(
+            [
+                'done'         => $queue['offset'],
+                'total'        => $queue['total'],
+                'failed'       => $queue['failed'],
+                'failed_count' => $queue['failed_count'],
+                'batch'        => $queue['batch'],
+                'finished'     => true,
+            ]
+        );
+    }
+
+    $started = microtime( true );
+
+    foreach ( $ids as $id ) {
+        $result = ime_process_attachment( $id, $queue['sizes'], $queue['force'] );
+
+        if ( is_wp_error( $result ) ) {
+            ++$queue['failed_count'];
+
+            if ( count( $queue['failed'] ) < IME_REGEN_FAILED_CAP ) {
+                $queue['failed'][] = [
+                    'id'    => $id,
+                    'title' => get_the_title( $id ),
+                    'error' => $result->get_error_message(),
+                ];
+            }
+        }
+
+        ++$queue['offset'];
+    }
+
+    $queue['batch'] = ime_regen_next_batch_size( $queue['batch'], microtime( true ) - $started );
+
+    $finished = $queue['offset'] >= $queue['total'];
+
+    if ( $finished ) {
+        ime_regen_queue_clear();
+    } else {
+        $current = ime_regen_queue_get();
+
+        if ( null === $current || $current['id'] !== $queue['id'] ) {
+            // Cancelled (or replaced) while this batch was running.
+            wp_send_json_success(
+                [
+                    'done'         => $queue['offset'],
+                    'total'        => $queue['total'],
+                    'failed'       => $queue['failed'],
+                    'failed_count' => $queue['failed_count'],
+                    'batch'        => $queue['batch'],
+                    'finished'     => true,
+                    'cancelled'    => true,
+                ]
+            );
+        }
+
+        ime_regen_queue_save( $queue );
+    }
+
+    wp_send_json_success(
+        [
+            'done'         => $queue['offset'],
+            'total'        => $queue['total'],
+            'failed'       => $queue['failed'],
+            'failed_count' => $queue['failed_count'],
+            'batch'        => $queue['batch'],
+            'finished'     => $finished,
+        ]
+    );
+}
+
+/** Abandon the current run. */
+function ime_ajax_regen_cancel() {
+    ime_ajax_require_admin();
+    ime_regen_queue_clear();
+    wp_send_json_success( [ 'cancelled' => true ] );
+}
+
+/** Report whether a run is in progress, for resuming after a page load. */
+function ime_ajax_regen_state() {
+    ime_ajax_require_admin();
+
+    $queue = ime_regen_queue_get();
+
+    if ( null === $queue ) {
+        wp_send_json_success( [ 'running' => false ] );
+    }
+
+    wp_send_json_success(
+        [
+            'running'      => true,
+            'run_id'       => $queue['id'],
+            'done'         => $queue['offset'],
+            'total'        => $queue['total'],
+            'failed'       => $queue['failed'],
+            'failed_count' => $queue['failed_count'],
+            'sizes'        => $queue['sizes'],
+            'force'        => (bool) $queue['force'],
+        ]
+    );
 }
