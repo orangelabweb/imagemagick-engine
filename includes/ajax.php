@@ -363,7 +363,12 @@ function ime_ajax_regen_batch() {
 
     $queue = ime_regen_queue_get();
     if ( null === $queue ) {
-        wp_send_json_error( [ 'message' => __( 'No regeneration is in progress.', 'imagemagick-engine' ) ] );
+        wp_send_json_error(
+            [
+                'message' => __( 'No regeneration is in progress.', 'imagemagick-engine' ),
+                'code'    => 'no_queue',
+            ]
+        );
     }
 
     $ids = ime_regen_next_ids( $queue['offset'], $queue['batch'] );

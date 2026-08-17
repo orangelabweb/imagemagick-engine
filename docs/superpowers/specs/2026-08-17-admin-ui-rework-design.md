@@ -322,7 +322,10 @@ opted out of. The correct test is `if ( ! $h || $h === 'skip' ) continue;`.
 `-moz-` / `-khtml-` border-radius declarations and every `#ime-regenbar.ui-*` rule
 go away with jQuery UI.
 
-Verified against all eight admin colour schemes and dark mode.
+Verified against all eight admin colour schemes. WordPress core ships no admin
+dark mode through 7.x, so there was nothing to verify against; `.ime-engine-card`'s
+literal `#fff` background in `css/ime-admin.css` is the one declaration that would
+need revisiting if core ever ships a dark admin.
 
 ## Compatibility and housekeeping
 
@@ -361,7 +364,8 @@ container so all four engine modes are exercisable.
 7. Media page single-image regenerate, with and without `force`.
 8. Keyboard-only traversal of the whole page, and a screen-reader pass over the
    engine cards and progress region.
-9. All eight admin colour schemes plus dark mode.
+9. All eight admin colour schemes. (WordPress core has no admin dark mode through
+   7.x, so there is nothing to test there.)
 10. Exif orientation behaviour is unchanged — spot-check a rotated JPEG through one
     PHP-module engine and one CLI engine, since that logic is order-sensitive.
 

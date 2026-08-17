@@ -2,7 +2,8 @@
  * POST to admin-ajax.php with the plugin nonce.
  *
  * Resolves with the `data` payload of wp_send_json_success().
- * Rejects with an Error carrying the server's message.
+ * Rejects with an Error carrying the server's message and, when the
+ * server sent one, a `code` property identifying the failure.
  */
 function imeRequest( action, data ) {
 	var body = new URLSearchParams();
@@ -25,9 +26,11 @@ function imeRequest( action, data ) {
 		return response.json();
 	} ).then( function( json ) {
 		if ( ! json || ! json.success ) {
-			throw new Error(
+			var error = new Error(
 				( json && json.data && json.data.message ) || ime_admin.request_failed
 			);
+			error.code = ( json && json.data && json.data.code ) || '';
+			throw error;
 		}
 		return json.data;
 	} );
@@ -367,6 +370,16 @@ document.addEventListener( 'alpine:init', function() {
 					if ( token !== self.runToken ) {
 						return;
 					}
+
+					if ( 'no_queue' === error.code ) {
+						// The run ended while this page was stale. Not an error.
+						self.state = 'idle';
+						self.paused = false;
+						self.done = 0;
+						self.total = 0;
+						return;
+					}
+
 					self.errorMessage = error.message;
 					self.state = 'idle';
 				} );
