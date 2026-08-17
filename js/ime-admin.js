@@ -218,9 +218,10 @@ document.addEventListener( 'alpine:init', function() {
 
 			loadState: function() {
 				var self = this;
+				var token = self.runToken;
 
 				imeRequest( 'ime_regen_state', {} ).then( function( data ) {
-					if ( ! data.running ) {
+					if ( token !== self.runToken || ! data.running ) {
 						return;
 					}
 					self.state = 'running';
@@ -300,12 +301,14 @@ document.addEventListener( 'alpine:init', function() {
 
 			cancel: function() {
 				var self = this;
-
-				this.runToken++;
+				var token = ++self.runToken;
 
 				self.cancelRequested = true;
 
 				imeRequest( 'ime_regen_cancel', {} ).then( function() {
+					if ( token !== self.runToken ) {
+						return;
+					}
 					self.state = 'idle';
 					self.paused = false;
 					self.done = 0;
@@ -313,6 +316,9 @@ document.addEventListener( 'alpine:init', function() {
 					self.failed = [];
 					self.failedCount = 0;
 				} ).catch( function( error ) {
+					if ( token !== self.runToken ) {
+						return;
+					}
 					self.errorMessage = error.message;
 				} );
 			},
