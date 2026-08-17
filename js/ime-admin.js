@@ -114,6 +114,17 @@ document.addEventListener( 'alpine:init', function() {
 
 			selectRegenerateTab: function() {
 				this.selectTab( 'regenerate' );
+			},
+
+			setAllQuality: function() { this.setAllHandleModes( 'quality' ); },
+			setAllSize: function() { this.setAllHandleModes( 'size' ); },
+			setAllSkip: function() { this.setAllHandleModes( 'skip' ); },
+
+			setAllHandleModes: function( value ) {
+				var inputs = document.querySelectorAll( '.ime-handle-mode--' + value );
+				Array.prototype.forEach.call( inputs, function( input ) {
+					input.checked = true;
+				} );
 			}
 		};
 	} );

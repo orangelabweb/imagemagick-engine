@@ -345,9 +345,13 @@ function ime_option_page() {
 
         ime_store_options();
 
-        echo '<div id="message" class="updated fade"><p>'
-            . __( 'Settings updated', 'imagemagick-engine' )
-            . '</p></div>';
+        wp_admin_notice(
+            __( 'Settings updated', 'imagemagick-engine' ),
+            [
+                'type'        => 'success',
+                'dismissible' => true,
+            ]
+        );
     }
 
     $engine_state = ime_resolve_engine_state();
@@ -387,13 +391,15 @@ function ime_option_page() {
     $handle_sizes = ime_get_option( 'handle_sizes' );
 
     if ( ! $any_valid ) {
-        echo '<div id="warning" class="error"><p>'
-            . __( 'No valid ImageMagick mode found!', 'imagemagick-engine' )
-            . '</p></div>';
+        wp_admin_notice(
+            __( 'No valid ImageMagick mode found!', 'imagemagick-engine' ),
+            [ 'type' => 'error' ]
+        );
     } elseif ( ! $enabled ) {
-        echo '<div id="warning" class="error"><p>'
-            . __( 'ImageMagick Engine is not enabled.', 'imagemagick-engine' )
-            . '</p></div>';
+        wp_admin_notice(
+            __( 'ImageMagick Engine is not enabled.', 'imagemagick-engine' ),
+            [ 'type' => 'warning' ]
+        );
     }
 
     ?>
@@ -484,11 +490,31 @@ function ime_option_page() {
                                     </td>
                                 </tr>
                                 <tr>
-                                    <th scope="row" valign="top"><?php _e( 'ImageMagick quality', 'imagemagick-engine' ); ?>:</th>
+                                    <th scope="row"><label for="quality-quality"><?php esc_html_e( 'Optimize for quality', 'imagemagick-engine' ); ?></label></th>
                                     <td>
-                                        <p><input id="quality-quality" type="text" name="quality-quality" size="3" value="<?php echo esc_attr( ( isset( $quality['quality'] ) && $quality['quality'] > 0 ) ? $quality['quality'] : '' ); ?>" /> <?php _e( 'Optimize for quality', 'imagemagick-engine' ); ?></p>
-                                        <p><input id="quality-size" type="text" name="quality-size" size="3" value="<?php echo esc_attr( ( isset( $quality['size'] ) && $quality['size'] > 0 ) ? $quality['size'] : '' ); ?>" /> <?php _e( 'Optimize for size', 'imagemagick-engine' ); ?></p>
-                                        <p class="ime-description"><?php _e( 'Set to 0-100. Higher value gives better image quality but larger file size. Leave empty for default value, computed dynamically.', 'imagemagick-engine' ); ?></p>
+                                        <input type="number" id="quality-quality" name="quality-quality" min="0" max="100" step="1"
+                                            class="small-text" placeholder="<?php esc_attr_e( 'auto', 'imagemagick-engine' ); ?>"
+                                            value="<?php echo esc_attr( ( isset( $quality['quality'] ) && $quality['quality'] > 0 ) ? $quality['quality'] : '' ); ?>"
+                                            aria-describedby="ime-quality-help" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"><label for="quality-size"><?php esc_html_e( 'Optimize for size', 'imagemagick-engine' ); ?></label></th>
+                                    <td>
+                                        <input type="number" id="quality-size" name="quality-size" min="0" max="100" step="1"
+                                            class="small-text" placeholder="<?php esc_attr_e( 'auto', 'imagemagick-engine' ); ?>"
+                                            value="<?php echo esc_attr( ( isset( $quality['size'] ) && $quality['size'] > 0 ) ? $quality['size'] : '' ); ?>"
+                                            aria-describedby="ime-quality-help" />
+                                        <p class="description" id="ime-quality-help">
+                                            <?php
+                                            printf(
+                                                /* translators: 1: computed quality value, 2: computed size value */
+                                                esc_html__( 'Set to 0-100. A higher value means better image quality and a larger file. Leave empty to compute the value dynamically, which currently gives %1$d when optimizing for quality and %2$d when optimizing for size.', 'imagemagick-engine' ),
+                                                absint( ime_get_quality( 'quality' ) ),
+                                                absint( ime_get_quality( 'size' ) )
+                                            );
+                                            ?>
+                                        </p>
                                     </td>
                                 </tr>
                                 <tr>
@@ -520,42 +546,6 @@ function ime_option_page() {
                                     </td>
                                 </tr>
                                 <?php } ?>
-                                <tr>
-                                    <td colspan="2" class="ime-handle-table-wrapper">
-                                        <table border='0' class="ime-handle-table" id="ime-handle-table">
-                                            <tr>
-                                                <th scope="row" class="ime-headline" valign="top"><strong><?php _e( 'Image size', 'imagemagick-engine' ); ?></strong></th>
-                                                <td class="ime-headline ime-fixed-width"><?php _e( 'Quality', 'imagemagick-engine' ); ?></td>
-                                                <td class="ime-headline ime-fixed-width"><?php _e( 'Size', 'imagemagick-engine' ); ?></td>
-                                                <td class="ime-headline"><?php _e( 'None (use WP instead)', 'imagemagick-engine' ); ?></td>
-                                            </tr>
-                                            <?php
-                                            foreach ( $sizes as $s => $name ) {
-                                                // fixup for old (pre 1.5.0) options
-                                                if ( ! isset( $handle_sizes[ $s ] ) || ! $handle_sizes[ $s ] ) {
-                                                    $handle_sizes[ $s ] = 'skip';
-                                                } elseif ( $handle_sizes[ $s ] === true ) {
-                                                    $handle_sizes[ $s ] = 'quality';
-                                                }
-                                                ?>
-                                                <tr>
-                                                    <th scope="row" valign="top"><?php echo esc_html( $name ); ?></th>
-                                                    <td class="ime-fixed-width">
-                                                        <input type="radio" name="handle-mode-<?php echo esc_attr( $s ); ?>" value="quality" <?php checked( 'quality', $handle_sizes[ $s ] ); ?> />
-                                                    </td>
-                                                    <td class="ime-fixed-width">
-                                                        <input type="radio" name="handle-mode-<?php echo esc_attr( $s ); ?>" value="size" <?php checked( 'size', $handle_sizes[ $s ] ); ?> />
-                                                    </td>
-                                                    <td>
-                                                        <input type="radio" name="handle-mode-<?php echo esc_attr( $s ); ?>" value="skip" <?php checked( 'skip', $handle_sizes[ $s ] ); ?> />
-                                                    </td>
-                                                </tr>
-                                                <?php
-                                            }
-                                            ?>
-                                        </table>
-                                    </td>
-                                </tr>
                             </tbody>
                             <tr>
                                 <th colspan="2">
@@ -563,6 +553,72 @@ function ime_option_page() {
                                 </th>
                             </tr>
                         </table>
+
+                        <div x-show="enabled" x-cloak>
+                            <h2><?php esc_html_e( 'Image sizes', 'imagemagick-engine' ); ?></h2>
+                            <p class="description"><?php esc_html_e( 'Choose how each image size is generated. Sizes set to None are left to WordPress.', 'imagemagick-engine' ); ?></p>
+
+                            <table class="wp-list-table widefat striped ime-sizes-table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col"><?php esc_html_e( 'Image size', 'imagemagick-engine' ); ?></th>
+                                        <th scope="col">
+                                            <?php esc_html_e( 'Quality', 'imagemagick-engine' ); ?><br />
+                                            <button type="button" class="button-link" x-on:click="setAllQuality"><?php esc_html_e( 'Select all', 'imagemagick-engine' ); ?></button>
+                                        </th>
+                                        <th scope="col">
+                                            <?php esc_html_e( 'Size', 'imagemagick-engine' ); ?><br />
+                                            <button type="button" class="button-link" x-on:click="setAllSize"><?php esc_html_e( 'Select all', 'imagemagick-engine' ); ?></button>
+                                        </th>
+                                        <th scope="col">
+                                            <?php esc_html_e( 'None', 'imagemagick-engine' ); ?><br />
+                                            <button type="button" class="button-link" x-on:click="setAllSkip"><?php esc_html_e( 'Select all', 'imagemagick-engine' ); ?></button>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                <?php
+                                foreach ( $sizes as $s => $name ) {
+                                    // Fixup for options stored before 1.5.0.
+                                    if ( ! isset( $handle_sizes[ $s ] ) || ! $handle_sizes[ $s ] ) {
+                                        $handle_sizes[ $s ] = 'skip';
+                                    } elseif ( true === $handle_sizes[ $s ] ) {
+                                        $handle_sizes[ $s ] = 'quality';
+                                    }
+
+                                    $group = 'handle-mode-' . $s;
+                                    ?>
+                                    <tr>
+                                        <th scope="row"><?php echo esc_html( $name ); ?></th>
+                                        <?php foreach ( [ 'quality', 'size', 'skip' ] as $value ) { ?>
+                                            <td>
+                                                <fieldset>
+                                                    <legend class="screen-reader-text">
+                                                        <?php
+                                                        printf(
+                                                            /* translators: %s: image size name */
+                                                            esc_html__( 'Handling for %s', 'imagemagick-engine' ),
+                                                            esc_html( $name )
+                                                        );
+                                                        ?>
+                                                    </legend>
+                                                    <label>
+                                                        <input type="radio" name="<?php echo esc_attr( $group ); ?>"
+                                                            class="ime-handle-mode ime-handle-mode--<?php echo esc_attr( $value ); ?>"
+                                                            value="<?php echo esc_attr( $value ); ?>"
+                                                            <?php checked( $value, $handle_sizes[ $s ] ); ?> />
+                                                        <span class="screen-reader-text"><?php echo esc_html( $value ); ?></span>
+                                                    </label>
+                                                </fieldset>
+                                            </td>
+                                        <?php } ?>
+                                    </tr>
+                                    <?php
+                                }
+                                ?>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </form>

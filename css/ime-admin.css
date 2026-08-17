@@ -1,24 +1,14 @@
 [x-cloak] { display: none !important; }
 
-.form-table td.ime-handle-table-wrapper {
-    padding: 0;
+.ime-sizes-table td,
+.ime-sizes-table th {
+	vertical-align: middle;
 }
 
-#ime-handle-table th {
-    padding: 5px 10px 0 0;
-	font-weight: normal;
-}
-
-#ime-handle-table td {
-    padding: 5px 0 0 10px;
-}
-
-#ime-handle-table .ime-headline {
-    font-weight: bold;
-}
-
-#ime-handle-table .ime-fixed-width {
-    width: 60px;
+.ime-sizes-table fieldset {
+	margin: 0;
+	padding: 0;
+	border: 0;
 }
 
 #ime-regeneration {
