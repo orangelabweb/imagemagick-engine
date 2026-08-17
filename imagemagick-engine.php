@@ -115,8 +115,8 @@ function ime_init() {
         add_action( 'wp_ajax_ime_process_image', 'ime_ajax_process_image' );
         add_action( 'wp_ajax_ime_regeneration_get_images', 'ime_ajax_regeneration_get_images' );
 
-        wp_register_script( 'alpinejs', plugins_url( '/js/alpine.min.js', __FILE__ ), [], '3.15.9', true );
-        wp_register_script( 'ime-admin', plugins_url( '/js/ime-admin.js', __FILE__ ), [ 'jquery', 'jquery-ui-progressbar' ], constant('IME_VERSION'), true );
+        wp_register_script( 'alpinejs', plugins_url( '/js/alpine.csp.min.js', __FILE__ ), [], '3.15.9', true );
+        wp_register_script( 'ime-admin', plugins_url( '/js/ime-admin.js', __FILE__ ), [], constant( 'IME_VERSION' ), true );
     }
 }
 

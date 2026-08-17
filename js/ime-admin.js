@@ -1,3 +1,85 @@
+/**
+ * POST to admin-ajax.php with the plugin nonce.
+ *
+ * Resolves with the `data` payload of wp_send_json_success().
+ * Rejects with an Error carrying the server's message.
+ */
+function imeRequest( action, data ) {
+	var body = new URLSearchParams();
+	body.append( 'action', action );
+	body.append( 'ime_nonce', ime_admin.ime_nonce );
+
+	Object.keys( data || {} ).forEach( function( key ) {
+		body.append( key, data[ key ] );
+	} );
+
+	return window.fetch( ime_admin.ajaxurl, {
+		method: 'POST',
+		credentials: 'same-origin',
+		headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+		body: body.toString()
+	} ).then( function( response ) {
+		if ( ! response.ok ) {
+			throw new Error( ime_admin.request_failed );
+		}
+		return response.json();
+	} ).then( function( json ) {
+		if ( ! json || ! json.success ) {
+			throw new Error(
+				( json && json.data && json.data.message ) || ime_admin.request_failed
+			);
+		}
+		return json.data;
+	} );
+}
+
+document.addEventListener( 'alpine:init', function() {
+	Alpine.data( 'imeSettings', function() {
+		return {
+			tab: ime_admin.initial_tab,
+			enabled: ime_admin.enabled,
+			mode: ime_admin.mode,
+
+			get isTabSettings() {
+				return this.tab === 'settings';
+			},
+
+			get isTabRegenerate() {
+				return this.tab === 'regenerate';
+			},
+
+			get isPhp() { return this.mode === 'php'; },
+			get isGmagick() { return this.mode === 'gmagick'; },
+			get isCli() { return this.mode === 'cli'; },
+			get isGraphicsmagick() { return this.mode === 'graphicsmagick'; },
+
+			get settingsTabClass() {
+				return this.tab === 'settings' ? 'nav-tab-active' : '';
+			},
+
+			get regenerateTabClass() {
+				return this.tab === 'regenerate' ? 'nav-tab-active' : '';
+			},
+
+			selectTab: function( name ) {
+				this.tab = name;
+
+				var url = new URL( window.location.href );
+				url.searchParams.set( 'tab', name );
+				window.history.replaceState( {}, '', url.toString() );
+			},
+
+			selectSettingsTab: function() {
+				this.selectTab( 'settings' );
+			},
+
+			selectRegenerateTab: function() {
+				this.selectTab( 'regenerate' );
+			}
+		};
+	} );
+} );
+
 //Variables
 var rt_images = '';
 var rt_total = 1;
