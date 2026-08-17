@@ -11,6 +11,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /* Add admin page */
 function ime_admin_menu() {
+    global $ime_page;
+
     $ime_page = add_options_page( 'ImageMagick Engine', 'ImageMagick Engine', 'manage_options', 'imagemagick-engine', 'ime_option_page' );
 
     $script_pages = [ $ime_page, 'media.php', 'media-new.php', 'media-upload.php', 'media-upload-popup', 'post.php', 'upload.php' ];
@@ -27,10 +29,10 @@ function ime_current_tab() {
 
 /* Enqueue admin page scripts */
 function ime_admin_print_scripts() {
-    wp_enqueue_script( 'ime-admin' );
-    wp_enqueue_script( 'alpinejs' );
+    global $ime_page;
 
-    $engine_state = ime_resolve_engine_state();
+    wp_enqueue_script( 'ime-admin' );
+    wp_enqueue_script( 'ime-alpinejs' );
 
     $data = [
         'failed'             => '<strong>' . __( 'Failed to resize image!', 'imagemagick-engine' ) . '</strong>',
@@ -39,8 +41,6 @@ function ime_admin_print_scripts() {
         'ajaxurl'            => admin_url( 'admin-ajax.php' ),
         'initial_tab'        => ime_current_tab(),
         'request_failed'     => __( 'The request failed. Please try again.', 'imagemagick-engine' ),
-        'enabled'            => $engine_state['enabled'],
-        'mode'               => (string) $engine_state['mode'],
         'path_found'         => __( 'Command found.', 'imagemagick-engine' ),
         'regen_running'      => __( 'Regenerating images', 'imagemagick-engine' ),
         'regen_paused'       => __( 'Regeneration in progress', 'imagemagick-engine' ),
@@ -51,6 +51,17 @@ function ime_admin_print_scripts() {
         /* translators: %d: number of images */
         'regen_failed_fmt'   => __( '%d failed', 'imagemagick-engine' ),
     ];
+
+    // Engine detection (ime_mode_valid() for all four engines) is only read by
+    // the imeSettings component, which exists only on this plugin's own page.
+    // Running it on every media screen forks proc_open() under WP_DEBUG and
+    // writes ime_options on every page load.
+    if ( get_current_screen() && $ime_page === get_current_screen()->id ) {
+        $engine_state    = ime_resolve_engine_state();
+        $data['enabled'] = $engine_state['enabled'];
+        $data['mode']    = (string) $engine_state['mode'];
+    }
+
     wp_localize_script( 'ime-admin', 'ime_admin', $data );
 }
 
@@ -672,7 +683,7 @@ function ime_option_page() {
                     </p>
 
                     <p>
-                        <button type="button" class="button button-primary" x-on:click="start"><?php esc_html_e( 'Start regeneration', 'imagemagick-engine' ); ?></button>
+                        <button type="button" class="button button-primary" x-on:click="start" :disabled="starting"><?php esc_html_e( 'Start regeneration', 'imagemagick-engine' ); ?></button>
                     </p>
                     <p class="description"><?php esc_html_e( 'This can take a long time.', 'imagemagick-engine' ); ?></p>
                 </div>

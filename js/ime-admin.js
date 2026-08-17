@@ -143,6 +143,7 @@ document.addEventListener( 'alpine:init', function() {
 			force: false,
 			errorMessage: '',
 			cancelRequested: false,
+			starting: false,
 			runToken: 0,
 			batchTimes: [],
 
@@ -270,25 +271,37 @@ document.addEventListener( 'alpine:init', function() {
 			start: function() {
 				var self = this;
 				var sizes = this.selectedSizes();
-
-				this.runToken++;
+				var token = ++self.runToken;
 
 				self.errorMessage = '';
 				self.failed = [];
 				self.failedCount = 0;
 				self.batchTimes = [];
 				self.cancelRequested = false;
+				self.starting = true;
 
 				imeRequest( 'ime_regen_start', {
 					sizes: sizes,
 					force: self.force ? 1 : 0
 				} ).then( function( data ) {
+					self.starting = false;
+
+					if ( token !== self.runToken ) {
+						return;
+					}
+
 					self.state = 'running';
 					self.paused = false;
 					self.done = 0;
 					self.total = data.total;
-					self.runBatch( self.runToken );
+					self.runBatch( token );
 				} ).catch( function( error ) {
+					self.starting = false;
+
+					if ( token !== self.runToken ) {
+						return;
+					}
+
 					self.errorMessage = error.message;
 				} );
 			},
@@ -380,8 +393,12 @@ document.addEventListener( 'alpine:init', function() {
 						return;
 					}
 
+					// The server-side queue is still intact for any other error (a
+					// transport failure, a timed-out request) — keep the run
+					// resumable instead of hiding the Resume button.
 					self.errorMessage = error.message;
-					self.state = 'idle';
+					self.state = 'running';
+					self.paused = true;
 				} );
 			}
 		};

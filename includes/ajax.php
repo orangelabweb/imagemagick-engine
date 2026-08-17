@@ -94,7 +94,7 @@ function ime_ajax_test_im_path() {
  * @return true|WP_Error
  */
 function ime_process_attachment( $id, $size_names, $force ) {
-    global $ime_image_sizes, $ime_image_file;
+    global $ime_image_sizes, $ime_image_file, $ime_failed_sizes;
 
     $size_names = apply_filters( 'intermediate_image_sizes', $size_names );
 
@@ -148,6 +148,7 @@ function ime_process_attachment( $id, $size_names, $force ) {
     if ( is_wp_error( $new_meta ) ) {
         return $new_meta;
     }
+
     wp_update_attachment_metadata( $id, $new_meta );
 
     /*
@@ -155,26 +156,32 @@ function ime_process_attachment( $id, $size_names, $force ) {
      * definitions changed, the new files get different names, so the old
      * ones must be deleted explicitly.
      */
-    if ( empty( $metadata['sizes'] ) ) {
-        return true;
-    }
+    if ( ! empty( $metadata['sizes'] ) ) {
+        $dir = trailingslashit( dirname( $ime_image_file ) );
 
-    $dir = trailingslashit( dirname( $ime_image_file ) );
+        foreach ( $metadata['sizes'] as $size => $sizeinfo ) {
+            $old_file = $sizeinfo['file'];
+            $exists   = false;
 
-    foreach ( $metadata['sizes'] as $size => $sizeinfo ) {
-        $old_file = $sizeinfo['file'];
-        $exists   = false;
+            foreach ( $new_meta['sizes'] as $ignore => $new_sizeinfo ) {
+                if ( $old_file === $new_sizeinfo['file'] ) {
+                    $exists = true;
+                    break;
+                }
+            }
 
-        foreach ( $new_meta['sizes'] as $ignore => $new_sizeinfo ) {
-            if ( $old_file === $new_sizeinfo['file'] ) {
-                $exists = true;
-                break;
+            if ( ! $exists ) {
+                wp_delete_file( $dir . $old_file );
             }
         }
+    }
 
-        if ( ! $exists ) {
-            wp_delete_file( $dir . $old_file );
-        }
+    if ( ! empty( $ime_failed_sizes ) ) {
+        return new WP_Error(
+            'ime_resize_failed',
+            /* translators: %s: comma-separated list of image size names that failed to resize */
+            sprintf( __( 'Could not resize: %s', 'imagemagick-engine' ), implode( ', ', $ime_failed_sizes ) )
+        );
     }
 
     return true;
@@ -243,6 +250,28 @@ function ime_regen_queue_save( $queue ) {
 /** Remove the regeneration queue. */
 function ime_regen_queue_clear() {
     delete_option( IME_REGEN_OPTION );
+}
+
+/**
+ * Read the regeneration queue, bypassing the per-request options cache.
+ *
+ * A batch request reads the queue when it starts and re-reads it before
+ * writing, to detect a cancel or restart that landed while the batch was
+ * running. Without a persistent object cache the second read would be served
+ * from this request's own cache and could never observe the change.
+ *
+ * @return array|null
+ */
+function ime_regen_queue_get_fresh() {
+    wp_cache_delete( IME_REGEN_OPTION, 'options' );
+
+    $notoptions = wp_cache_get( 'notoptions', 'options' );
+    if ( is_array( $notoptions ) && isset( $notoptions[ IME_REGEN_OPTION ] ) ) {
+        unset( $notoptions[ IME_REGEN_OPTION ] );
+        wp_cache_set( 'notoptions', $notoptions, 'options' );
+    }
+
+    return ime_regen_queue_get();
 }
 
 /**
@@ -361,6 +390,10 @@ function ime_ajax_regen_start() {
 function ime_ajax_regen_batch() {
     ime_ajax_require_admin();
 
+    if ( ! ime_mode_valid() ) {
+        wp_send_json_error( [ 'message' => __( 'No valid image engine is configured.', 'imagemagick-engine' ) ] );
+    }
+
     $queue = ime_regen_queue_get();
     if ( null === $queue ) {
         wp_send_json_error(
@@ -411,26 +444,33 @@ function ime_ajax_regen_batch() {
 
     $finished = $queue['offset'] >= $queue['total'];
 
+    // Re-read the queue and compare ids before writing anything, whether this
+    // batch finished the run or not — otherwise a cancel-then-start that lands
+    // while the last batch of the old run is still in flight would let this
+    // stale batch clear or resurrect the *new* run's queue. This must bypass
+    // the per-request options cache: $queue was already read once above, so a
+    // plain get_option() here would just return that same cached copy and
+    // never observe a cancel/replace written by another request in between.
+    $current = ime_regen_queue_get_fresh();
+
+    if ( null === $current || $current['id'] !== $queue['id'] ) {
+        // Cancelled (or replaced) while this batch was running.
+        wp_send_json_success(
+            [
+                'done'         => $queue['offset'],
+                'total'        => $queue['total'],
+                'failed'       => $queue['failed'],
+                'failed_count' => $queue['failed_count'],
+                'batch'        => $queue['batch'],
+                'finished'     => true,
+                'cancelled'    => true,
+            ]
+        );
+    }
+
     if ( $finished ) {
         ime_regen_queue_clear();
     } else {
-        $current = ime_regen_queue_get();
-
-        if ( null === $current || $current['id'] !== $queue['id'] ) {
-            // Cancelled (or replaced) while this batch was running.
-            wp_send_json_success(
-                [
-                    'done'         => $queue['offset'],
-                    'total'        => $queue['total'],
-                    'failed'       => $queue['failed'],
-                    'failed_count' => $queue['failed_count'],
-                    'batch'        => $queue['batch'],
-                    'finished'     => true,
-                    'cancelled'    => true,
-                ]
-            );
-        }
-
         ime_regen_queue_save( $queue );
     }
 

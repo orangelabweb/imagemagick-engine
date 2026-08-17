@@ -85,8 +85,9 @@ $ime_available_quality_modes = [ 'quality', 'size', 'skip' ];
 $ime_options = null;
 
 // Keep track of attachment file & sizes between different filters
-$ime_image_sizes = null;
-$ime_image_file  = null;
+$ime_image_sizes  = null;
+$ime_image_file   = null;
+$ime_failed_sizes = [];
 
 /*
  * Functions
@@ -124,7 +125,7 @@ function ime_init() {
         add_action( 'wp_ajax_ime_regen_cancel', 'ime_ajax_regen_cancel' );
         add_action( 'wp_ajax_ime_regen_state', 'ime_ajax_regen_state' );
 
-        wp_register_script( 'alpinejs', plugins_url( '/js/alpine.csp.min.js', __FILE__ ), [ 'ime-admin' ], '3.15.9', true );
+        wp_register_script( 'ime-alpinejs', plugins_url( '/js/alpine.csp.min.js', __FILE__ ), [ 'ime-admin' ], '3.15.9', true );
         wp_register_script( 'ime-admin', plugins_url( '/js/ime-admin.js', __FILE__ ), [], constant( 'IME_VERSION' ), true );
     }
 }
@@ -373,7 +374,11 @@ function ime_filter_read_image_metadata( $metadata, $file, $ignore ) {
  * Parts of function copied from wp-includes/media.php:image_resize()
  */
 function ime_filter_attachment_metadata( $metadata, $attachment_id ) {
-    global $ime_image_sizes, $ime_image_file;
+    global $ime_image_sizes, $ime_image_file, $ime_failed_sizes;
+
+    // Reset before the loop below so a previous attachment's failures cannot
+    // leak into this one.
+    $ime_failed_sizes = [];
 
     // Any sizes we are interested in?
     if ( empty( $ime_image_sizes ) ) {
@@ -458,6 +463,7 @@ function ime_filter_attachment_metadata( $metadata, $attachment_id ) {
 
         $resized = ime_im_resize( $ime_image_file, $new_filename, $dst_w, $dst_h, $crop, ime_get_resize_mode( $size ) );
         if ( ! $resized ) {
+            $ime_failed_sizes[] = $size;
             continue;
         }
 
