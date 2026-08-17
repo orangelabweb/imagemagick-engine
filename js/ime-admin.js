@@ -373,4 +373,40 @@ document.addEventListener( 'alpine:init', function() {
 			}
 		};
 	} );
+
+	Alpine.data( 'imeMediaRegen', function() {
+		return {
+			busy: false,
+			message: '',
+
+			init: function() {
+				this.message = this.$el.dataset.message || '';
+			},
+
+			get spinnerClass() { return this.busy ? 'is-active' : ''; },
+
+			regenerate: function() {
+				var self = this;
+				var el = this.$root;
+
+				if ( self.busy ) {
+					return;
+				}
+
+				self.busy = true;
+
+				imeRequest( 'ime_process_image', {
+					id: el.dataset.postId,
+					sizes: el.dataset.sizes,
+					force: el.dataset.force
+				} ).then( function( data ) {
+					self.busy = false;
+					self.message = data.message;
+				} ).catch( function( error ) {
+					self.busy = false;
+					self.message = error.message;
+				} );
+			}
+		};
+	} );
 } );

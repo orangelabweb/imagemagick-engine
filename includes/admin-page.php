@@ -18,10 +18,6 @@ function ime_admin_menu() {
         add_action( 'admin_print_scripts-' . $page, 'ime_admin_print_scripts' );
         add_action( 'admin_print_styles-' . $page, 'ime_admin_print_styles' );
     }
-    add_action( 'admin_print_scripts-' . $ime_page, function() {
-        wp_enqueue_script( 'ime-admin' );
-        wp_enqueue_script( 'alpinejs' );
-    } );
 }
 
 /* Which admin tab should be active on page load? */
@@ -32,6 +28,7 @@ function ime_current_tab() {
 /* Enqueue admin page scripts */
 function ime_admin_print_scripts() {
     wp_enqueue_script( 'ime-admin' );
+    wp_enqueue_script( 'alpinejs' );
 
     $engine_state = ime_resolve_engine_state();
 
@@ -99,39 +96,40 @@ function ime_filter_media_meta( $content, $post ) {
         }
     }
 
-    $content .= '</p><p>';
     if ( $ime ) {
-        $message = ' <div class="ime-media-message" id="ime-message-' . $post->ID . '">' . __( 'Resized using ImageMagick Engine', 'imagemagick-engine' ) . '</div>';
-        $resize  = __( 'Resize image', 'imagemagick-engine' );
-        $force   = '1';
+        $initial_message = __( 'Resized using ImageMagick Engine', 'imagemagick-engine' );
+        $resize          = __( 'Resize image', 'imagemagick-engine' );
+        $force           = '1';
     } else {
-        $message = '<div class="ime-media-message" id="ime-message-' . $post->ID . '" style="display: none;"></div>';
-        $resize  = __( 'Resize using ImageMagick Engine', 'imagemagick-engine' );
-        $force   = '0';
+        $initial_message = '';
+        $resize          = __( 'Resize using ImageMagick Engine', 'imagemagick-engine' );
+        $force           = '0';
     }
+
     $handle_sizes = ime_get_option( 'handle_sizes' );
     $sizes        = [];
     foreach ( $handle_sizes as $s => $h ) {
-        if ( ! $h ) {
+        if ( ! $h || 'skip' === $h ) {
             continue;
         }
         $sizes[] = $s;
     }
-    $sizes    = implode( '|', $sizes );
-    $content .= '<a href="#" id="ime-regen-link-' . absint( $post->ID ) . '" class="button ime-regen-button"'
-        . ' data-post-id="' . absint( $post->ID ) . '"'
-        . ' data-sizes="' . esc_attr( $sizes ) . '"'
-        . ' data-force="' . esc_attr( $force ) . '">'
-        . esc_html( $resize ) . '</a> '
-        . $message
-        . ' <div id="ime-spinner-' . absint( $post->ID ) . '" class="ime-spinner"><img src="' . esc_url( admin_url( 'images/wpspin_light.gif' ) ) . '" alt="" /></div>';
+
+    $content .= '</p><p>';
+    $content .= sprintf(
+        '<span class="ime-media-regen" x-data="imeMediaRegen" data-post-id="%1$d" data-sizes="%2$s" data-force="%3$s" data-message="%4$s">'
+            . '<button type="button" class="button ime-regen-button" x-on:click="regenerate" :disabled="busy">%5$s</button>'
+            . '<span class="spinner" :class="spinnerClass"></span>'
+            . '<span class="ime-media-message" x-text="message"></span>'
+            . '</span>',
+        absint( $post->ID ),
+        esc_attr( implode( '|', $sizes ) ),
+        esc_attr( $force ),
+        esc_attr( $initial_message ),
+        esc_html( $resize )
+    );
 
     return $content;
-}
-
-// Url to admin images
-function ime_option_admin_images_url() {
-    return get_bloginfo( 'wpurl' ) . '/wp-admin/images/';
 }
 
 // Define available modes
@@ -278,11 +276,6 @@ function ime_option_page() {
     }
 
     $sizes = ime_available_image_sizes();
-
-    if ( isset( $_POST['regenerate-images'] ) ) {
-        ime_show_regenerate_images( array_keys( $sizes ) );
-        return;
-    }
 
     /* Should we update settings? */
     if ( isset( $_POST['update_settings'] ) ) {

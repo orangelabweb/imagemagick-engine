@@ -16,30 +16,14 @@
 	font-size: 12px;
 }
 
-.ime-regen-button {
-    float: left;
-}
-
-.ime-spinner {
-    width: 16px;
-    height: 16px;
-
-    float: left;
-
-    padding: 3px 8px;
-}
-
-.ime-spinner img {
-    display: none;
+.ime-media-regen {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
 }
 
 .ime-media-message {
-    float: left;
-
-    padding: 0 3px;
-
-    font-style: italic;
-    line-height: 22px;
+	font-style: italic;
 }
 
 .ime-engine-grid {

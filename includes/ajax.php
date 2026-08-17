@@ -180,7 +180,7 @@ function ime_process_attachment( $id, $size_names, $force ) {
     return true;
 }
 
-// Process single attachment ID
+/** Regenerate a single attachment from the media screens. */
 function ime_ajax_process_image() {
     ime_ajax_require_admin();
 
@@ -188,33 +188,25 @@ function ime_ajax_process_image() {
         wp_send_json_error( [ 'message' => __( 'No valid image engine is configured.', 'imagemagick-engine' ) ] );
     }
 
-    if ( ! isset( $_REQUEST['id'] ) ) {
-        wp_die( '-1' );
-    }
-
-    $id = intval( $_REQUEST['id'] );
+    $id = isset( $_REQUEST['id'] ) ? intval( $_REQUEST['id'] ) : 0;
     if ( $id <= 0 ) {
-        wp_die( '-1' );
+        wp_send_json_error( [ 'message' => __( 'Invalid attachment.', 'imagemagick-engine' ) ] );
     }
 
-    $temp_sizes = sanitize_text_field( wp_unslash( $_REQUEST['sizes'] ?? '' ) );
-    if ( empty( $temp_sizes ) ) {
-        wp_die( '-1' );
-    }
-    $temp_sizes = explode( '|', $temp_sizes );
-    if ( count( $temp_sizes ) < 1 ) {
-        wp_die( '-1' );
+    $raw_sizes = sanitize_text_field( wp_unslash( $_REQUEST['sizes'] ?? '' ) );
+    $sizes     = array_values( array_filter( array_map( 'sanitize_key', explode( '|', $raw_sizes ) ) ) );
+
+    if ( empty( $sizes ) ) {
+        wp_send_json_error( [ 'message' => __( 'Select at least one image size.', 'imagemagick-engine' ) ] );
     }
 
-    $force = isset( $_REQUEST['force'] ) && ! ! $_REQUEST['force'];
-
-    $result = ime_process_attachment( $id, $temp_sizes, $force );
+    $result = ime_process_attachment( $id, $sizes, ! empty( $_REQUEST['force'] ) );
 
     if ( is_wp_error( $result ) ) {
-        wp_die( '-1' );
+        wp_send_json_error( [ 'message' => $result->get_error_message() ] );
     }
 
-    wp_die( '1' );
+    wp_send_json_success( [ 'message' => __( 'Resized using ImageMagick Engine', 'imagemagick-engine' ) ] );
 }
 
 /**
