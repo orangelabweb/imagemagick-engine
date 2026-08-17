@@ -50,8 +50,21 @@ enqueued in the footer.
 
 ### Consequence of the CSP build
 
-The CSP build evaluates no expressions inside attributes. Every conditional needs a
-property or method on the component object:
+`@alpinejs/csp` 3.15.x is not a "no expressions" build. It ships a real tokenizer,
+recursive-descent parser, and AST interpreter that evaluates `Identifier`,
+`Literal`, `MemberExpression`, `BinaryExpression` (so `&&`/`||`/comparisons work),
+`ConditionalExpression`, `UnaryExpression`, `CallExpression`, `ArrayExpression`,
+and `ObjectExpression` directly in attributes — verified against the shipped
+`js/alpine.csp.min.js` bytes. What it actually rejects is narrow: arrow functions
+and template literals (no support at all), assignment to a member expression
+(`x-on:click="obj.prop = 1"` throws "Property assignments are prohibited in the
+CSP build" — assignment to a bare identifier is fine), and access to
+`constructor`, `prototype`, `__proto__`, `__defineGetter__`, `__defineSetter__`,
+`insertAdjacentHTML`. So `x-show="mode === 'php'"` would in fact work under this
+build.
+
+This codebase nonetheless uses getters for conditionals, as a deliberate
+consistency choice rather than a CSP requirement:
 
 ```html
 <!-- before -->
@@ -60,7 +73,9 @@ property or method on the component object:
 <tr x-show="isPhp">
 ```
 
-Four engines means four getters. This is the accepted cost of CSP compatibility.
+Four engines means four getters. Treat this as a style decision, not a
+CSP-compatibility workaround — don't cite "the CSP build forbids inline
+expressions" as the reason; it doesn't, at least not at 3.15.x.
 
 ## Settings tab
 

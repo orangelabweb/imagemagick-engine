@@ -66,6 +66,15 @@ You can also find binary releases at http://www.imagemagick.org including a Wind
 
 == Changelog ==
 
+= 2.0.0 =
+* Rebuilt the settings page: tabbed layout, engine status cards, and a native WordPress look that follows your admin colour scheme
+* Image regeneration now runs in adaptive batches, survives a page reload, and can be cancelled and resumed
+* Regeneration reports which images failed instead of stopping at a browser alert
+* Removed jQuery and jQuery UI from the admin page
+* Fixed the media page regenerate button submitting image sizes that were set to None
+* Added a notice on the settings page when JavaScript is disabled
+* Requires WordPress 6.4 or later
+
 = 1.9.0 =
 * Tested compability with WordPress 7.0 and 7.1
 * Add option to keep generating all image sizes with ImageMagick on WordPress 7.1, which otherwise creates some sizes in the browser
