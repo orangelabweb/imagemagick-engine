@@ -404,6 +404,12 @@ function ime_option_page() {
     <div class="wrap" x-data="imeSettings">
         <h1><?php esc_html_e( 'ImageMagick Engine', 'imagemagick-engine' ); ?></h1>
 
+        <noscript>
+            <div class="notice notice-error">
+                <p><?php esc_html_e( 'This settings page requires JavaScript. Please enable JavaScript in your browser and reload the page to configure ImageMagick Engine.', 'imagemagick-engine' ); ?></p>
+            </div>
+        </noscript>
+
         <nav class="nav-tab-wrapper wp-clearfix" aria-label="<?php esc_attr_e( 'Secondary menu', 'imagemagick-engine' ); ?>">
             <button type="button" class="nav-tab" :class="settingsTabClass" x-on:click="selectSettingsTab">
                 <?php esc_html_e( 'Settings', 'imagemagick-engine' ); ?>

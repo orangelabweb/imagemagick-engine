@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: ImageMagick Engine\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/imagemagick-"
 "engine\n"
-"POT-Creation-Date: 2026-08-17T11:37:50+00:00\n"
+"POT-Creation-Date: 2026-08-17T11:48:20+00:00\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Johan Eenfeldt <johan@orangelab.se>\n"
 "Language-Team: \n"
@@ -90,7 +90,7 @@ msgstr "Skalat om %d bilder"
 msgid "%d failed"
 msgstr ""
 
-#: includes/admin-page.php:66 includes/admin-page.php:409
+#: includes/admin-page.php:66 includes/admin-page.php:415
 msgid "Settings"
 msgstr "Inställningar"
 
@@ -102,19 +102,19 @@ msgstr "Skala om bild"
 msgid "Resize using ImageMagick Engine"
 msgstr "Omskala med ImageMagick Engine"
 
-#: includes/admin-page.php:138 includes/admin-page.php:439
+#: includes/admin-page.php:138 includes/admin-page.php:445
 msgid "Imagick PHP module"
 msgstr "Imagick PHP modul"
 
-#: includes/admin-page.php:139 includes/admin-page.php:449
+#: includes/admin-page.php:139 includes/admin-page.php:455
 msgid "Gmagick PHP module"
 msgstr "Gmagick PHP-modul"
 
-#: includes/admin-page.php:140 includes/admin-page.php:463
+#: includes/admin-page.php:140 includes/admin-page.php:469
 msgid "ImageMagick command-line"
 msgstr "ImageMagick kommando"
 
-#: includes/admin-page.php:141 includes/admin-page.php:478
+#: includes/admin-page.php:141 includes/admin-page.php:484
 msgid "GraphicsMagick command-line"
 msgstr "GraphicsMagick-kommando"
 
@@ -155,49 +155,55 @@ msgstr "Ingen fungerande ImageMagick-installation hittades!"
 msgid "ImageMagick Engine is not enabled."
 msgstr "ImageMagick Engine är inte aktiverad."
 
-#: includes/admin-page.php:407
+#: includes/admin-page.php:409
+msgid ""
+"This settings page requires JavaScript. Please enable JavaScript in your "
+"browser and reload the page to configure ImageMagick Engine."
+msgstr ""
+
+#: includes/admin-page.php:413
 msgid "Secondary menu"
 msgstr ""
 
-#: includes/admin-page.php:412
+#: includes/admin-page.php:418
 msgid "Regenerate"
 msgstr "Skala om"
 
-#: includes/admin-page.php:423
+#: includes/admin-page.php:429
 msgid "Enable"
 msgstr "Aktivera"
 
-#: includes/admin-page.php:432 includes/admin-page.php:435
+#: includes/admin-page.php:438 includes/admin-page.php:441
 msgid "Image engine"
 msgstr "Bildmotor"
 
-#: includes/admin-page.php:442 includes/admin-page.php:452
+#: includes/admin-page.php:448 includes/admin-page.php:458
 msgid "Module loaded"
 msgstr ""
 
-#: includes/admin-page.php:443 includes/admin-page.php:453
+#: includes/admin-page.php:449 includes/admin-page.php:459
 #, fuzzy
 msgid "Module not found"
 msgstr "Kommando hittades inte"
 
-#: includes/admin-page.php:467 includes/admin-page.php:482
+#: includes/admin-page.php:473 includes/admin-page.php:488
 msgid "Command not found"
 msgstr "Kommando hittades inte"
 
-#: includes/admin-page.php:491
+#: includes/admin-page.php:497
 msgid "Optimize for quality"
 msgstr "Vid optimering för kvalité"
 
-#: includes/admin-page.php:494 includes/admin-page.php:503
+#: includes/admin-page.php:500 includes/admin-page.php:509
 msgid "auto"
 msgstr ""
 
-#: includes/admin-page.php:500
+#: includes/admin-page.php:506
 msgid "Optimize for size"
 msgstr "Vid optimering för storlek"
 
 #. translators: 1: computed quality value, 2: computed size value
-#: includes/admin-page.php:510
+#: includes/admin-page.php:516
 #, php-format
 msgid ""
 "Set to 0-100. A higher value means better image quality and a larger file. "
@@ -205,19 +211,19 @@ msgid ""
 "when optimizing for quality and %2$d when optimizing for size."
 msgstr ""
 
-#: includes/admin-page.php:519
+#: includes/admin-page.php:525
 msgid "Image interlace?"
 msgstr "Bildinterlacing?"
 
-#: includes/admin-page.php:524
+#: includes/admin-page.php:530
 msgid "Adds interlace option to ImageMagick when images are processed."
 msgstr "Lägger till alternativet för interlace i ImageMagick vid bearbetning."
 
-#: includes/admin-page.php:528
+#: includes/admin-page.php:534
 msgid "Preserve Exif data?"
 msgstr "Ska Exif-data bevaras?"
 
-#: includes/admin-page.php:533
+#: includes/admin-page.php:539
 msgid ""
 "When optimizing for size, preserve Exif metadata (including GPS location) "
 "instead of stripping it. Other non-essential metadata (IPTC, XMP) is still "
@@ -227,11 +233,11 @@ msgstr ""
 "position) istället för att ta bort dem. Övriga icke-väsentliga metadata "
 "(IPTC, XMP) tas fortfarande bort."
 
-#: includes/admin-page.php:538
+#: includes/admin-page.php:544
 msgid "Disable client-side media processing?"
 msgstr "Stäng av bildbehandling i webbläsaren?"
 
-#: includes/admin-page.php:543
+#: includes/admin-page.php:549
 msgid ""
 "WordPress 7.1 and later lets the browser generate image sizes during upload, "
 "bypassing ImageMagick for those sizes. Keep this checked so every size is "
@@ -241,92 +247,92 @@ msgstr ""
 "uppladdning, vilket förbigår ImageMagick för de storlekarna. Låt rutan vara "
 "ikryssad så att alla storlekar skapas på servern med inställningarna ovan."
 
-#: includes/admin-page.php:550
+#: includes/admin-page.php:556
 msgid "Save Changes"
 msgstr "Spara ändringar"
 
-#: includes/admin-page.php:556
+#: includes/admin-page.php:562
 #, fuzzy
 msgid "Image sizes"
 msgstr "Bildstorlek"
 
-#: includes/admin-page.php:557
+#: includes/admin-page.php:563
 msgid ""
 "Choose how each image size is generated. Sizes set to None are left to "
 "WordPress."
 msgstr ""
 
-#: includes/admin-page.php:562
+#: includes/admin-page.php:568
 msgid "Image size"
 msgstr "Bildstorlek"
 
-#: includes/admin-page.php:564 includes/admin-page.php:580
+#: includes/admin-page.php:570 includes/admin-page.php:586
 msgid "Quality"
 msgstr "Kvalité"
 
-#: includes/admin-page.php:565 includes/admin-page.php:569
-#: includes/admin-page.php:573
+#: includes/admin-page.php:571 includes/admin-page.php:575
+#: includes/admin-page.php:579
 msgid "Select all"
 msgstr ""
 
-#: includes/admin-page.php:568 includes/admin-page.php:581
+#: includes/admin-page.php:574 includes/admin-page.php:587
 msgid "Size"
 msgstr "Storlek"
 
-#: includes/admin-page.php:572 includes/admin-page.php:582
-#: includes/admin-page.php:656
+#: includes/admin-page.php:578 includes/admin-page.php:588
+#: includes/admin-page.php:662
 msgid "None"
 msgstr ""
 
 #. translators: %s: image size name
-#: includes/admin-page.php:603
+#: includes/admin-page.php:609
 #, php-format
 msgid "Handling for %s"
 msgstr ""
 
-#: includes/admin-page.php:632
+#: includes/admin-page.php:638
 #, fuzzy
 msgid "Regenerate images"
 msgstr "Skala om bilder"
 
-#: includes/admin-page.php:636
+#: includes/admin-page.php:642
 #, fuzzy
 msgid ""
 "ImageMagick Engine is not active, so resizing will use standard WordPress "
 "functions."
 msgstr "Omskalningen kommer använda Wordpress standardfunktioner."
 
-#: includes/admin-page.php:642
+#: includes/admin-page.php:648
 msgid "Sizes"
 msgstr "Bilder"
 
-#: includes/admin-page.php:655
+#: includes/admin-page.php:661
 msgid "All"
 msgstr ""
 
-#: includes/admin-page.php:657
+#: includes/admin-page.php:663
 #, fuzzy
 msgid "Match settings"
 msgstr "Inställningar"
 
-#: includes/admin-page.php:664
+#: includes/admin-page.php:670
 msgid "Also regenerate images already handled by ImageMagick Engine"
 msgstr ""
 
-#: includes/admin-page.php:669
+#: includes/admin-page.php:675
 msgid "Start regeneration"
 msgstr ""
 
-#: includes/admin-page.php:671
+#: includes/admin-page.php:677
 #, fuzzy
 msgid "This can take a long time."
 msgstr "(det här kan ta lång tid)"
 
-#: includes/admin-page.php:679
+#: includes/admin-page.php:685
 msgid "Resume"
 msgstr ""
 
-#: includes/admin-page.php:680
+#: includes/admin-page.php:686
 msgid "Cancel"
 msgstr ""
 
