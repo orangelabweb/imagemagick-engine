@@ -2332,27 +2332,26 @@ Run them. Expected: 1, 2, and 3 fail.
 
 `accent-color` on `<progress>` is the whole reason the native element was chosen — one declaration and the bar follows the admin scheme. The green and red status colours stay literal: they are WordPress's own semantic status colours and are not scheme-dependent.
 
-- [ ] **Step 3: Add the stylesheet version**
+- [ ] **Step 3: Verify the stylesheet URL (no change expected)**
 
-In `ime_admin_print_styles()`, add the version argument so the cache-buster works:
-
-```php
-    wp_enqueue_style( 'ime-admin-style', plugins_url( '/css/ime-admin.css', __FILE__ ), [], constant( 'IME_VERSION' ) );
-```
-
-Note that `plugins_url( ..., __FILE__ )` now resolves relative to `includes/`, not the plugin root. Change it to:
+Task 2 already fixed this: `plugins_url( ..., __FILE__ )` inside `includes/admin-page.php` resolves one directory too deep, so the call reads:
 
 ```php
-    wp_enqueue_style( 'ime-admin-style', plugins_url( '/css/ime-admin.css', dirname( __FILE__ ) . '/imagemagick-engine.php' ), [], constant( 'IME_VERSION' ) );
+    wp_enqueue_style( 'ime-admin-style', plugins_url( '/css/ime-admin.css', dirname( __DIR__ ) . '/imagemagick-engine.php' ), [], constant( 'IME_VERSION' ) );
 ```
 
-Audit every other `plugins_url()` call moved into `includes/` in Task 2 for the same problem — `wp_register_script` for both JS files stayed in the main file, so those are fine, but confirm with:
+`__DIR__` inside `includes/admin-page.php` is the `includes` directory, so `dirname( __DIR__ )` is the plugin root — **not** `dirname( __FILE__ )`, which would still point inside `includes/`.
+
+Confirm the fix survived the intervening tasks:
 
 ```bash
 grep -rn 'plugins_url' includes/ imagemagick-engine.php
+curl -s -b .superpowers/sdd/2026-08-17-admin-ui-rework/cookies.txt \
+  "http://localhost:8888/wp-admin/options-general.php?page=imagemagick-engine" \
+  | grep -o 'ime-admin[^"]*\.css[^"]*'
 ```
 
-Every call inside `includes/` must pass the main plugin file path, not `__FILE__`.
+Every call inside `includes/` must pass the main plugin file path, not `__FILE__`. The rendered URL must contain no `includes` segment and must carry `?ver=2.0.0`. If either check fails, fix it here.
 
 - [ ] **Step 4: Run the verification from Step 1**
 
