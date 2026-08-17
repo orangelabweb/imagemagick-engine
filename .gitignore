@@ -5,3 +5,4 @@ node_modules
 .claude
 CLAUDE.md
 .wp-env.override.json
+.superpowers
