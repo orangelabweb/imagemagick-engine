@@ -11,55 +11,9 @@
 	border: 0;
 }
 
-#ime-regeneration {
-	display: none;
-	margin: 30px 0;
-}
-
-#ime-regeneration.working {
-	display: block;
-}
-
 .form-table td p.ime-description {
 	color: #666;
 	font-size: 12px;
-}
-
-#ime-regenbar {
-	position: relative;
-	border-radius: 5px;
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
-	-khtml-border-radius: 5px;
-	border: 1px solid #666;
-	padding: 1px;
-}
-
-#ime-regenbar-percent {
-	position: absolute;
-	left: 50%;
-	top: 50%;
-	width: 50px;
-	margin-left: -25px;
-	height: 22px;
-	margin-top: -9px;
-	font-weight: bold;
-	text-align: center;
-}
-
-#ime-regenbar.ui-progressbar {
-	background-color: #eee;
-	color: #000;
-	height: 30px;
-}
-
-#ime-regenbar.ui-progressbar .ui-progressbar-value {
-    height: 30px;
-    background: #FF6600;
-	border-radius: 5px;
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
-	-khtml-border-radius: 5px;
 }
 
 .ime-regen-button {
@@ -127,4 +81,24 @@
 
 .ime-engine-card__path {
 	margin-top: 12px;
+}
+
+.ime-progress {
+	width: 100%;
+	max-width: 600px;
+	height: 24px;
+}
+
+.ime-regen-status {
+	font-weight: 600;
+}
+
+.ime-regen-sizes label {
+	display: inline-block;
+	margin-right: 16px;
+}
+
+.ime-regen-failures {
+	margin: 8px 0 0 20px;
+	list-style: disc;
 }

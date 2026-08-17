@@ -128,130 +128,221 @@ document.addEventListener( 'alpine:init', function() {
 			}
 		};
 	} );
-} );
 
-//Variables
-var rt_images = '';
-var rt_total = 1;
-var rt_count = 1;
-var rt_force = 0;
-var rt_precision = 0;
-var rt_sizes = '';
+	Alpine.data( 'imeRegen', function() {
+		return {
+			state: 'idle',
+			paused: false,
+			done: 0,
+			total: 0,
+			failed: [],
+			failedCount: 0,
+			force: false,
+			errorMessage: '',
+			cancelRequested: false,
+			batchTimes: [],
 
-function imeStartResize() {
-	rt_sizes = '';
-	rt_force = 0;
+			// Alpine calls init() automatically on the component root, so the
+			// markup needs no x-init attribute — which the CSP build would
+			// reject anyway if it carried arguments.
+			init: function() {
+				this.loadState();
+			},
 
-	jQuery( '#regenerate-images-metabox input' ).each( function() {
-	var i = jQuery( this );
-	var name = i.attr( 'name' );
+			get isIdle() { return this.state === 'idle'; },
+			get isRunning() { return this.state === 'running'; },
+			get isDone() { return this.state === 'done'; },
+			get isPaused() { return this.paused; },
+			get hasFailures() { return this.failed.length > 0; },
+			get hasError() { return this.errorMessage !== ''; },
 
-	if ( i.is( ':checked' ) && name && 'regen-size-' == name.substring( 0, 11 ) ) {
-		rt_sizes = rt_sizes + name.substring( 11 ) + '|';
-	}
-	} );
+			get percent() {
+				if ( ! this.total ) {
+					return 0;
+				}
+				return Math.min( 100, ( this.done / this.total ) * 100 );
+			},
 
-	if ( jQuery( '#force' ).is( ':checked' ) ) {
-rt_force = 1;
-}
+			get headingText() {
+				return this.paused ? ime_admin.regen_paused : ime_admin.regen_running;
+			},
 
-	if ( rt_total > 20000 ) {
-rt_precision = 3;
-} else if ( rt_total > 2000 ) {
-rt_precision = 2;
-} else if ( rt_total > 200 ) {
-rt_precision = 1;
-} else {
-rt_precision = 0;
-}
+			get statusText() {
+				var text = this.done.toLocaleString() + ' / ' + this.total.toLocaleString();
+				var eta = this.etaText;
 
-	var rt_percent = 0;
+				if ( eta ) {
+					text += ' · ' + eta;
+				}
+				if ( this.failedCount ) {
+					text += ' · ' + ime_admin.regen_failed_fmt.replace( '%d', this.failedCount );
+				}
+				return text;
+			},
 
-	rt_count = 1;
-	jQuery( '#ime-regenbar' ).progressbar();
-	jQuery( '#ime-regenbar-percent' ).html( rt_percent.toFixed( rt_precision ) + ' %' );
-	jQuery( '#ime-regeneration' ).addClass( 'working' );
+			get etaText() {
+				// Under ten images the average is noise, so say nothing.
+				if ( this.done < 10 || this.batchTimes.length < 2 ) {
+					return '';
+				}
 
-	imeRegenImages( rt_images.shift() );
-}
+				// Moving average over the last five batches only: throughput
+				// changes as image sizes vary, and a cumulative mean lags badly.
+				var recent = this.batchTimes.slice( -5 );
+				var totalSeconds = 0;
+				var totalImages = 0;
 
-//Regeneration of progressbar
-function imeRegenImages( id ) {
-	jQuery.post( ajaxurl, { action: 'ime_process_image', ime_nonce: ime_admin.ime_nonce, id: id, sizes: rt_sizes, force: rt_force }, function( data ) {
-	var n = parseInt( data, 10 );
-	if ( isNaN( n ) ) {
-		alert( data );
-	}
+				recent.forEach( function( entry ) {
+					totalSeconds += entry.seconds;
+					totalImages += entry.images;
+				} );
 
-	// todo: test and handle negative return
+				if ( ! totalImages ) {
+					return '';
+				}
 
-	if ( rt_images.length <= 0 ) {
-		jQuery( '#regen-message' ).removeClass( 'hidden' ).html( '<p><strong>' + ime_admin.done + '</strong> ' + ime_admin.processed_fmt.replace( '%d', rt_total ) + '.</p>' );
-		jQuery( '#ime-regeneration' ).removeClass( 'working' );
-		jQuery( '#ime-regenbar' ).progressbar( 'value', 0 );
-		return;
-	}
+				var remaining = ( this.total - this.done ) * ( totalSeconds / totalImages );
+				var minutes = Math.max( 1, Math.round( remaining / 60 ) );
 
-	var next_id = rt_images.shift();
-	var rt_percent = ( rt_count / rt_total ) * 100;
-	jQuery( '#ime-regenbar' ).progressbar( 'value', rt_percent );
-	jQuery( '#ime-regenbar-percent' ).html( rt_percent.toFixed( rt_precision ) + ' %' );
-	rt_count = rt_count + 1;
+				return ime_admin.regen_eta_fmt.replace( '%d', minutes );
+			},
 
-	// tail recursion
-	imeRegenImages( next_id );
-	} );
-}
+			get doneText() {
+				return ime_admin.regen_done_fmt.replace( '%d', this.total.toLocaleString() );
+			},
 
-// Regen single image on media pages
-function imeRegenMediaImage( id, sizes, force ) {
-	var link = jQuery( '#ime-regen-link-' + id );
+			get failedText() {
+				return ime_admin.regen_failed_fmt.replace( '%d', this.failedCount );
+			},
 
-	if ( link.hasClass( 'disabled' ) ) {
-return false;
-}
+			loadState: function() {
+				var self = this;
 
-	link.addClass( 'disabled' );
+				imeRequest( 'ime_regen_state', {} ).then( function( data ) {
+					if ( ! data.running ) {
+						return;
+					}
+					self.state = 'running';
+					self.paused = true;
+					self.done = data.done;
+					self.total = data.total;
+					self.failed = data.failed || [];
+					self.failedCount = data.failed_count || 0;
+				} ).catch( function() {
+					// A missing queue is not an error worth showing.
+				} );
+			},
 
-	var spinner = jQuery( '#ime-spinner-' + id ).children( 'img' );
-	spinner.show();
+			selectedSizes: function() {
+				var values = [];
+				var inputs = document.querySelectorAll( '.ime-regen-size:checked' );
 
-	var message = jQuery( '#ime-message-' + id ).show();
-	jQuery.post( ajaxurl, { action: 'ime_process_image', ime_nonce: ime_admin.ime_nonce, id: id, sizes: sizes, force: force }, function( data ) {
-	spinner.hide();
-	link.removeClass( 'disabled' );
+				Array.prototype.forEach.call( inputs, function( input ) {
+					values.push( input.value );
+				} );
 
-	var n = parseInt( data, 10 );
-	if ( isNaN( n ) || n < 0 ) {
-		message.html( ime_admin.failed );
-		if ( isNaN( n ) ) {
-alert( data );
-}
-	} else {
-		message.html( ime_admin.resized );
-	}
-	} );
-}
+				return values.join( '|' );
+			},
 
-jQuery( document ).ready( function( $ ) {
-	jQuery( document ).on( 'click', '.ime-regen-button', function( e ) {
-		e.preventDefault();
-		var el = jQuery( this );
-		imeRegenMediaImage( el.data( 'post-id' ), el.data( 'sizes' ), el.data( 'force' ) );
-	} );
+			selectAllSizes: function() { this.setSizes( 'all' ); },
+			selectNoSizes: function() { this.setSizes( 'none' ); },
+			selectDefaultSizes: function() { this.setSizes( 'default' ); },
 
-	$( '#regenerate-images' ).click( function() {
-		$( '#regenerate-images-metabox img.ajax-feedback' ).show();
-		$.post( ajaxurl, { action: 'ime_regeneration_get_images', ime_nonce: ime_admin.ime_nonce, }, function( data ) {
-			jQuery( '#regen-message' ).addClass( 'hidden' );
-			rt_images = Array.isArray( data ) ? data : [];
-			rt_total = rt_images.length;
+			setSizes: function( which ) {
+				var inputs = document.querySelectorAll( '.ime-regen-size' );
 
-			if ( rt_total > 0 ) {
-				imeStartResize();
-			} else {
-				alert( ime_admin.noimg );
+				Array.prototype.forEach.call( inputs, function( input ) {
+					if ( which === 'all' ) {
+						input.checked = true;
+					} else if ( which === 'none' ) {
+						input.checked = false;
+					} else {
+						input.checked = input.dataset.default === '1';
+					}
+				} );
+			},
+
+			start: function() {
+				var self = this;
+				var sizes = this.selectedSizes();
+
+				self.errorMessage = '';
+				self.failed = [];
+				self.failedCount = 0;
+				self.batchTimes = [];
+				self.cancelRequested = false;
+
+				imeRequest( 'ime_regen_start', {
+					sizes: sizes,
+					force: self.force ? 1 : 0
+				} ).then( function( data ) {
+					self.state = 'running';
+					self.paused = false;
+					self.done = 0;
+					self.total = data.total;
+					self.runBatch();
+				} ).catch( function( error ) {
+					self.errorMessage = error.message;
+				} );
+			},
+
+			resume: function() {
+				this.errorMessage = '';
+				this.paused = false;
+				this.cancelRequested = false;
+				this.runBatch();
+			},
+
+			cancel: function() {
+				var self = this;
+
+				self.cancelRequested = true;
+
+				imeRequest( 'ime_regen_cancel', {} ).then( function() {
+					self.state = 'idle';
+					self.paused = false;
+					self.done = 0;
+					self.total = 0;
+				} ).catch( function( error ) {
+					self.errorMessage = error.message;
+				} );
+			},
+
+			runBatch: function() {
+				var self = this;
+				var startedAt = Date.now();
+				var before = self.done;
+
+				if ( self.cancelRequested ) {
+					return;
+				}
+
+				imeRequest( 'ime_regen_batch', {} ).then( function( data ) {
+					if ( self.cancelRequested ) {
+						return;
+					}
+
+					self.batchTimes.push( {
+						seconds: ( Date.now() - startedAt ) / 1000,
+						images: Math.max( 1, data.done - before )
+					} );
+
+					self.done = data.done;
+					self.total = data.total;
+					self.failed = data.failed || [];
+					self.failedCount = data.failed_count || 0;
+
+					if ( data.finished ) {
+						self.state = 'done';
+						return;
+					}
+
+					self.runBatch();
+				} ).catch( function( error ) {
+					self.errorMessage = error.message;
+					self.state = 'idle';
+				} );
 			}
-		}, 'json' );
+		};
 	} );
 } );
