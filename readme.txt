@@ -3,6 +3,7 @@ Contributors: rickardw, orangelab
 Tags: image, picture, imagemagick, gd, regenerate
 Requires at least: 6.4
 Tested up to: 7.1
+Requires PHP: 7.4
 Stable tag: 2.0.0
 License: GPLv2 or later
 
@@ -20,7 +21,7 @@ Features
 * Configure image quality or use dynamically computed default value
 * Optimize different image sizes for either quality or size
 
-Lnguages: English, French, German, Swedish, Turkish
+Languages: English, French, German, Swedish, Turkish
 
 Requires either ImageMagick binary or Imagick PHP module.
 
@@ -67,7 +68,7 @@ You can also find binary releases at http://www.imagemagick.org including a Wind
 == Changelog ==
 
 = 2.0.0 =
-* Rebuilt the settings page: tabbed layout, engine status cards, and a native WordPress look that follows your admin colour scheme
+* Rebuilt the settings page: tabbed layout, engine status cards, and native WordPress form controls, buttons and progress bar that follow your admin colour scheme
 * Image regeneration now runs in adaptive batches, survives a page reload, and can be cancelled and resumed
 * Regeneration reports which images failed instead of stopping at a browser alert
 * Removed jQuery and jQuery UI from the admin page

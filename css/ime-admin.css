@@ -14,7 +14,10 @@
 }
 
 .ime-engine-card {
-	border: 1px solid var( --wp-admin-border-color, #c3c4c7 );
+	/* Core defines no --wp-admin-border-color custom property; this is a
+	   literal, not a fallback for a scheme-aware value. Do not restore the
+	   var(). */
+	border: 1px solid #c3c4c7;
 	border-radius: 4px;
 	padding: 12px 16px;
 	background: #fff;
@@ -46,15 +49,59 @@
 
 /* Image size table */
 
-.ime-sizes-table td,
-.ime-sizes-table th {
+/*
+ * The size table is nested inside .form-table, whose descendant selectors
+ * would otherwise impose their own padding, line-height and font-size on
+ * every cell here.
+ */
+.ime-sizes-table th,
+.ime-sizes-table td {
+	padding: 8px 10px;
+	line-height: 1.4;
+	font-size: 13px;
 	vertical-align: middle;
+}
+
+.ime-sizes-table thead th {
+	text-align: center;
+}
+
+.ime-sizes-table thead th:first-child,
+.ime-sizes-table tbody th {
+	text-align: left;
+}
+
+.ime-sizes-table td {
+	text-align: center;
+	width: 22%;
 }
 
 .ime-sizes-table fieldset {
 	margin: 0;
 	padding: 0;
 	border: 0;
+}
+
+/*
+ * At (max-width: 782px) core has two responsive rules that both match this
+ * nested table because it also carries the wp-list-table class for its base
+ * styling: ".wp-list-table tr { display: flex }" (the mobile card layout)
+ * and ".form-table td/th { display: block }" (their descendant selectors
+ * are not scoped to direct children, so they reach into this inner table
+ * too). Flex on the row blockifies "table-cell" on its children regardless
+ * of what they're set to, so the row itself has to be put back to
+ * table-row first, or the th/td override below has no effect. Keep this
+ * table tabular; its columns are narrow enough to still fit.
+ */
+@media screen and ( max-width: 782px ) {
+	.ime-sizes-table tr {
+		display: table-row !important;
+	}
+
+	.ime-sizes-table th,
+	.ime-sizes-table td {
+		display: table-cell !important;
+	}
 }
 
 /* Regeneration */

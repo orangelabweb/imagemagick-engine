@@ -202,6 +202,7 @@ function ime_ajax_process_image() {
 
     $raw_sizes = sanitize_text_field( wp_unslash( $_REQUEST['sizes'] ?? '' ) );
     $sizes     = array_values( array_filter( array_map( 'sanitize_key', explode( '|', $raw_sizes ) ) ) );
+    $sizes     = array_values( array_intersect( $sizes, array_keys( ime_available_image_sizes() ) ) );
 
     if ( empty( $sizes ) ) {
         wp_send_json_error( [ 'message' => __( 'Select at least one image size.', 'imagemagick-engine' ) ] );
@@ -511,8 +512,6 @@ function ime_ajax_regen_state() {
             'total'        => $queue['total'],
             'failed'       => $queue['failed'],
             'failed_count' => $queue['failed_count'],
-            'sizes'        => $queue['sizes'],
-            'force'        => (bool) $queue['force'],
         ]
     );
 }

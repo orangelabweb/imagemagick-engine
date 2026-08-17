@@ -51,8 +51,6 @@ document.addEventListener( 'alpine:init', function() {
 				return this.tab === 'regenerate';
 			},
 
-			get isPhp() { return this.mode === 'php'; },
-			get isGmagick() { return this.mode === 'gmagick'; },
 			get isCli() { return this.mode === 'cli'; },
 			get isGraphicsmagick() { return this.mode === 'graphicsmagick'; },
 
@@ -142,6 +140,7 @@ document.addEventListener( 'alpine:init', function() {
 			failedCount: 0,
 			force: false,
 			errorMessage: '',
+			ended: false,
 			cancelRequested: false,
 			starting: false,
 			runToken: 0,
@@ -160,6 +159,19 @@ document.addEventListener( 'alpine:init', function() {
 			get isPaused() { return this.paused; },
 			get hasFailures() { return this.failed.length > 0; },
 			get hasError() { return this.errorMessage !== ''; },
+			get hasEnded() { return this.ended; },
+
+			// The server cannot tell "the run finished" from "the queue expired
+			// and was deleted" (both surface as the no_queue error code), so this
+			// says only what is true of both cases. Keeping done/total instead of
+			// zeroing them means the last known progress stays visible here too.
+			get endedText() {
+				var text = ime_admin.regen_ended;
+				if ( this.total ) {
+					text += ' ' + this.done.toLocaleString() + ' / ' + this.total.toLocaleString();
+				}
+				return text;
+			},
 
 			get percent() {
 				if ( ! this.total ) {
@@ -274,6 +286,7 @@ document.addEventListener( 'alpine:init', function() {
 				var token = ++self.runToken;
 
 				self.errorMessage = '';
+				self.ended = false;
 				self.failed = [];
 				self.failedCount = 0;
 				self.batchTimes = [];
@@ -310,6 +323,7 @@ document.addEventListener( 'alpine:init', function() {
 				this.runToken++;
 
 				this.errorMessage = '';
+				this.ended = false;
 				this.paused = false;
 				this.cancelRequested = false;
 				this.runBatch( this.runToken );
@@ -385,11 +399,13 @@ document.addEventListener( 'alpine:init', function() {
 					}
 
 					if ( 'no_queue' === error.code ) {
-						// The run ended while this page was stale. Not an error.
+						// The run ended while this page was stale — either finished
+						// or expired past IME_REGEN_TTL. Not an error, so keep the
+						// last known done/total instead of zeroing them and say so
+						// with an informational notice, not the error styling.
 						self.state = 'idle';
 						self.paused = false;
-						self.done = 0;
-						self.total = 0;
+						self.ended = true;
 						return;
 					}
 

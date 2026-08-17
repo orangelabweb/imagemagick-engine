@@ -152,21 +152,6 @@ function ime_mode_valid( $mode = null ) {
     return ( ! empty( $mode ) && function_exists( $fn ) && call_user_func( $fn ) );
 }
 
-// Check version of a registered WordPress script
-function ime_script_version_compare( $handle, $version, $compare = '>=' ) {
-    global $wp_scripts;
-    if ( ! is_a( $wp_scripts, 'WP_Scripts' ) ) {
-        $wp_scripts = new WP_Scripts();
-    }
-
-    $query = $wp_scripts->query( $handle, 'registered' );
-    if ( ! $query ) {
-        return false;
-    }
-
-    return version_compare( $query->ver, $version, $compare );
-}
-
 // Get array of available image sizes
 function ime_available_image_sizes() {
     $sizes = [
@@ -858,11 +843,6 @@ function ime_im_cli_command( $is_gm = false ) {
 // Thin wrappers so the mode dispatch system finds ime_im_graphicsmagick_valid().
 function ime_im_graphicsmagick_valid() {
     return ime_im_cli_valid( true );
-}
-
-// Check if we are running under Windows (which differs for character escape)
-function ime_is_windows() {
-    return ( constant( 'PHP_SHLIB_SUFFIX' ) == 'dll' );
 }
 
 // Shared resize implementation for both ImageMagick and GraphicsMagick CLI.

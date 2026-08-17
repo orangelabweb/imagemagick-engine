@@ -35,8 +35,6 @@ function ime_admin_print_scripts() {
     wp_enqueue_script( 'ime-alpinejs' );
 
     $data = [
-        'failed'             => '<strong>' . __( 'Failed to resize image!', 'imagemagick-engine' ) . '</strong>',
-        'resized'            => __( 'Resized using ImageMagick Engine', 'imagemagick-engine' ),
         'ime_nonce'          => wp_create_nonce('ime-admin-nonce'),
         'ajaxurl'            => admin_url( 'admin-ajax.php' ),
         'initial_tab'        => ime_current_tab(),
@@ -50,6 +48,7 @@ function ime_admin_print_scripts() {
         'regen_done_fmt'     => __( 'Finished. Processed %d images.', 'imagemagick-engine' ),
         /* translators: %d: number of images */
         'regen_failed_fmt'   => __( '%d failed', 'imagemagick-engine' ),
+        'regen_ended'        => __( 'This run is no longer active. It either finished or expired.', 'imagemagick-engine' ),
     ];
 
     // Engine detection (ime_mode_valid() for all four engines) is only read by
@@ -124,6 +123,12 @@ function ime_filter_media_meta( $content, $post ) {
             continue;
         }
         $sizes[] = $s;
+    }
+
+    // Every configured size is None: there is nothing this button could do
+    // except fail with "Select at least one image size.", so don't render it.
+    if ( empty( $sizes ) ) {
+        return $content;
     }
 
     $content .= '</p><p>';
@@ -278,7 +283,7 @@ function ime_option_page() {
     global $ime_available_quality_modes;
 
     if ( ! current_user_can( 'manage_options' ) ) {
-        wp_die( 'Sorry, but you do not have permissions to change settings.' );
+        wp_die( esc_html__( 'Sorry, but you do not have permissions to change settings.', 'imagemagick-engine' ) );
     }
 
     /* Make sure post was from this page */
@@ -437,7 +442,7 @@ function ime_option_page() {
                     <div class="inside">
                         <table class="form-table">
                             <tr>
-                                <th scope="row" valign="top"><?php _e( 'Enable', 'imagemagick-engine' ); ?>:</th>
+                                <th scope="row" valign="top"><?php esc_html_e( 'Enable', 'imagemagick-engine' ); ?>:</th>
                                 <td>
                                     <input type="checkbox" id="enabled" name="enabled" x-model="enabled"
                                         <?php echo $any_valid ? '' : ' disabled=disabled '; ?>
@@ -446,7 +451,7 @@ function ime_option_page() {
                             </tr>
                             <tbody x-show="enabled">
                                 <tr>
-                                    <th scope="row" valign="top"><?php _e( 'Image engine', 'imagemagick-engine' ); ?>:</th>
+                                    <th scope="row" valign="top"><?php esc_html_e( 'Image engine', 'imagemagick-engine' ); ?>:</th>
                                     <td>
                                         <fieldset class="ime-engine-grid">
                                             <legend class="screen-reader-text"><?php esc_html_e( 'Image engine', 'imagemagick-engine' ); ?></legend>
@@ -533,31 +538,31 @@ function ime_option_page() {
                                     </td>
                                 </tr>
                                 <tr>
-                                    <th scope="row" valign="top"><?php _e( 'Image interlace?', 'imagemagick-engine' ); ?>:</th>
+                                    <th scope="row" valign="top"><?php esc_html_e( 'Image interlace?', 'imagemagick-engine' ); ?>:</th>
                                     <td>
                                         <input type="checkbox" id="interlace" name="interlace" value="1"
                                             <?php checked( $interlace, true ); ?>
                                         />
-                                        <p class="description"><?php _e( 'Adds interlace option to ImageMagick when images are processed.', 'imagemagick-engine' ); ?></p>
+                                        <p class="description"><?php esc_html_e( 'Adds interlace option to ImageMagick when images are processed.', 'imagemagick-engine' ); ?></p>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <th scope="row" valign="top"><?php _e( 'Preserve Exif data?', 'imagemagick-engine' ); ?>:</th>
+                                    <th scope="row" valign="top"><?php esc_html_e( 'Preserve Exif data?', 'imagemagick-engine' ); ?>:</th>
                                     <td>
                                         <input type="checkbox" id="keep_exif" name="keep_exif" value="1"
                                             <?php checked( $keep_exif, true ); ?>
                                         />
-                                        <p class="description"><?php _e( 'When optimizing for size, preserve Exif metadata (including GPS location) instead of stripping it. Other non-essential metadata (IPTC, XMP) is still removed.', 'imagemagick-engine' ); ?></p>
+                                        <p class="description"><?php esc_html_e( 'When optimizing for size, preserve Exif metadata (including GPS location) instead of stripping it. Other non-essential metadata (IPTC, XMP) is still removed.', 'imagemagick-engine' ); ?></p>
                                     </td>
                                 </tr>
                                 <?php if ( ime_client_side_processing_available() ) { ?>
                                 <tr>
-                                    <th scope="row" valign="top"><?php _e( 'Disable client-side media processing?', 'imagemagick-engine' ); ?>:</th>
+                                    <th scope="row" valign="top"><?php esc_html_e( 'Disable client-side media processing?', 'imagemagick-engine' ); ?>:</th>
                                     <td>
                                         <input type="checkbox" id="disable_client_side_processing" name="disable_client_side_processing" value="1"
                                             <?php checked( $disable_client_side_processing, true ); ?>
                                         />
-                                        <p class="description"><?php _e( 'WordPress 7.1 and later lets the browser generate image sizes during upload, bypassing ImageMagick for those sizes. Keep this checked so every size is generated on the server with the settings above.', 'imagemagick-engine' ); ?></p>
+                                        <p class="description"><?php esc_html_e( 'WordPress 7.1 and later lets the browser generate image sizes during upload, bypassing ImageMagick for those sizes. Keep this checked so every size is generated on the server with the settings above.', 'imagemagick-engine' ); ?></p>
                                     </td>
                                 </tr>
                                 <?php } ?>
@@ -707,6 +712,10 @@ function ime_option_page() {
                     <div class="notice notice-success inline"><p x-text="doneText"></p></div>
                 </div>
 
+                <div class="notice notice-info inline" x-show="hasEnded" x-cloak>
+                    <p x-text="endedText"></p>
+                </div>
+
                 <div class="notice notice-error inline" x-show="hasError" x-cloak>
                     <p x-text="errorMessage"></p>
                 </div>
@@ -723,5 +732,6 @@ function ime_option_page() {
                 </div>
             </div>
         </div>
+    </div>
     <?php
 }
