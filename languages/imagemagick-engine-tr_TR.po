@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: ImageMagick Engine 1.5.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/imagemagick-"
 "engine\n"
-"POT-Creation-Date: 2026-08-14T21:52:38+00:00\n"
+"POT-Creation-Date: 2026-08-17T11:37:50+00:00\n"
 "PO-Revision-Date: 2026-03-27 14:38+0100\n"
 "Last-Translator: Haydar ŞAHİN\n"
 "Language-Team: Türkçe\n"
@@ -18,7 +18,7 @@ msgstr ""
 "X-Loco-Version: 2.4.0; wp-5.4.2\n"
 
 #. Plugin Name of the plugin
-#: imagemagick-engine.php
+#: imagemagick-engine.php includes/admin-page.php:405
 msgid "ImageMagick Engine"
 msgstr "ImageMagick Engine"
 
@@ -46,215 +46,182 @@ msgstr "Orangelab"
 msgid "https://orangelab.com/"
 msgstr "https://orangelab.com/"
 
-#: imagemagick-engine.php:384
+#: imagemagick-engine.php:399
 msgid "The current image editor cannot process this file type."
 msgstr ""
 
-#: imagemagick-engine.php:1138
-msgid "You dont have any images to regenerate"
-msgstr "Yeniden oluştacak görseliniz yok"
-
-#: imagemagick-engine.php:1139
-msgid "All done!"
-msgstr "Tamamlandı!"
-
-#: imagemagick-engine.php:1140
-#, php-format
-msgid "Processed %d images"
-msgstr "%d görsel işlendi"
-
-#: imagemagick-engine.php:1141
+#: includes/admin-page.php:36
 msgid "Failed to resize image!"
 msgstr "Görsel yeniden boyutlandıramadı!"
 
-#: imagemagick-engine.php:1142 imagemagick-engine.php:1194
+#: includes/admin-page.php:37 includes/admin-page.php:100 includes/ajax.php:209
 msgid "Resized using ImageMagick Engine"
 msgstr "ImageMagick Engine kullanılarak yeniden boyutlandırıldı"
 
-#: imagemagick-engine.php:1144
-#, php-format
-msgid "%s not found at this path."
-msgstr "%s bu yolda bulunamadı."
-
-#: imagemagick-engine.php:1145
-#, php-format
-msgid ""
-"%s not found. Your PHP open_basedir setting is restricting access to this "
-"path. Add the path to your open_basedir configuration."
+#: includes/admin-page.php:41
+msgid "The request failed. Please try again."
 msgstr ""
-"%s bulunamadı. PHP'deki open_basedir ayarınız bu yola erişimi engelliyor. Bu "
-"yolu open_basedir yapılandırmanıza ekleyin."
 
-#: imagemagick-engine.php:1159
-msgid "Settings"
-msgstr "Ayarlar"
+#: includes/admin-page.php:44
+#, fuzzy
+msgid "Command found."
+msgstr "Komut bulunamadı"
 
-#: imagemagick-engine.php:1195
-msgid "Resize image"
-msgstr "Görseli yeniden boyutlandır"
-
-#: imagemagick-engine.php:1199
-msgid "Resize using ImageMagick Engine"
-msgstr "ImageMagick Engine kullanarak yeniden boyutlandır"
-
-#: imagemagick-engine.php:1236 imagemagick-engine.php:1488
-msgid "Imagick PHP module"
-msgstr "Imagick PHP modülü"
-
-#: imagemagick-engine.php:1237 imagemagick-engine.php:1495
-msgid "Gmagick PHP module"
-msgstr "Gmagick PHP modülü"
-
-#: imagemagick-engine.php:1238
-msgid "ImageMagick command-line"
-msgstr "ImageMagick komut satırı"
-
-#: imagemagick-engine.php:1239
-msgid "GraphicsMagick command-line"
-msgstr "GraphicsMagick komut satırı"
-
-#: imagemagick-engine.php:1342
-msgid "Settings updated"
-msgstr "Ayarlar güncellendi"
-
-#: imagemagick-engine.php:1402
-msgid "No valid ImageMagick mode found!"
-msgstr "Imagick PHP modülü bulundu!"
-
-#: imagemagick-engine.php:1406
-msgid "ImageMagick Engine is not enabled."
-msgstr "ImageMagick Engine etkin değil."
-
-#: imagemagick-engine.php:1412
-msgid "ImageMagick Engine Settings"
-msgstr "ImageMagick Engine Ayarları"
-
-#: imagemagick-engine.php:1413 imagemagick-engine.php:1415
+#: includes/admin-page.php:45
 msgid "Regenerating images"
 msgstr "Görseller yeniden oluşturuluyor"
 
-#: imagemagick-engine.php:1414
-msgid "You must enable Javascript in order to proceed!"
-msgstr "Devam etmek için Javascript'i etkinleştirmelisiniz!"
+#: includes/admin-page.php:46
+#, fuzzy
+msgid "Regeneration in progress"
+msgstr "Görseller yeniden oluşturuluyor"
 
-#: imagemagick-engine.php:1427
-msgid "Regenerate Images"
-msgstr "Görselleri Optimize Et"
+#. translators: %d: number of minutes
+#: includes/admin-page.php:48
+#, php-format
+msgid "about %d min remaining"
+msgstr ""
 
-#: imagemagick-engine.php:1432
-msgid "Sizes"
-msgstr "Boyutlar"
+#. translators: %d: number of images
+#: includes/admin-page.php:50
+#, fuzzy, php-format
+msgid "Finished. Processed %d images."
+msgstr "%d görsel işlendi"
 
-#: imagemagick-engine.php:1443
-msgid "ImageMagick images too"
-msgstr "ImageMagick görüntülerini de ekle"
+#. translators: %d: number of images
+#: includes/admin-page.php:52
+#, php-format
+msgid "%d failed"
+msgstr ""
 
-#: imagemagick-engine.php:1447
-msgid "Resize will use standard WordPress functions."
-msgstr "Yeniden boyutlandırma, standart WordPress fonksiyonları kullanır."
+#: includes/admin-page.php:66 includes/admin-page.php:409
+msgid "Settings"
+msgstr "Ayarlar"
 
-#: imagemagick-engine.php:1450
-msgid "Regenerate"
-msgstr "Optimize Et"
+#: includes/admin-page.php:101
+msgid "Resize image"
+msgstr "Görseli yeniden boyutlandır"
 
-#: imagemagick-engine.php:1451
-msgid "(this can take a long time)"
-msgstr "(Bu işlem zaman alabilir)"
+#: includes/admin-page.php:105
+msgid "Resize using ImageMagick Engine"
+msgstr "ImageMagick Engine kullanarak yeniden boyutlandır"
 
-#: imagemagick-engine.php:1463
-msgid "Enable"
-msgstr "Etkinleştir"
+#: includes/admin-page.php:138 includes/admin-page.php:439
+msgid "Imagick PHP module"
+msgstr "Imagick PHP modülü"
 
-#: imagemagick-engine.php:1472
-msgid "Image engine"
-msgstr "Görsel Motoru"
+#: includes/admin-page.php:139 includes/admin-page.php:449
+msgid "Gmagick PHP module"
+msgstr "Gmagick PHP modülü"
 
-#: imagemagick-engine.php:1491
-msgid "Imagick PHP module found"
-msgstr "Imagick PHP modülü bulundu"
+#: includes/admin-page.php:140 includes/admin-page.php:463
+msgid "ImageMagick command-line"
+msgstr "ImageMagick komut satırı"
 
-#: imagemagick-engine.php:1491
-msgid "Imagick PHP module not found"
-msgstr "Imagick PHP modülü bulunamadı"
+#: includes/admin-page.php:141 includes/admin-page.php:478
+msgid "GraphicsMagick command-line"
+msgstr "GraphicsMagick komut satırı"
 
-#: imagemagick-engine.php:1498
-msgid "Gmagick PHP module found"
-msgstr "Gmagick PHP modülü bulundu"
+#: includes/admin-page.php:196
+msgid "Available"
+msgstr ""
 
-#: imagemagick-engine.php:1498
-msgid "Gmagick PHP module not found"
-msgstr "Gmagick PHP modülü bulunamadı"
+#: includes/admin-page.php:197
+msgid "Not available"
+msgstr ""
 
-#: imagemagick-engine.php:1502
-msgid "ImageMagick path"
-msgstr "ImageMagick yolu"
+#: includes/admin-page.php:245
+msgid "Path to the binary"
+msgstr ""
 
-#: imagemagick-engine.php:1505 imagemagick-engine.php:1518
-msgid "Command not found"
-msgstr "Komut bulunamadı"
-
-#: imagemagick-engine.php:1506 imagemagick-engine.php:1519
-msgid "Testing command..."
-msgstr "Komut test ediliyor..."
-
-#: imagemagick-engine.php:1508 imagemagick-engine.php:1521
+#: includes/admin-page.php:251
 msgid "Test path"
 msgstr "Test Yolu"
 
-#: imagemagick-engine.php:1511
+#: includes/admin-page.php:259
+#, fuzzy
 msgid ""
-"Enter the path where ImageMagick is installed on your server. This is "
+"Enter the path where the binary is installed on your server. This is "
 "usually /usr/bin or /usr/local/bin."
 msgstr ""
 "Sunucunuzda ImageMagick'in kurulu olduğu yolu girin. Bu yol genellikle /usr/"
 "bin veya /usr/local/bin'dir."
 
-#: imagemagick-engine.php:1515
-msgid "GraphicsMagick path"
-msgstr "GraphicsMagick yolu"
+#: includes/admin-page.php:347
+msgid "Settings updated"
+msgstr "Ayarlar güncellendi"
 
-#: imagemagick-engine.php:1524
-msgid ""
-"Enter the path where GraphicsMagick is installed on your server. This is "
-"usually /usr/bin or /usr/local/bin."
+#: includes/admin-page.php:393
+msgid "No valid ImageMagick mode found!"
+msgstr "Imagick PHP modülü bulundu!"
+
+#: includes/admin-page.php:398
+msgid "ImageMagick Engine is not enabled."
+msgstr "ImageMagick Engine etkin değil."
+
+#: includes/admin-page.php:407
+msgid "Secondary menu"
 msgstr ""
-"Sunucunuzda GraphicsMagick'in kurulu olduğu yolu girin. Bu yol genellikle /"
-"usr/bin veya /usr/local/bin'dir."
 
-#: imagemagick-engine.php:1528
-msgid "ImageMagick quality"
-msgstr "ImageMagick kalitesi"
+#: includes/admin-page.php:412
+msgid "Regenerate"
+msgstr "Optimize Et"
 
-#: imagemagick-engine.php:1530
+#: includes/admin-page.php:423
+msgid "Enable"
+msgstr "Etkinleştir"
+
+#: includes/admin-page.php:432 includes/admin-page.php:435
+msgid "Image engine"
+msgstr "Görsel Motoru"
+
+#: includes/admin-page.php:442 includes/admin-page.php:452
+msgid "Module loaded"
+msgstr ""
+
+#: includes/admin-page.php:443 includes/admin-page.php:453
+#, fuzzy
+msgid "Module not found"
+msgstr "Komut bulunamadı"
+
+#: includes/admin-page.php:467 includes/admin-page.php:482
+msgid "Command not found"
+msgstr "Komut bulunamadı"
+
+#: includes/admin-page.php:491
 msgid "Optimize for quality"
 msgstr "Kalite Optimizasyonu"
 
-#: imagemagick-engine.php:1531
+#: includes/admin-page.php:494 includes/admin-page.php:503
+msgid "auto"
+msgstr ""
+
+#: includes/admin-page.php:500
 msgid "Optimize for size"
 msgstr "Dosya boyutu Optimizasyonu"
 
-#: imagemagick-engine.php:1532
+#. translators: 1: computed quality value, 2: computed size value
+#: includes/admin-page.php:510
+#, php-format
 msgid ""
-"Set to 0-100. Higher value gives better image quality but larger file size. "
-"Leave empty for default value, computed dynamically."
+"Set to 0-100. A higher value means better image quality and a larger file. "
+"Leave empty to compute the value dynamically, which currently gives %1$d "
+"when optimizing for quality and %2$d when optimizing for size."
 msgstr ""
-"0 ile 100 arasında bir değer girin. Daha yüksek değerler daha iyi görüntü "
-"kalitesi sağlar ancak dosya boyutu da artar. Varsayılan değerin kullanılması "
-"için bu alanı boş bırakın; değer dinamik olarak hesaplanır."
 
-#: imagemagick-engine.php:1536
+#: includes/admin-page.php:519
 msgid "Image interlace?"
 msgstr "Görüntü taraması mı?"
 
-#: imagemagick-engine.php:1541
+#: includes/admin-page.php:524
 msgid "Adds interlace option to ImageMagick when images are processed."
 msgstr "Görüntüler işlenirken ImageMagick'e taramalı görüntü seçeneği eklenir."
 
-#: imagemagick-engine.php:1545
+#: includes/admin-page.php:528
 msgid "Preserve Exif data?"
 msgstr "EXIF verilerini korumak mı?"
 
-#: imagemagick-engine.php:1550
+#: includes/admin-page.php:533
 msgid ""
 "When optimizing for size, preserve Exif metadata (including GPS location) "
 "instead of stripping it. Other non-essential metadata (IPTC, XMP) is still "
@@ -263,36 +230,205 @@ msgstr ""
 "Boyutu optimize ederken, Exif meta verilerini (GPS konumu dahil) silmek "
 "yerine koruyun. Diğer gereksiz meta veriler (IPTC, XMP) yine de kaldırılır."
 
-#: imagemagick-engine.php:1555
+#: includes/admin-page.php:538
 msgid "Disable client-side media processing?"
 msgstr ""
 
-#: imagemagick-engine.php:1560
+#: includes/admin-page.php:543
 msgid ""
 "WordPress 7.1 and later lets the browser generate image sizes during upload, "
 "bypassing ImageMagick for those sizes. Keep this checked so every size is "
 "generated on the server with the settings above."
 msgstr ""
 
-#: imagemagick-engine.php:1568
+#: includes/admin-page.php:550
+msgid "Save Changes"
+msgstr "Değişiklikleri Kaydet"
+
+#: includes/admin-page.php:556
+#, fuzzy
+msgid "Image sizes"
+msgstr "Resim boyutu"
+
+#: includes/admin-page.php:557
+msgid ""
+"Choose how each image size is generated. Sizes set to None are left to "
+"WordPress."
+msgstr ""
+
+#: includes/admin-page.php:562
 msgid "Image size"
 msgstr "Resim boyutu"
 
-#: imagemagick-engine.php:1569
+#: includes/admin-page.php:564 includes/admin-page.php:580
 msgid "Quality"
 msgstr "Kalite"
 
-#: imagemagick-engine.php:1570
+#: includes/admin-page.php:565 includes/admin-page.php:569
+#: includes/admin-page.php:573
+msgid "Select all"
+msgstr ""
+
+#: includes/admin-page.php:568 includes/admin-page.php:581
 msgid "Size"
 msgstr "Boyut"
 
-#: imagemagick-engine.php:1571
-msgid "None (use WP instead)"
-msgstr "Yok (Bunun yerine WP kullanın)"
+#: includes/admin-page.php:572 includes/admin-page.php:582
+#: includes/admin-page.php:656
+msgid "None"
+msgstr ""
 
-#: imagemagick-engine.php:1603
-msgid "Save Changes"
-msgstr "Değişiklikleri Kaydet"
+#. translators: %s: image size name
+#: includes/admin-page.php:603
+#, php-format
+msgid "Handling for %s"
+msgstr ""
+
+#: includes/admin-page.php:632
+#, fuzzy
+msgid "Regenerate images"
+msgstr "Görselleri Optimize Et"
+
+#: includes/admin-page.php:636
+#, fuzzy
+msgid ""
+"ImageMagick Engine is not active, so resizing will use standard WordPress "
+"functions."
+msgstr "Yeniden boyutlandırma, standart WordPress fonksiyonları kullanır."
+
+#: includes/admin-page.php:642
+msgid "Sizes"
+msgstr "Boyutlar"
+
+#: includes/admin-page.php:655
+msgid "All"
+msgstr ""
+
+#: includes/admin-page.php:657
+#, fuzzy
+msgid "Match settings"
+msgstr "Ayarlar"
+
+#: includes/admin-page.php:664
+msgid "Also regenerate images already handled by ImageMagick Engine"
+msgstr ""
+
+#: includes/admin-page.php:669
+msgid "Start regeneration"
+msgstr ""
+
+#: includes/admin-page.php:671
+#, fuzzy
+msgid "This can take a long time."
+msgstr "(Bu işlem zaman alabilir)"
+
+#: includes/admin-page.php:679
+msgid "Resume"
+msgstr ""
+
+#: includes/admin-page.php:680
+msgid "Cancel"
+msgstr ""
+
+#: includes/ajax.php:22
+msgid "You do not have permission to perform this action."
+msgstr ""
+
+#. translators: %s: engine name, e.g. ImageMagick
+#: includes/ajax.php:81
+#, php-format
+msgid ""
+"%s not found. Your PHP open_basedir setting is restricting access to this "
+"path. Add the path to your open_basedir configuration."
+msgstr ""
+"%s bulunamadı. PHP'deki open_basedir ayarınız bu yola erişimi engelliyor. Bu "
+"yolu open_basedir yapılandırmanıza ekleyin."
+
+#. translators: %s: engine name, e.g. ImageMagick
+#: includes/ajax.php:83
+#, php-format
+msgid "%s not found at this path."
+msgstr "%s bu yolda bulunamadı."
+
+#: includes/ajax.php:126
+msgid "The source file is missing."
+msgstr ""
+
+#: includes/ajax.php:188 includes/ajax.php:320
+msgid "No valid image engine is configured."
+msgstr ""
+
+#: includes/ajax.php:193
+msgid "Invalid attachment."
+msgstr ""
+
+#: includes/ajax.php:200 includes/ajax.php:328
+msgid "Select at least one image size."
+msgstr ""
+
+#: includes/ajax.php:333
+#, fuzzy
+msgid "There are no images to regenerate."
+msgstr "Yeniden oluştacak görseliniz yok"
+
+#: includes/ajax.php:366
+#, fuzzy
+msgid "No regeneration is in progress."
+msgstr "Görseller yeniden oluşturuluyor"
+
+#~ msgid "All done!"
+#~ msgstr "Tamamlandı!"
+
+#~ msgid "ImageMagick Engine Settings"
+#~ msgstr "ImageMagick Engine Ayarları"
+
+#~ msgid "You must enable Javascript in order to proceed!"
+#~ msgstr "Devam etmek için Javascript'i etkinleştirmelisiniz!"
+
+#~ msgid "ImageMagick images too"
+#~ msgstr "ImageMagick görüntülerini de ekle"
+
+#~ msgid "Imagick PHP module found"
+#~ msgstr "Imagick PHP modülü bulundu"
+
+#~ msgid "Imagick PHP module not found"
+#~ msgstr "Imagick PHP modülü bulunamadı"
+
+#~ msgid "Gmagick PHP module found"
+#~ msgstr "Gmagick PHP modülü bulundu"
+
+#~ msgid "Gmagick PHP module not found"
+#~ msgstr "Gmagick PHP modülü bulunamadı"
+
+#~ msgid "ImageMagick path"
+#~ msgstr "ImageMagick yolu"
+
+#~ msgid "Testing command..."
+#~ msgstr "Komut test ediliyor..."
+
+#~ msgid "GraphicsMagick path"
+#~ msgstr "GraphicsMagick yolu"
+
+#~ msgid ""
+#~ "Enter the path where GraphicsMagick is installed on your server. This is "
+#~ "usually /usr/bin or /usr/local/bin."
+#~ msgstr ""
+#~ "Sunucunuzda GraphicsMagick'in kurulu olduğu yolu girin. Bu yol "
+#~ "genellikle /usr/bin veya /usr/local/bin'dir."
+
+#~ msgid "ImageMagick quality"
+#~ msgstr "ImageMagick kalitesi"
+
+#~ msgid ""
+#~ "Set to 0-100. Higher value gives better image quality but larger file "
+#~ "size. Leave empty for default value, computed dynamically."
+#~ msgstr ""
+#~ "0 ile 100 arasında bir değer girin. Daha yüksek değerler daha iyi görüntü "
+#~ "kalitesi sağlar ancak dosya boyutu da artar. Varsayılan değerin "
+#~ "kullanılması için bu alanı boş bırakın; değer dinamik olarak hesaplanır."
+
+#~ msgid "None (use WP instead)"
+#~ msgstr "Yok (Bunun yerine WP kullanın)"
 
 #~ msgid "Thumbnail"
 #~ msgstr "Önizleme görseli (thumbnail)"
