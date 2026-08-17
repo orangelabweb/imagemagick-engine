@@ -24,9 +24,16 @@ function ime_admin_menu() {
     } );
 }
 
+/* Which admin tab should be active on page load? */
+function ime_current_tab() {
+    return ( isset( $_GET['tab'] ) && 'regenerate' === sanitize_key( wp_unslash( $_GET['tab'] ) ) ) ? 'regenerate' : 'settings';
+}
+
 /* Enqueue admin page scripts */
 function ime_admin_print_scripts() {
     wp_enqueue_script( 'ime-admin' );
+
+    $engine_state = ime_resolve_engine_state();
 
     $data = [
         'noimg'              => __( 'You dont have any images to regenerate', 'imagemagick-engine' ),
@@ -35,13 +42,12 @@ function ime_admin_print_scripts() {
         'failed'             => '<strong>' . __( 'Failed to resize image!', 'imagemagick-engine' ) . '</strong>',
         'resized'            => __( 'Resized using ImageMagick Engine', 'imagemagick-engine' ),
         'ime_nonce'          => wp_create_nonce('ime-admin-nonce'),
-        'path_not_found'     => __( '%s not found at this path.', 'imagemagick-engine' ),
-        'path_open_basedir'  => __( '%s not found. Your PHP open_basedir setting is restricting access to this path. Add the path to your open_basedir configuration.', 'imagemagick-engine' ),
         'ajaxurl'            => admin_url( 'admin-ajax.php' ),
-        'initial_tab'        => ( isset( $_GET['tab'] ) && 'regenerate' === sanitize_key( wp_unslash( $_GET['tab'] ) ) ) ? 'regenerate' : 'settings',
+        'initial_tab'        => ime_current_tab(),
         'request_failed'     => __( 'The request failed. Please try again.', 'imagemagick-engine' ),
-        'enabled'            => (bool) ( ime_get_option( 'enabled' ) && ime_mode_valid() ),
-        'mode'               => (string) ime_get_option( 'mode' ),
+        'enabled'            => $engine_state['enabled'],
+        'mode'               => (string) $engine_state['mode'],
+        'path_found'         => __( 'Command found.', 'imagemagick-engine' ),
     ];
     wp_localize_script( 'ime-admin', 'ime_admin', $data );
 }
@@ -123,12 +129,6 @@ function ime_option_admin_images_url() {
     return get_bloginfo( 'wpurl' ) . '/wp-admin/images/';
 }
 
-// Url to status icon
-function ime_option_status_icon( $yes = true ) {
-
-    return ime_option_admin_images_url() . ( $yes ? 'yes' : 'no' ) . '.png';
-}
-
 // Define available modes
 function ime_get_available_modes(): array {
     return array(
@@ -139,16 +139,124 @@ function ime_get_available_modes(): array {
     );
 }
 
-// Display, or not
-function ime_option_display( $display = true, $echo = true ) {
-    if ( $display ) {
-        return '';
+/**
+ * Resolve the engine to use and whether the plugin is effectively enabled.
+ *
+ * Falls back to the first valid engine when the stored mode is missing or
+ * unavailable, so the rendered form and the JavaScript state cannot disagree.
+ *
+ * @return array{mode: ?string, enabled: bool, valid: array<string, bool>}
+ */
+function ime_resolve_engine_state() {
+    $valid = ime_get_available_modes();
+    foreach ( $valid as $m => $ignore ) {
+        $valid[ $m ] = ime_mode_valid( $m );
     }
-    $s = ' style="display: none" ';
-    if ( $echo ) {
-        echo $s;
+
+    $mode = ime_get_option( 'mode' );
+    if ( ! isset( $valid[ $mode ] ) || ! $valid[ $mode ] ) {
+        $mode = null;
     }
-    return $s;
+    if ( is_null( $mode ) ) {
+        foreach ( $valid as $m => $is_valid ) {
+            if ( $is_valid ) {
+                $mode = $m;
+                break;
+            }
+        }
+    }
+
+    $enabled = (bool) ( ime_get_option( 'enabled' ) && $mode );
+
+    return [
+        'mode'    => $mode,
+        'enabled' => $enabled,
+        'valid'   => $valid,
+    ];
+}
+
+/**
+ * Render one engine choice as a selectable card.
+ *
+ * @param string $mode            Engine key, e.g. 'php'.
+ * @param string $label           Human-readable engine name.
+ * @param bool   $valid           Whether the engine is usable on this server.
+ * @param string $detail          Version string or reason it is unavailable.
+ * @param string $current_mode    Currently selected engine key.
+ * @param string $path_field_html Optional markup rendered inside the card when selected.
+ */
+function ime_render_engine_card( $mode, $label, $valid, $detail, $current_mode, $path_field_html = '' ) {
+    $id     = 'ime-engine-' . $mode;
+    $desc   = $id . '-status';
+    $icon   = $valid ? 'dashicons-yes-alt' : 'dashicons-dismiss';
+    $state  = $valid
+        ? __( 'Available', 'imagemagick-engine' )
+        : __( 'Not available', 'imagemagick-engine' );
+    $classes = 'ime-engine-card' . ( $valid ? '' : ' ime-engine-card--unavailable' );
+    ?>
+    <div class="<?php echo esc_attr( $classes ); ?>">
+        <label for="<?php echo esc_attr( $id ); ?>">
+            <input type="radio" name="mode" id="<?php echo esc_attr( $id ); ?>"
+                value="<?php echo esc_attr( $mode ); ?>"
+                x-model="mode"
+                aria-describedby="<?php echo esc_attr( $desc ); ?>"
+                <?php checked( $mode, $current_mode ); ?>
+                <?php disabled( ! $valid ); ?> />
+            <span class="ime-engine-card__label"><?php echo esc_html( $label ); ?></span>
+        </label>
+        <p class="ime-engine-card__status" id="<?php echo esc_attr( $desc ); ?>">
+            <span class="dashicons <?php echo esc_attr( $icon ); ?>" aria-hidden="true"></span>
+            <span class="screen-reader-text"><?php echo esc_html( $state ); ?></span>
+            <?php echo esc_html( $detail ); ?>
+        </p>
+        <?php
+        if ( '' !== $path_field_html ) {
+            echo $path_field_html; // Already escaped by the caller.
+        }
+        ?>
+    </div>
+    <?php
+}
+
+/**
+ * Render the binary path input for a command-line engine.
+ *
+ * The pass/fail indicator lives on the card's status line, so this renders
+ * only the input, its test button, and the test result.
+ *
+ * @param string $prefix 'cli' or 'gm'.
+ * @param string $path   Current stored path.
+ */
+function ime_render_path_field( $prefix, $path ) {
+    $field    = 'cli' === $prefix ? 'cli_path' : 'gm_path';
+    $show     = 'cli' === $prefix ? 'isCli' : 'isGraphicsmagick';
+    $testing  = 'cli' === $prefix ? 'cliPathTesting' : 'gmPathTesting';
+    $error    = 'cli' === $prefix ? 'cliPathError' : 'gmPathError';
+    $ok       = 'cli' === $prefix ? 'cliPathOk' : 'gmPathOk';
+    $message  = 'cli' === $prefix ? 'cliPathMessage' : 'gmPathMessage';
+    $test     = 'cli' === $prefix ? 'testCliPath' : 'testGmPath';
+    $describe = $prefix . '-path-help';
+    ?>
+    <div class="ime-engine-card__path" x-show="<?php echo esc_attr( $show ); ?>" x-cloak>
+        <label class="screen-reader-text" for="<?php echo esc_attr( $field ); ?>">
+            <?php esc_html_e( 'Path to the binary', 'imagemagick-engine' ); ?>
+        </label>
+        <input type="text" id="<?php echo esc_attr( $field ); ?>" name="<?php echo esc_attr( $field ); ?>"
+            class="regular-text code" value="<?php echo esc_attr( $path ); ?>"
+            aria-describedby="<?php echo esc_attr( $describe ); ?>" />
+        <button type="button" class="button button-secondary" x-on:click="<?php echo esc_attr( $test ); ?>">
+            <?php esc_html_e( 'Test path', 'imagemagick-engine' ); ?>
+        </button>
+        <span class="spinner" x-show="<?php echo esc_attr( $testing ); ?>"></span>
+        <p class="notice notice-error inline" x-show="<?php echo esc_attr( $error ); ?>" x-cloak
+            x-text="<?php echo esc_attr( $message ); ?>"></p>
+        <p class="notice notice-success inline" x-show="<?php echo esc_attr( $ok ); ?>" x-cloak
+            x-text="<?php echo esc_attr( $message ); ?>"></p>
+        <p class="description" id="<?php echo esc_attr( $describe ); ?>">
+            <?php esc_html_e( 'Enter the path where the binary is installed on your server. This is usually /usr/bin or /usr/local/bin.', 'imagemagick-engine' ); ?>
+        </p>
+    </div>
+    <?php
 }
 
 /* Plugin admin / status page */
@@ -242,29 +350,11 @@ function ime_option_page() {
             . '</p></div>';
     }
 
-    $modes_valid = ime_get_available_modes();
-    $any_valid   = false;
-    foreach ( $modes_valid as $m => $ignore ) {
-        $modes_valid[ $m ] = ime_mode_valid( $m );
-        if ( $modes_valid[ $m ] ) {
-            $any_valid = true;
-        }
-    }
-
-    $current_mode = ime_get_option( 'mode' );
-    if ( ! isset( $modes_valid[ $current_mode ] ) || ! $modes_valid[ $current_mode ] ) {
-        $current_mode = null;
-    }
-    if ( is_null( $current_mode ) && $any_valid ) {
-        foreach ( $modes_valid as $m => $valid ) {
-            if ( $valid ) {
-                $current_mode = $m;
-                break;
-            }
-        }
-    }
-
-    $enabled = ime_get_option( 'enabled' ) && $current_mode;
+    $engine_state = ime_resolve_engine_state();
+    $modes_valid  = $engine_state['valid'];
+    $current_mode = $engine_state['mode'];
+    $enabled      = $engine_state['enabled'];
+    $any_valid    = in_array( true, $modes_valid, true );
 
     $cli_path = ime_get_option( 'cli_path' );
     if ( is_null( $cli_path ) ) {
@@ -306,10 +396,6 @@ function ime_option_page() {
             . '</p></div>';
     }
 
-    $initial_tab = 'settings';
-    if ( isset( $_GET['tab'] ) && 'regenerate' === sanitize_key( wp_unslash( $_GET['tab'] ) ) ) {
-        $initial_tab = 'regenerate';
-    }
     ?>
     <div class="wrap" x-data="imeSettings">
         <h1><?php esc_html_e( 'ImageMagick Engine', 'imagemagick-engine' ); ?></h1>
@@ -341,57 +427,60 @@ function ime_option_page() {
                                 <tr>
                                     <th scope="row" valign="top"><?php _e( 'Image engine', 'imagemagick-engine' ); ?>:</th>
                                     <td>
-                                        <select id="ime-select-mode" name="mode" x-model="mode">
+                                        <fieldset class="ime-engine-grid">
+                                            <legend class="screen-reader-text"><?php esc_html_e( 'Image engine', 'imagemagick-engine' ); ?></legend>
                                             <?php
-                                            foreach ( $modes_valid as $m => $valid ) {
-                                                echo '<option value="' . esc_attr( $m ) . '"';
-                                                if ( $m === $current_mode ) {
-                                                    echo ' selected=selected ';
-                                                }
-                                                echo '>' . esc_html( ime_get_available_modes()[ $m ] ) . '</option>';
-                                            }
+                                            ime_render_engine_card(
+                                                'php',
+                                                __( 'Imagick PHP module', 'imagemagick-engine' ),
+                                                $modes_valid['php'],
+                                                $modes_valid['php']
+                                                    ? __( 'Module loaded', 'imagemagick-engine' )
+                                                    : __( 'Module not found', 'imagemagick-engine' ),
+                                                $current_mode
+                                            );
+
+                                            ime_render_engine_card(
+                                                'gmagick',
+                                                __( 'Gmagick PHP module', 'imagemagick-engine' ),
+                                                $modes_valid['gmagick'],
+                                                $modes_valid['gmagick']
+                                                    ? __( 'Module loaded', 'imagemagick-engine' )
+                                                    : __( 'Module not found', 'imagemagick-engine' ),
+                                                $current_mode
+                                            );
+
+                                            ob_start();
+                                            ime_render_path_field( 'cli', $cli_path );
+                                            $cli_field = ob_get_clean();
+
+                                            ime_render_engine_card(
+                                                'cli',
+                                                __( 'ImageMagick command-line', 'imagemagick-engine' ),
+                                                $modes_valid['cli'],
+                                                $cli_path_ok
+                                                    ? ime_get_option( 'imagemagick_version' )
+                                                    : __( 'Command not found', 'imagemagick-engine' ),
+                                                $current_mode,
+                                                $cli_field
+                                            );
+
+                                            ob_start();
+                                            ime_render_path_field( 'gm', $gm_path );
+                                            $gm_field = ob_get_clean();
+
+                                            ime_render_engine_card(
+                                                'graphicsmagick',
+                                                __( 'GraphicsMagick command-line', 'imagemagick-engine' ),
+                                                $modes_valid['graphicsmagick'],
+                                                $gm_path_ok
+                                                    ? ime_get_option( 'graphicsmagick_version' )
+                                                    : __( 'Command not found', 'imagemagick-engine' ),
+                                                $current_mode,
+                                                $gm_field
+                                            );
                                             ?>
-                                        </select>
-                                    </td>
-                                </tr>
-                                <tr id="ime-row-php" x-show="isPhp">
-                                    <th scope="row" valign="top"><?php _e( 'Imagick PHP module', 'imagemagick-engine' ); ?>:</th>
-                                    <td>
-                                        <img src="<?php echo esc_url( ime_option_status_icon( $modes_valid['php'] ) ); ?>" alt="" />
-                                        <?php echo $modes_valid['php'] ? esc_html__( 'Imagick PHP module found', 'imagemagick-engine' ) : esc_html__( 'Imagick PHP module not found', 'imagemagick-engine' ); ?>
-                                    </td>
-                                </tr>
-                                <tr id="ime-row-gmagick" x-show="isGmagick">
-                                    <th scope="row" valign="top"><?php _e( 'Gmagick PHP module', 'imagemagick-engine' ); ?>:</th>
-                                    <td>
-                                        <img src="<?php echo esc_url( ime_option_status_icon( $modes_valid['gmagick'] ) ); ?>" alt="" />
-                                        <?php echo $modes_valid['gmagick'] ? esc_html__( 'Gmagick PHP module found', 'imagemagick-engine' ) : esc_html__( 'Gmagick PHP module not found', 'imagemagick-engine' ); ?>
-                                    </td>
-                                </tr>
-                                <tr id="ime-row-cli" x-show="isCli">
-                                    <th scope="row" valign="top"><?php _e( 'ImageMagick path', 'imagemagick-engine' ); ?>:</th>
-                                    <td>
-                                        <img id="cli_path_yes" class="cli_path_icon" src="<?php echo esc_url( ime_option_status_icon( true ) ); ?>" alt="" <?php ime_option_display( $cli_path_ok ); ?> />
-                                        <img id="cli_path_no" class="cli_path_icon" src="<?php echo esc_url( ime_option_status_icon( false ) ); ?>" alt="<?php esc_attr_e( 'Command not found', 'imagemagick-engine' ); ?>"  <?php ime_option_display( ! $cli_path_ok ); ?> />
-                                        <img id="cli_path_progress" src="<?php echo esc_url( ime_option_admin_images_url() . 'wpspin_light.gif' ); ?>" alt="<?php esc_attr_e( 'Testing command...', 'imagemagick-engine' ); ?>"  <?php ime_option_display( false ); ?> />
-                                        <input id="cli_path" type="text" name="cli_path" size="<?php echo absint( max( 30, strlen( $cli_path ) + 5 ) ); ?>" value="<?php echo esc_attr( $cli_path ); ?>" />
-                                        <input type="button" name="ime_cli_path_test" id="ime_cli_path_test" value="<?php esc_attr_e( 'Test path', 'imagemagick-engine' ); ?>" class="button-secondary" />
-                                        <span <?php ime_option_display( $cli_path_ok ); ?>><br><br><?php if ( ime_get_option( 'imagemagick_version' ) ) { echo 'ImageMagick version ' . esc_html( ime_get_option( 'imagemagick_version' ) ); } ?></span>
-                                        <p id="cli_path_error" class="ime-path-error" style="display:none;"></p>
-                                        <?php if ($current_mode !== 'cli') { ?><p class="ime-description"><?php _e( 'Enter the path where ImageMagick is installed on your server. This is usually /usr/bin or /usr/local/bin.', 'imagemagick-engine' ); ?></p><?php } ?>
-                                    </td>
-                                </tr>
-                                <tr id="ime-row-graphicsmagick" x-show="isGraphicsmagick">
-                                    <th scope="row" valign="top"><?php _e( 'GraphicsMagick path', 'imagemagick-engine' ); ?>:</th>
-                                    <td>
-                                        <img id="gm_path_yes" class="gm_path_icon" src="<?php echo esc_url( ime_option_status_icon( true ) ); ?>" alt="" <?php ime_option_display( $gm_path_ok ); ?> />
-                                        <img id="gm_path_no" class="gm_path_icon" src="<?php echo esc_url( ime_option_status_icon( false ) ); ?>" alt="<?php esc_attr_e( 'Command not found', 'imagemagick-engine' ); ?>"  <?php ime_option_display( ! $gm_path_ok ); ?> />
-                                        <img id="gm_path_progress" src="<?php echo esc_url( ime_option_admin_images_url() . 'wpspin_light.gif' ); ?>" alt="<?php esc_attr_e( 'Testing command...', 'imagemagick-engine' ); ?>"  <?php ime_option_display( false ); ?> />
-                                        <input id="gm_path" type="text" name="gm_path" size="<?php echo absint( max( 30, strlen( $gm_path ) + 5 ) ); ?>" value="<?php echo esc_attr( $gm_path ); ?>" />
-                                        <input type="button" name="ime_gm_path_test" id="ime_gm_path_test" value="<?php esc_attr_e( 'Test path', 'imagemagick-engine' ); ?>" class="button-secondary" />
-                                        <span <?php ime_option_display( $gm_path_ok ); ?>><br><br><?php if ( ime_get_option( 'graphicsmagick_version' ) ) { echo 'GraphicsMagick version ' . esc_html( ime_get_option( 'graphicsmagick_version' ) ); } ?></span>
-                                        <p id="gm_path_error" class="ime-path-error" style="display:none;"></p>
-                                        <?php if ($current_mode !== 'graphicsmagick') { ?><p class="ime-description"><?php _e( 'Enter the path where GraphicsMagick is installed on your server. This is usually /usr/bin or /usr/local/bin.', 'imagemagick-engine' ); ?></p><?php } ?>
+                                        </fieldset>
                                     </td>
                                 </tr>
                                 <tr>

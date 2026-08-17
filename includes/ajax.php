@@ -25,13 +25,13 @@ function ime_ajax_test_im_path() {
     $r          = ime_im_cli_check_command( $check_path, $is_gm );
     $found = ! empty( $r );
 
-    $open_basedir_issue = false;
+    $open_basedir = false;
     if ( ! $found ) {
-        $open_basedir = ini_get( 'open_basedir' );
-        if ( $open_basedir ) {
+        $open_basedir_ini = ini_get( 'open_basedir' );
+        if ( $open_basedir_ini ) {
             $covered    = false;
             $check_norm = rtrim( $check_path, '/\\' ) . DIRECTORY_SEPARATOR;
-            foreach ( explode( PATH_SEPARATOR, $open_basedir ) as $dir ) {
+            foreach ( explode( PATH_SEPARATOR, $open_basedir_ini ) as $dir ) {
                 if ( $dir === '' ) {
                     continue;
                 }
@@ -41,15 +41,35 @@ function ime_ajax_test_im_path() {
                     break;
                 }
             }
-            $open_basedir_issue = ! $covered;
+            $open_basedir = ! $covered;
         }
     }
 
-    wp_send_json( [
-        'found'        => $found,
-        'open_basedir' => $open_basedir_issue,
-        'engine'       => $is_gm ? 'GraphicsMagick' : 'ImageMagick',
-    ] );
+    $engine  = $is_gm ? 'GraphicsMagick' : 'ImageMagick';
+    $version = $is_gm ? ime_get_option( 'graphicsmagick_version' ) : ime_get_option( 'imagemagick_version' );
+
+    if ( $found ) {
+        wp_send_json_success(
+            [
+                'found'   => true,
+                'engine'  => $engine,
+                'version' => (string) $version,
+            ]
+        );
+    }
+
+    wp_send_json_error(
+        [
+            'found'        => false,
+            'engine'       => $engine,
+            'open_basedir' => $open_basedir,
+            'message'      => $open_basedir
+                /* translators: %s: engine name, e.g. ImageMagick */
+                ? sprintf( __( '%s not found. Your PHP open_basedir setting is restricting access to this path. Add the path to your open_basedir configuration.', 'imagemagick-engine' ), $engine )
+                /* translators: %s: engine name, e.g. ImageMagick */
+                : sprintf( __( '%s not found at this path.', 'imagemagick-engine' ), $engine ),
+        ]
+    );
 }
 
 // Get list of attachments to regenerate

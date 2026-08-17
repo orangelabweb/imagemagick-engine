@@ -53,6 +53,45 @@ document.addEventListener( 'alpine:init', function() {
 			get isCli() { return this.mode === 'cli'; },
 			get isGraphicsmagick() { return this.mode === 'graphicsmagick'; },
 
+			cliPathState: 'unknown',
+			cliPathMessage: '',
+			gmPathState: 'unknown',
+			gmPathMessage: '',
+
+			get cliPathTesting() { return this.cliPathState === 'testing'; },
+			get cliPathError() { return this.cliPathState === 'error'; },
+			get cliPathOk() { return this.cliPathState === 'ok'; },
+			get gmPathTesting() { return this.gmPathState === 'testing'; },
+			get gmPathError() { return this.gmPathState === 'error'; },
+			get gmPathOk() { return this.gmPathState === 'ok'; },
+
+			testCliPath: function() {
+				this.testPath( 'cli', 'cli_path', 'cliPath' );
+			},
+
+			testGmPath: function() {
+				this.testPath( 'graphicsmagick', 'gm_path', 'gmPath' );
+			},
+
+			testPath: function( engineMode, field, prefix ) {
+				var self = this;
+				var payload = { mode: engineMode };
+				payload[ field ] = document.getElementById( field ).value;
+
+				self[ prefix + 'State' ] = 'testing';
+				self[ prefix + 'Message' ] = '';
+
+				imeRequest( 'ime_test_im_path', payload ).then( function( data ) {
+					self[ prefix + 'State' ] = 'ok';
+					self[ prefix + 'Message' ] = data.version
+						? data.engine + ' ' + data.version
+						: ime_admin.path_found;
+				} ).catch( function( error ) {
+					self[ prefix + 'State' ] = 'error';
+					self[ prefix + 'Message' ] = error.message;
+				} );
+			},
+
 			get settingsTabClass() {
 				return this.tab === 'settings' ? 'nav-tab-active' : '';
 			},
@@ -87,56 +126,6 @@ var rt_count = 1;
 var rt_force = 0;
 var rt_precision = 0;
 var rt_sizes = '';
-
-// Ajax test IM path
-function imeTestPath() {
-	jQuery( '.cli_path_icon' ).hide();
-	jQuery( '#cli_path_error' ).hide();
-	jQuery( '#cli_path_progress' ).show();
-	jQuery.get( ajaxurl, {
-		action: 'ime_test_im_path',
-		ime_nonce: ime_admin.ime_nonce,
-		mode: 'cli',
-		cli_path: jQuery( '#cli_path' ).val()
-	}, function( data ) {
-		jQuery( '#cli_path_progress' ).hide();
-		if ( data && data.found ) {
-			jQuery( '#cli_path_yes' ).show();
-			jQuery( '#cli_path_no' ).hide();
-		} else {
-			jQuery( '#cli_path_yes' ).hide();
-			jQuery( '#cli_path_no' ).show();
-			var engine = ( data && data.engine ) ? data.engine : 'ImageMagick';
-			var tpl = ( data && data.open_basedir ) ? ime_admin.path_open_basedir : ime_admin.path_not_found;
-			jQuery( '#cli_path_error' ).text( tpl.replace( '%s', engine ) ).show();
-		}
-	} );
-}
-
-// Ajax test GraphicsMagick path
-function imeTestGmPath() {
-	jQuery( '.gm_path_icon' ).hide();
-	jQuery( '#gm_path_error' ).hide();
-	jQuery( '#gm_path_progress' ).show();
-	jQuery.get( ajaxurl, {
-		action: 'ime_test_im_path',
-		ime_nonce: ime_admin.ime_nonce,
-		mode: 'graphicsmagick',
-		gm_path: jQuery( '#gm_path' ).val()
-	}, function( data ) {
-		jQuery( '#gm_path_progress' ).hide();
-		if ( data && data.found ) {
-			jQuery( '#gm_path_yes' ).show();
-			jQuery( '#gm_path_no' ).hide();
-		} else {
-			jQuery( '#gm_path_yes' ).hide();
-			jQuery( '#gm_path_no' ).show();
-			var engine = ( data && data.engine ) ? data.engine : 'GraphicsMagick';
-			var tpl = ( data && data.open_basedir ) ? ime_admin.path_open_basedir : ime_admin.path_not_found;
-			jQuery( '#gm_path_error' ).text( tpl.replace( '%s', engine ) ).show();
-		}
-	} );
-}
 
 function imeStartResize() {
 	rt_sizes = '';
@@ -234,9 +223,6 @@ alert( data );
 }
 
 jQuery( document ).ready( function( $ ) {
-	jQuery( '#ime_cli_path_test' ).click( imeTestPath );
-	jQuery( '#ime_gm_path_test' ).click( imeTestGmPath );
-
 	jQuery( document ).on( 'click', '.ime-regen-button', function( e ) {
 		e.preventDefault();
 		var el = jQuery( this );
