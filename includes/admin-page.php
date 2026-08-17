@@ -35,20 +35,20 @@ function ime_admin_print_scripts() {
     wp_enqueue_script( 'ime-alpinejs' );
 
     $data = [
-        'ime_nonce'          => wp_create_nonce('ime-admin-nonce'),
-        'ajaxurl'            => admin_url( 'admin-ajax.php' ),
-        'initial_tab'        => ime_current_tab(),
-        'request_failed'     => __( 'The request failed. Please try again.', 'imagemagick-engine' ),
-        'path_found'         => __( 'Command found.', 'imagemagick-engine' ),
-        'regen_running'      => __( 'Regenerating images', 'imagemagick-engine' ),
-        'regen_paused'       => __( 'Regeneration in progress', 'imagemagick-engine' ),
+        'ime_nonce'                => wp_create_nonce('ime-admin-nonce'),
+        'ajaxurl'                  => admin_url( 'admin-ajax.php' ),
+        'initial_tab'              => ime_current_tab(),
+        'request_failed'           => __( 'The request failed. Please try again.', 'imagemagick-engine' ),
+        'path_found'               => __( 'Command found.', 'imagemagick-engine' ),
+        'regen_running'            => __( 'Regenerating images', 'imagemagick-engine' ),
+        'regen_paused'             => __( 'Regeneration in progress', 'imagemagick-engine' ),
         /* translators: %d: number of minutes */
-        'regen_eta_fmt'      => __( 'about %d min remaining', 'imagemagick-engine' ),
+        'regen_eta_fmt'            => __( 'about %d min remaining', 'imagemagick-engine' ),
         /* translators: %d: number of images */
-        'regen_done_fmt'     => __( 'Finished. Processed %d images.', 'imagemagick-engine' ),
+        'regen_done_fmt'           => __( 'Finished. Processed %d images.', 'imagemagick-engine' ),
         /* translators: %d: number of images */
-        'regen_failed_fmt'   => __( '%d failed', 'imagemagick-engine' ),
-        'regen_ended'        => __( 'This run is no longer active. It either finished or expired.', 'imagemagick-engine' ),
+        'regen_failed_fmt'         => __( '%d failed', 'imagemagick-engine' ),
+        'regen_ended'              => __( 'This run is no longer active. It either finished or expired.', 'imagemagick-engine' ),
         /* translators: 1: number of images processed, 2: total number of images */
         'regen_ended_progress_fmt' => __( 'Last known progress: %1$s of %2$s images.', 'imagemagick-engine' ),
     ];
