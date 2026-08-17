@@ -5,7 +5,9 @@
 	Description: Improve the quality of re-sized images by replacing standard GD library with ImageMagick
 	Author: Orangelab
 	Author URI: https://orangelab.com/
-	Version: 1.9.0
+	Version: 2.0.0
+	Requires at least: 6.4
+	Requires PHP: 7.4
 	Text Domain: imagemagick-engine
 	License: GPLv2 or later
 
@@ -36,7 +38,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Constants
  */
 define( 'IME_OPTION_VERSION', 2 );
-define( 'IME_VERSION', '1.9.0' );
+define( 'IME_VERSION', '2.0.0' );
 
 /*
  * Global variables
