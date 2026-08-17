@@ -561,17 +561,10 @@ function ime_option_page() {
                                     </td>
                                 </tr>
                                 <?php } ?>
-                            </tbody>
-                            <tr>
-                                <th colspan="2">
-                                    <input class="button-primary" type="submit" name="update_settings" value="<?php _e( 'Save Changes', 'imagemagick-engine' ); ?>" />
-                                </th>
-                            </tr>
-                        </table>
-
-                        <div x-show="enabled" x-cloak>
-                            <h2><?php esc_html_e( 'Image sizes', 'imagemagick-engine' ); ?></h2>
-                            <p class="description"><?php esc_html_e( 'Choose how each image size is generated. Sizes set to None are left to WordPress.', 'imagemagick-engine' ); ?></p>
+                                <tr>
+                                    <th scope="row" valign="top"><?php esc_html_e( 'Image sizes', 'imagemagick-engine' ); ?>:</th>
+                                    <td>
+                                        <p class="description"><?php esc_html_e( 'Choose how each image size is generated. Sizes set to None are left to WordPress.', 'imagemagick-engine' ); ?></p>
 
                             <table class="wp-list-table widefat striped ime-sizes-table">
                                 <thead>
@@ -638,7 +631,19 @@ function ime_option_page() {
                                 ?>
                                 </tbody>
                             </table>
-                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <?php
+                        /*
+                         * Outside the x-show="enabled" block above: the form must stay
+                         * saveable when the plugin is disabled, otherwise the Enable
+                         * checkbox could never be turned back on.
+                         */
+                        submit_button( __( 'Save Changes', 'imagemagick-engine' ), 'primary', 'update_settings' );
+                        ?>
                     </div>
                 </div>
             </form>
