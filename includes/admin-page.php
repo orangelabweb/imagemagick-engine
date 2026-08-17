@@ -521,7 +521,7 @@ function ime_option_page() {
                                         <input type="checkbox" id="interlace" name="interlace" value="1"
                                             <?php checked( $interlace, true ); ?>
                                         />
-                                        <p class="ime-description"><?php _e( 'Adds interlace option to ImageMagick when images are processed.', 'imagemagick-engine' ); ?></p>
+                                        <p class="description"><?php _e( 'Adds interlace option to ImageMagick when images are processed.', 'imagemagick-engine' ); ?></p>
                                     </td>
                                 </tr>
                                 <tr>
@@ -530,7 +530,7 @@ function ime_option_page() {
                                         <input type="checkbox" id="keep_exif" name="keep_exif" value="1"
                                             <?php checked( $keep_exif, true ); ?>
                                         />
-                                        <p class="ime-description"><?php _e( 'When optimizing for size, preserve Exif metadata (including GPS location) instead of stripping it. Other non-essential metadata (IPTC, XMP) is still removed.', 'imagemagick-engine' ); ?></p>
+                                        <p class="description"><?php _e( 'When optimizing for size, preserve Exif metadata (including GPS location) instead of stripping it. Other non-essential metadata (IPTC, XMP) is still removed.', 'imagemagick-engine' ); ?></p>
                                     </td>
                                 </tr>
                                 <?php if ( ime_client_side_processing_available() ) { ?>
@@ -540,7 +540,7 @@ function ime_option_page() {
                                         <input type="checkbox" id="disable_client_side_processing" name="disable_client_side_processing" value="1"
                                             <?php checked( $disable_client_side_processing, true ); ?>
                                         />
-                                        <p class="ime-description"><?php _e( 'WordPress 7.1 and later lets the browser generate image sizes during upload, bypassing ImageMagick for those sizes. Keep this checked so every size is generated on the server with the settings above.', 'imagemagick-engine' ); ?></p>
+                                        <p class="description"><?php _e( 'WordPress 7.1 and later lets the browser generate image sizes during upload, bypassing ImageMagick for those sizes. Keep this checked so every size is generated on the server with the settings above.', 'imagemagick-engine' ); ?></p>
                                     </td>
                                 </tr>
                                 <?php } ?>
