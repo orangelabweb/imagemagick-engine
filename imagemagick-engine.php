@@ -103,7 +103,23 @@ function ime_init_early() {
     if ( ime_active() ) {
         add_filter( 'intermediate_image_sizes_advanced', 'ime_filter_image_sizes', 99, 1 );
         add_filter( 'wp_read_image_metadata', 'ime_filter_read_image_metadata', 10, 3 );
-        add_filter( 'wp_generate_attachment_metadata', 'ime_filter_attachment_metadata', 10, 2 );
+
+        /*
+         * Priority 5, deliberately ahead of the default 10.
+         *
+         * On this filter we are a *producer* of $metadata['sizes'], not a
+         * consumer: we are finishing work core would already have done before
+         * any filter ran, had ime_filter_image_sizes() not stripped those sizes
+         * out of intermediate_image_sizes_advanced. So we have to run before
+         * everything that reads $metadata['sizes'], and the default priority of
+         * 10 is where those consumers live.
+         *
+         * The concrete case that motivated this is the Modern Image Formats
+         * plugin (webp-uploads), which also filters at 10 and bails early when
+         * $metadata['sizes'] is still empty -- leaving our sub-sizes without
+         * WebP/AVIF variants. See issue #41.
+         */
+        add_filter( 'wp_generate_attachment_metadata', 'ime_filter_attachment_metadata', 5, 2 );
 
         if ( ime_disable_client_side_processing() ) {
             add_filter( 'wp_client_side_media_processing_enabled', '__return_false' );
@@ -452,11 +468,29 @@ function ime_filter_attachment_metadata( $metadata, $attachment_id ) {
             continue;
         }
 
-        $metadata['sizes'][ $size ] = [
+        /*
+         * Keep the same keys, in the same order, that core's image editor
+         * writes for a sub-size: file, width, height, mime-type, filesize.
+         * Consumers rely on them -- webp-uploads reads filesize to decide
+         * whether a generated WebP/AVIF is actually smaller than what we made.
+         */
+        $size_meta = [
             'file'   => wp_basename( $new_filename ),
             'width'  => $dst_w,
             'height' => $dst_h,
         ];
+
+        // The engines take their output format from the extension, which is the
+        // source extension, so the written file is what we ask wp_check_filetype
+        // about. Omit the key entirely rather than store a falsy value.
+        $filetype = wp_check_filetype( $new_filename );
+        if ( ! empty( $filetype['type'] ) ) {
+            $size_meta['mime-type'] = $filetype['type'];
+        }
+
+        $size_meta['filesize'] = wp_filesize( $new_filename );
+
+        $metadata['sizes'][ $size ] = $size_meta;
 
         if ( ! isset( $metadata['image-converter'] ) || ! is_array( $metadata['image-converter'] ) ) {
             $metadata['image-converter'] = [];

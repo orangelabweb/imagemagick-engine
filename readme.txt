@@ -74,6 +74,8 @@ You can also find binary releases at http://www.imagemagick.org including a Wind
 * Regeneration reports which images failed instead of stopping at a browser alert
 * Removed jQuery and jQuery UI from the admin page
 * Fixed the media page regenerate button submitting image sizes that were set to None
+* Fixed the plugin preventing WordPress from creating modern format (WebP/AVIF) versions of the image sizes it handles, for example with the Modern Image Formats plugin. Those versions are still created by WordPress itself, not by the engine or quality settings in this plugin
+* Image sizes created by this plugin now record their mime type and file size, the same information WordPress records, so other plugins can read it
 * Added a notice on the settings page when JavaScript is disabled
 * Requires WordPress 6.4 or later
 
