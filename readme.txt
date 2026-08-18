@@ -1,9 +1,10 @@
 === ImageMagick Engine ===
 Contributors: rickardw, orangelab
 Tags: image, picture, imagemagick, gd, regenerate
-Requires at least: 5.0
-Tested up to: 6.9.4
-Stable tag: 1.8.0
+Requires at least: 6.4
+Tested up to: 7.1
+Requires PHP: 7.4
+Stable tag: 2.0.0
 License: GPLv2 or later
 
 Improve the quality of re-sized images by replacing standard GD library with ImageMagick.
@@ -20,7 +21,7 @@ Features
 * Configure image quality or use dynamically computed default value
 * Optimize different image sizes for either quality or size
 
-Lnguages: English, French, German, Swedish, Turkish
+Languages: English, French, German, Swedish, Turkish
 
 Requires either ImageMagick binary or Imagick PHP module.
 
@@ -62,9 +63,29 @@ You can also find binary releases at http://www.imagemagick.org including a Wind
 
 == Screenshots ==
 
-1. Administration interface
+1. Settings: choose an image engine, see which ones your server actually has, and set how each image size is generated.
+2. Regenerating existing images in adaptive batches, with progress, a time estimate and a cancel button.
 
 == Changelog ==
+
+= 2.0.0 =
+* Rebuilt the settings page: tabbed layout, engine status cards, and native WordPress form controls, buttons and progress bar that follow your admin colour scheme
+* Image regeneration now runs in adaptive batches, survives a page reload, and can be cancelled and resumed
+* Regeneration reports which images failed instead of stopping at a browser alert
+* Removed jQuery and jQuery UI from the admin page
+* Fixed the media page regenerate button submitting image sizes that were set to None
+* Fixed the plugin preventing WordPress from creating modern format (WebP/AVIF) versions of the image sizes it handles, for example with the Modern Image Formats plugin. Those versions are still created by WordPress itself, not by the engine or quality settings in this plugin
+* Image sizes created by this plugin now record their mime type and file size, the same information WordPress records, so other plugins can read it
+* Added a notice on the settings page when JavaScript is disabled
+* Requires WordPress 6.4 or later
+
+= 1.9.0 =
+* Tested compability with WordPress 7.0 and 7.1
+* Add option to keep generating all image sizes with ImageMagick on WordPress 7.1, which otherwise creates some sizes in the browser
+* Fix wrong size and wrong stored dimensions for images with an Exif orientation tag (rotated photos came out too small, or stretched when using the ImageMagick/GraphicsMagick binary)
+* Fix resized images having wrong orientation when Exif orientation tag is set
+* Add option to preserve Exif metadata (including GPS) when optimizing for size
+* Add GraphicsMagick as an alternative to ImageMagick
 
 = 1.8.0 =
 * Security fixes: output escaping, input sanitization, removed inline JS event handlers
@@ -75,9 +96,6 @@ You can also find binary releases at http://www.imagemagick.org including a Wind
 * Detect open_basedir restrictions when testing CLI path
 * Clean up plugin data on uninstall
 * Remove outdated WordPress 3.5 compatibility code
-* Fix resized images having wrong orientation when Exif orientation tag is set
-* Add option to preserve Exif metadata (including GPS) when optimizing for size
-* Add GraphicsMagick as an alternative to ImageMagick
 
 = 1.7.14 =
 * Fix how translations was loaded again

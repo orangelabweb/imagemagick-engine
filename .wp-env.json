@@ -1,5 +1,6 @@
 {
   "plugins": [ "." ],
+  "core": "https://wordpress.org/nightly-builds/wordpress-latest.zip",
   "lifecycleScripts": {
     "afterStart": "docker exec -u 0 $(docker ps -q --filter 'name=wordpress' --filter 'status=running' | head -1) bash -c 'apt-get update -qq && apt-get install -y -qq imagemagick graphicsmagick'"
   },

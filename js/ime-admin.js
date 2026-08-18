@@ -1,178 +1,465 @@
-//Variables
-var rt_images = '';
-var rt_total = 1;
-var rt_count = 1;
-var rt_force = 0;
-var rt_precision = 0;
-var rt_sizes = '';
+/**
+ * POST to admin-ajax.php with the plugin nonce.
+ *
+ * Resolves with the `data` payload of wp_send_json_success().
+ * Rejects with an Error carrying the server's message and, when the
+ * server sent one, a `code` property identifying the failure.
+ */
+function imeRequest( action, data ) {
+	var body = new URLSearchParams();
+	body.append( 'action', action );
+	body.append( 'ime_nonce', ime_admin.ime_nonce );
 
-// Ajax test IM path
-function imeTestPath() {
-	jQuery( '.cli_path_icon' ).hide();
-	jQuery( '#cli_path_error' ).hide();
-	jQuery( '#cli_path_progress' ).show();
-	jQuery.get( ajaxurl, {
-		action: 'ime_test_im_path',
-		ime_nonce: ime_admin.ime_nonce,
-		mode: 'cli',
-		cli_path: jQuery( '#cli_path' ).val()
-	}, function( data ) {
-		jQuery( '#cli_path_progress' ).hide();
-		if ( data && data.found ) {
-			jQuery( '#cli_path_yes' ).show();
-			jQuery( '#cli_path_no' ).hide();
-		} else {
-			jQuery( '#cli_path_yes' ).hide();
-			jQuery( '#cli_path_no' ).show();
-			var engine = ( data && data.engine ) ? data.engine : 'ImageMagick';
-			var tpl = ( data && data.open_basedir ) ? ime_admin.path_open_basedir : ime_admin.path_not_found;
-			jQuery( '#cli_path_error' ).text( tpl.replace( '%s', engine ) ).show();
+	Object.keys( data || {} ).forEach( function( key ) {
+		body.append( key, data[ key ] );
+	} );
+
+	return window.fetch( ime_admin.ajaxurl, {
+		method: 'POST',
+		credentials: 'same-origin',
+		headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+		body: body.toString()
+	} ).then( function( response ) {
+		if ( ! response.ok ) {
+			throw new Error( ime_admin.request_failed );
 		}
-	} );
-}
-
-// Ajax test GraphicsMagick path
-function imeTestGmPath() {
-	jQuery( '.gm_path_icon' ).hide();
-	jQuery( '#gm_path_error' ).hide();
-	jQuery( '#gm_path_progress' ).show();
-	jQuery.get( ajaxurl, {
-		action: 'ime_test_im_path',
-		ime_nonce: ime_admin.ime_nonce,
-		mode: 'graphicsmagick',
-		gm_path: jQuery( '#gm_path' ).val()
-	}, function( data ) {
-		jQuery( '#gm_path_progress' ).hide();
-		if ( data && data.found ) {
-			jQuery( '#gm_path_yes' ).show();
-			jQuery( '#gm_path_no' ).hide();
-		} else {
-			jQuery( '#gm_path_yes' ).hide();
-			jQuery( '#gm_path_no' ).show();
-			var engine = ( data && data.engine ) ? data.engine : 'GraphicsMagick';
-			var tpl = ( data && data.open_basedir ) ? ime_admin.path_open_basedir : ime_admin.path_not_found;
-			jQuery( '#gm_path_error' ).text( tpl.replace( '%s', engine ) ).show();
+		return response.json();
+	} ).then( function( json ) {
+		if ( ! json || ! json.success ) {
+			var error = new Error(
+				( json && json.data && json.data.message ) || ime_admin.request_failed
+			);
+			error.code = ( json && json.data && json.data.code ) || '';
+			throw error;
 		}
+		return json.data;
 	} );
 }
 
-function imeStartResize() {
-	rt_sizes = '';
-	rt_force = 0;
+document.addEventListener( 'alpine:init', function() {
+	Alpine.data( 'imeSettings', function() {
+		return {
+			tab: ime_admin.initial_tab,
+			enabled: ime_admin.enabled,
+			mode: ime_admin.mode,
 
-	jQuery( '#regenerate-images-metabox input' ).each( function() {
-	var i = jQuery( this );
-	var name = i.attr( 'name' );
+			get isTabSettings() {
+				return this.tab === 'settings';
+			},
 
-	if ( i.is( ':checked' ) && name && 'regen-size-' == name.substring( 0, 11 ) ) {
-		rt_sizes = rt_sizes + name.substring( 11 ) + '|';
-	}
-	} );
+			get isTabRegenerate() {
+				return this.tab === 'regenerate';
+			},
 
-	if ( jQuery( '#force' ).is( ':checked' ) ) {
-rt_force = 1;
-}
+			get isCli() { return this.mode === 'cli'; },
+			get isGraphicsmagick() { return this.mode === 'graphicsmagick'; },
 
-	if ( rt_total > 20000 ) {
-rt_precision = 3;
-} else if ( rt_total > 2000 ) {
-rt_precision = 2;
-} else if ( rt_total > 200 ) {
-rt_precision = 1;
-} else {
-rt_precision = 0;
-}
+			cliPathState: 'unknown',
+			cliPathMessage: '',
+			gmPathState: 'unknown',
+			gmPathMessage: '',
 
-	var rt_percent = 0;
+			get cliPathTesting() { return this.cliPathState === 'testing'; },
+			get cliPathError() { return this.cliPathState === 'error'; },
+			get cliPathOk() { return this.cliPathState === 'ok'; },
+			get gmPathTesting() { return this.gmPathState === 'testing'; },
+			get gmPathError() { return this.gmPathState === 'error'; },
+			get gmPathOk() { return this.gmPathState === 'ok'; },
 
-	rt_count = 1;
-	jQuery( '#ime-regenbar' ).progressbar();
-	jQuery( '#ime-regenbar-percent' ).html( rt_percent.toFixed( rt_precision ) + ' %' );
-	jQuery( '#ime-regeneration' ).addClass( 'working' );
+			testCliPath: function() {
+				this.testPath( 'cli', 'cli_path', 'cliPath' );
+			},
 
-	imeRegenImages( rt_images.shift() );
-}
+			testGmPath: function() {
+				this.testPath( 'graphicsmagick', 'gm_path', 'gmPath' );
+			},
 
-//Regeneration of progressbar
-function imeRegenImages( id ) {
-	jQuery.post( ajaxurl, { action: 'ime_process_image', ime_nonce: ime_admin.ime_nonce, id: id, sizes: rt_sizes, force: rt_force }, function( data ) {
-	var n = parseInt( data, 10 );
-	if ( isNaN( n ) ) {
-		alert( data );
-	}
+			testPath: function( engineMode, field, prefix ) {
+				var self = this;
+				var payload = { mode: engineMode };
+				payload[ field ] = document.getElementById( field ).value;
 
-	// todo: test and handle negative return
+				self[ prefix + 'State' ] = 'testing';
+				self[ prefix + 'Message' ] = '';
 
-	if ( rt_images.length <= 0 ) {
-		jQuery( '#regen-message' ).removeClass( 'hidden' ).html( '<p><strong>' + ime_admin.done + '</strong> ' + ime_admin.processed_fmt.replace( '%d', rt_total ) + '.</p>' );
-		jQuery( '#ime-regeneration' ).removeClass( 'working' );
-		jQuery( '#ime-regenbar' ).progressbar( 'value', 0 );
-		return;
-	}
+				imeRequest( 'ime_test_im_path', payload ).then( function( data ) {
+					self[ prefix + 'State' ] = 'ok';
+					self[ prefix + 'Message' ] = data.version
+						? data.engine + ' ' + data.version
+						: ime_admin.path_found;
+				} ).catch( function( error ) {
+					self[ prefix + 'State' ] = 'error';
+					self[ prefix + 'Message' ] = error.message;
+				} );
+			},
 
-	var next_id = rt_images.shift();
-	var rt_percent = ( rt_count / rt_total ) * 100;
-	jQuery( '#ime-regenbar' ).progressbar( 'value', rt_percent );
-	jQuery( '#ime-regenbar-percent' ).html( rt_percent.toFixed( rt_precision ) + ' %' );
-	rt_count = rt_count + 1;
+			get settingsTabClass() {
+				return this.tab === 'settings' ? 'nav-tab-active' : '';
+			},
 
-	// tail recursion
-	imeRegenImages( next_id );
-	} );
-}
+			get regenerateTabClass() {
+				return this.tab === 'regenerate' ? 'nav-tab-active' : '';
+			},
 
-// Regen single image on media pages
-function imeRegenMediaImage( id, sizes, force ) {
-	var link = jQuery( '#ime-regen-link-' + id );
+			selectTab: function( name ) {
+				this.tab = name;
 
-	if ( link.hasClass( 'disabled' ) ) {
-return false;
-}
+				var url = new URL( window.location.href );
+				url.searchParams.set( 'tab', name );
+				window.history.replaceState( {}, '', url.toString() );
+			},
 
-	link.addClass( 'disabled' );
+			selectSettingsTab: function() {
+				this.selectTab( 'settings' );
+			},
 
-	var spinner = jQuery( '#ime-spinner-' + id ).children( 'img' );
-	spinner.show();
+			selectRegenerateTab: function() {
+				this.selectTab( 'regenerate' );
+			},
 
-	var message = jQuery( '#ime-message-' + id ).show();
-	jQuery.post( ajaxurl, { action: 'ime_process_image', ime_nonce: ime_admin.ime_nonce, id: id, sizes: sizes, force: force }, function( data ) {
-	spinner.hide();
-	link.removeClass( 'disabled' );
+			setAllQuality: function() { this.setAllHandleModes( 'quality' ); },
+			setAllSize: function() { this.setAllHandleModes( 'size' ); },
+			setAllSkip: function() { this.setAllHandleModes( 'skip' ); },
 
-	var n = parseInt( data, 10 );
-	if ( isNaN( n ) || n < 0 ) {
-		message.html( ime_admin.failed );
-		if ( isNaN( n ) ) {
-alert( data );
-}
-	} else {
-		message.html( ime_admin.resized );
-	}
-	} );
-}
-
-jQuery( document ).ready( function( $ ) {
-	jQuery( '#ime_cli_path_test' ).click( imeTestPath );
-	jQuery( '#ime_gm_path_test' ).click( imeTestGmPath );
-
-	jQuery( document ).on( 'click', '.ime-regen-button', function( e ) {
-		e.preventDefault();
-		var el = jQuery( this );
-		imeRegenMediaImage( el.data( 'post-id' ), el.data( 'sizes' ), el.data( 'force' ) );
-	} );
-
-	$( '#regenerate-images' ).click( function() {
-		$( '#regenerate-images-metabox img.ajax-feedback' ).show();
-		$.post( ajaxurl, { action: 'ime_regeneration_get_images', ime_nonce: ime_admin.ime_nonce, }, function( data ) {
-			jQuery( '#regen-message' ).addClass( 'hidden' );
-			rt_images = data.split( ',' );
-			rt_total = rt_images.length;
-
-			if ( rt_total > 0 ) {
-				imeStartResize();
-			} else {
-				alert( ime_admin.noimg );
+			setAllHandleModes: function( value ) {
+				var inputs = document.querySelectorAll( '.ime-handle-mode--' + value );
+				Array.prototype.forEach.call( inputs, function( input ) {
+					input.checked = true;
+				} );
 			}
-		} );
+		};
+	} );
+
+	Alpine.data( 'imeRegen', function() {
+		return {
+			state: 'idle',
+			paused: false,
+			done: 0,
+			total: 0,
+			failed: [],
+			failedCount: 0,
+			force: false,
+			errorMessage: '',
+			ended: false,
+			cancelRequested: false,
+			starting: false,
+			runToken: 0,
+			batchTimes: [],
+
+			// Alpine calls init() automatically on the component root, so the
+			// markup needs no x-init attribute — which the CSP build would
+			// reject anyway if it carried arguments.
+			init: function() {
+				this.loadState();
+			},
+
+			get isIdle() { return this.state === 'idle'; },
+			get isRunning() { return this.state === 'running'; },
+			get isDone() { return this.state === 'done'; },
+			get isPaused() { return this.paused; },
+			get hasFailures() { return this.failed.length > 0; },
+			get hasError() { return this.errorMessage !== ''; },
+			get hasEnded() { return this.ended; },
+
+			// The server cannot tell "the run finished" from "the queue expired
+			// and was deleted" (both surface as the no_queue error code), so this
+			// says only what is true of both cases. Keeping done/total instead of
+			// zeroing them means the last known progress stays visible here too,
+			// on its own line — see endedProgressText.
+			get endedText() {
+				return ime_admin.regen_ended;
+			},
+
+			get hasEndedProgress() { return this.total > 0; },
+
+			// Labelled, because in the "it finished" half of that disjunction the
+			// run did not stop at this number, it reached the total.
+			get endedProgressText() {
+				return ime_admin.regen_ended_progress_fmt
+					.replace( '%1$s', this.done.toLocaleString() )
+					.replace( '%2$s', this.total.toLocaleString() );
+			},
+
+			get percent() {
+				if ( ! this.total ) {
+					return 0;
+				}
+				return Math.min( 100, ( this.done / this.total ) * 100 );
+			},
+
+			get headingText() {
+				return this.paused ? ime_admin.regen_paused : ime_admin.regen_running;
+			},
+
+			get statusText() {
+				var text = this.done.toLocaleString() + ' / ' + this.total.toLocaleString();
+				var eta = this.etaText;
+
+				if ( eta ) {
+					text += ' · ' + eta;
+				}
+				if ( this.failedCount ) {
+					text += ' · ' + ime_admin.regen_failed_fmt.replace( '%d', this.failedCount );
+				}
+				return text;
+			},
+
+			get etaText() {
+				// Under ten images the average is noise, so say nothing.
+				if ( this.done < 10 || this.batchTimes.length < 2 ) {
+					return '';
+				}
+
+				// Moving average over the last five batches only: throughput
+				// changes as image sizes vary, and a cumulative mean lags badly.
+				var recent = this.batchTimes.slice( -5 );
+				var totalSeconds = 0;
+				var totalImages = 0;
+
+				recent.forEach( function( entry ) {
+					totalSeconds += entry.seconds;
+					totalImages += entry.images;
+				} );
+
+				if ( ! totalImages ) {
+					return '';
+				}
+
+				var remaining = ( this.total - this.done ) * ( totalSeconds / totalImages );
+				var minutes = Math.max( 1, Math.round( remaining / 60 ) );
+
+				return ime_admin.regen_eta_fmt.replace( '%d', minutes );
+			},
+
+			get doneText() {
+				return ime_admin.regen_done_fmt.replace( '%d', this.total.toLocaleString() );
+			},
+
+			get failedText() {
+				return ime_admin.regen_failed_fmt.replace( '%d', this.failedCount );
+			},
+
+			loadState: function() {
+				var self = this;
+				var token = self.runToken;
+
+				imeRequest( 'ime_regen_state', {} ).then( function( data ) {
+					if ( token !== self.runToken || ! data.running ) {
+						return;
+					}
+					self.state = 'running';
+					self.paused = true;
+					self.done = data.done;
+					self.total = data.total;
+					self.failed = data.failed || [];
+					self.failedCount = data.failed_count || 0;
+				} ).catch( function() {
+					// A missing queue is not an error worth showing.
+				} );
+			},
+
+			selectedSizes: function() {
+				var values = [];
+				var inputs = document.querySelectorAll( '.ime-regen-size:checked' );
+
+				Array.prototype.forEach.call( inputs, function( input ) {
+					values.push( input.value );
+				} );
+
+				return values.join( '|' );
+			},
+
+			selectAllSizes: function() { this.setSizes( 'all' ); },
+			selectNoSizes: function() { this.setSizes( 'none' ); },
+			selectDefaultSizes: function() { this.setSizes( 'default' ); },
+
+			setSizes: function( which ) {
+				var inputs = document.querySelectorAll( '.ime-regen-size' );
+
+				Array.prototype.forEach.call( inputs, function( input ) {
+					if ( which === 'all' ) {
+						input.checked = true;
+					} else if ( which === 'none' ) {
+						input.checked = false;
+					} else {
+						input.checked = input.dataset.default === '1';
+					}
+				} );
+			},
+
+			start: function() {
+				var self = this;
+				var sizes = this.selectedSizes();
+				var token = ++self.runToken;
+
+				self.errorMessage = '';
+				self.ended = false;
+				self.failed = [];
+				self.failedCount = 0;
+				self.batchTimes = [];
+				self.cancelRequested = false;
+				self.starting = true;
+
+				imeRequest( 'ime_regen_start', {
+					sizes: sizes,
+					force: self.force ? 1 : 0
+				} ).then( function( data ) {
+					self.starting = false;
+
+					if ( token !== self.runToken ) {
+						return;
+					}
+
+					self.state = 'running';
+					self.paused = false;
+					self.done = 0;
+					self.total = data.total;
+					self.runBatch( token );
+				} ).catch( function( error ) {
+					self.starting = false;
+
+					if ( token !== self.runToken ) {
+						return;
+					}
+
+					self.errorMessage = error.message;
+				} );
+			},
+
+			resume: function() {
+				this.runToken++;
+
+				this.errorMessage = '';
+				this.ended = false;
+				this.paused = false;
+				this.cancelRequested = false;
+				this.runBatch( this.runToken );
+			},
+
+			cancel: function() {
+				var self = this;
+				var token = ++self.runToken;
+
+				self.cancelRequested = true;
+
+				imeRequest( 'ime_regen_cancel', {} ).then( function() {
+					if ( token !== self.runToken ) {
+						return;
+					}
+					self.state = 'idle';
+					self.paused = false;
+					self.done = 0;
+					self.total = 0;
+					self.failed = [];
+					self.failedCount = 0;
+				} ).catch( function( error ) {
+					if ( token !== self.runToken ) {
+						return;
+					}
+					self.errorMessage = error.message;
+				} );
+			},
+
+			runBatch: function( token ) {
+				var self = this;
+				var startedAt = Date.now();
+				var before = self.done;
+
+				if ( self.cancelRequested || token !== self.runToken ) {
+					return;
+				}
+
+				imeRequest( 'ime_regen_batch', {} ).then( function( data ) {
+					if ( self.cancelRequested || token !== self.runToken ) {
+						return;
+					}
+
+					self.batchTimes.push( {
+						seconds: ( Date.now() - startedAt ) / 1000,
+						images: Math.max( 1, data.done - before )
+					} );
+
+					if ( data.cancelled ) {
+						self.state = 'idle';
+						self.paused = false;
+						self.done = 0;
+						self.total = 0;
+						self.failed = [];
+						self.failedCount = 0;
+						return;
+					}
+
+					self.done = data.done;
+					self.total = data.total;
+					self.failed = data.failed || [];
+					self.failedCount = data.failed_count || 0;
+
+					if ( data.finished ) {
+						self.state = 'done';
+						return;
+					}
+
+					self.runBatch( token );
+				} ).catch( function( error ) {
+					if ( token !== self.runToken ) {
+						return;
+					}
+
+					if ( 'no_queue' === error.code ) {
+						// The run ended while this page was stale — either finished
+						// or expired past IME_REGEN_TTL. Not an error, so keep the
+						// last known done/total instead of zeroing them and say so
+						// with an informational notice, not the error styling.
+						self.state = 'idle';
+						self.paused = false;
+						self.ended = true;
+						return;
+					}
+
+					// The server-side queue is still intact for any other error (a
+					// transport failure, a timed-out request) — keep the run
+					// resumable instead of hiding the Resume button.
+					self.errorMessage = error.message;
+					self.state = 'running';
+					self.paused = true;
+				} );
+			}
+		};
+	} );
+
+	Alpine.data( 'imeMediaRegen', function() {
+		return {
+			busy: false,
+			message: '',
+
+			init: function() {
+				this.message = this.$el.dataset.message || '';
+			},
+
+			get spinnerClass() { return this.busy ? 'is-active' : ''; },
+
+			regenerate: function() {
+				var self = this;
+				var el = this.$root;
+
+				if ( self.busy ) {
+					return;
+				}
+
+				self.busy = true;
+
+				imeRequest( 'ime_process_image', {
+					id: el.dataset.postId,
+					sizes: el.dataset.sizes,
+					force: el.dataset.force
+				} ).then( function( data ) {
+					self.busy = false;
+					self.message = data.message;
+				} ).catch( function( error ) {
+					self.busy = false;
+					self.message = error.message;
+				} );
+			}
+		};
 	} );
 } );

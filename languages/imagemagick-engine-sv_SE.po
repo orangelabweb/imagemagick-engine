@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: ImageMagick Engine\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/imagemagick-"
 "engine\n"
-"POT-Creation-Date: 2026-03-27T13:33:27+00:00\n"
+"POT-Creation-Date: 2026-08-17T21:57:49+00:00\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Johan Eenfeldt <johan@orangelab.se>\n"
 "Language-Team: \n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Generator: Poedit 3.9\n"
 
 #. Plugin Name of the plugin
-#: imagemagick-engine.php
+#: imagemagick-engine.php includes/admin-page.php:423
 msgid "ImageMagick Engine"
 msgstr "ImageMagick Engine"
 
@@ -42,211 +42,196 @@ msgstr "Orangelab"
 msgid "https://orangelab.com/"
 msgstr "https://orangelab.com/"
 
-#: imagemagick-engine.php:1068
-msgid "You dont have any images to regenerate"
-msgstr "Du har inga bilder att skala om"
+#: imagemagick-engine.php:389
+msgid "The current image editor cannot process this file type."
+msgstr "Den nuvarande bildredigeraren kan inte hantera den här filtypen."
 
-#: imagemagick-engine.php:1069
-msgid "All done!"
-msgstr "Färdigt!"
-
-#: imagemagick-engine.php:1070
-#, php-format
-msgid "Processed %d images"
-msgstr "Skalat om %d bilder"
-
-#: imagemagick-engine.php:1071
-msgid "Failed to resize image!"
-msgstr "Kunde inte skala om bild!"
-
-#: imagemagick-engine.php:1072 imagemagick-engine.php:1124
-msgid "Resized using ImageMagick Engine"
-msgstr "Omskalad av ImageMagick Engine"
-
-#: imagemagick-engine.php:1074
-#, php-format
-msgid "%s not found at this path."
-msgstr "%s finns inte på den här sökvägen."
-
-#: imagemagick-engine.php:1075
-#, php-format
-msgid ""
-"%s not found. Your PHP open_basedir setting is restricting access to this "
-"path. Add the path to your open_basedir configuration."
+#: includes/admin-page.php:41
+msgid "The request failed. Please try again."
 msgstr ""
-"%s hittades inte. Din inställning för open_basedir i PHP begränsar åtkomsten "
-"till den här sökvägen. Lägg till sökvägen i din open_basedir-konfiguration."
 
-#: imagemagick-engine.php:1089
-msgid "Settings"
-msgstr "Inställningar"
+#: includes/admin-page.php:42
+#, fuzzy
+msgid "Command found."
+msgstr "Kommando hittades."
 
-#: imagemagick-engine.php:1125
-msgid "Resize image"
-msgstr "Skala om bild"
-
-#: imagemagick-engine.php:1129
-msgid "Resize using ImageMagick Engine"
-msgstr "Omskala med ImageMagick Engine"
-
-#: imagemagick-engine.php:1166 imagemagick-engine.php:1407
-msgid "Imagick PHP module"
-msgstr "Imagick PHP modul"
-
-#: imagemagick-engine.php:1167 imagemagick-engine.php:1414
-msgid "Gmagick PHP module"
-msgstr "Gmagick PHP-modul"
-
-#: imagemagick-engine.php:1168
-msgid "ImageMagick command-line"
-msgstr "ImageMagick kommando"
-
-#: imagemagick-engine.php:1169
-msgid "GraphicsMagick command-line"
-msgstr "GraphicsMagick-kommando"
-
-#: imagemagick-engine.php:1263
-msgid "Settings updated"
-msgstr "Inställningar uppdaterade"
-
-#: imagemagick-engine.php:1322
-msgid "No valid ImageMagick mode found!"
-msgstr "Ingen fungerande ImageMagick-installation hittades!"
-
-#: imagemagick-engine.php:1326
-msgid "ImageMagick Engine is not enabled."
-msgstr "ImageMagick Engine är inte aktiverad."
-
-#: imagemagick-engine.php:1332
-msgid "ImageMagick Engine Settings"
-msgstr "ImageMagick Engine Inställningar"
-
-#: imagemagick-engine.php:1333 imagemagick-engine.php:1335
+#: includes/admin-page.php:43
 msgid "Regenerating images"
 msgstr "Skalar om bilder"
 
-#: imagemagick-engine.php:1334
-msgid "You must enable Javascript in order to proceed!"
-msgstr "Du måste tillåta Javascript i din webbläsare för att kunna fortsätta!"
+#: includes/admin-page.php:44
+#, fuzzy
+msgid "Regeneration in progress"
+msgstr "Skalar om bilder"
 
-#: imagemagick-engine.php:1347
-msgid "Regenerate Images"
-msgstr "Skala om bilder"
+#. translators: %d: number of minutes
+#: includes/admin-page.php:46
+#, php-format
+msgid "about %d min remaining"
+msgstr ""
 
-#: imagemagick-engine.php:1352
-msgid "Sizes"
-msgstr "Bilder"
+#. translators: %d: number of images
+#: includes/admin-page.php:48
+#, fuzzy, php-format
+msgid "Finished. Processed %d images."
+msgstr "Skalat om %d bilder"
 
-#: imagemagick-engine.php:1362
-msgid "ImageMagick images too"
-msgstr "ImageMagick bilder också"
+#. translators: %d: number of images
+#: includes/admin-page.php:50
+#, php-format
+msgid "%d failed"
+msgstr ""
 
-#: imagemagick-engine.php:1366
-msgid "Resize will use standard WordPress functions."
-msgstr "Omskalningen kommer använda Wordpress standardfunktioner."
+#: includes/admin-page.php:51
+msgid "This run is no longer active. It either finished or expired."
+msgstr ""
 
-#: imagemagick-engine.php:1369
-msgid "Regenerate"
-msgstr "Skala om"
+#. translators: 1: number of images processed, 2: total number of images
+#: includes/admin-page.php:53
+#, php-format
+msgid "Last known progress: %1$s of %2$s images."
+msgstr ""
 
-#: imagemagick-engine.php:1370
-msgid "(this can take a long time)"
-msgstr "(det här kan ta lång tid)"
+#: includes/admin-page.php:78 includes/admin-page.php:433
+msgid "Settings"
+msgstr "Inställningar"
 
-#: imagemagick-engine.php:1382
-msgid "Enable"
-msgstr "Aktivera"
+#: includes/admin-page.php:112 includes/ajax.php:217
+msgid "Resized using ImageMagick Engine"
+msgstr "Omskalad av ImageMagick Engine"
 
-#: imagemagick-engine.php:1391
-msgid "Image engine"
-msgstr "Bildmotor"
+#: includes/admin-page.php:113
+msgid "Resize image"
+msgstr "Skala om bild"
 
-#: imagemagick-engine.php:1410
-msgid "Imagick PHP module found"
-msgstr "Imagick PHP modul finns."
+#: includes/admin-page.php:117
+msgid "Resize using ImageMagick Engine"
+msgstr "Omskala med ImageMagick Engine"
 
-#: imagemagick-engine.php:1410
-msgid "Imagick PHP module not found"
-msgstr "Imagick PHP modul finns ej."
+#: includes/admin-page.php:156 includes/admin-page.php:463
+msgid "Imagick PHP module"
+msgstr "Imagick PHP modul"
 
-#: imagemagick-engine.php:1417
-msgid "Gmagick PHP module found"
-msgstr "Gmagick PHP-modul hittad"
+#: includes/admin-page.php:157 includes/admin-page.php:473
+msgid "Gmagick PHP module"
+msgstr "Gmagick PHP-modul"
 
-#: imagemagick-engine.php:1417
-msgid "Gmagick PHP module not found"
-msgstr "PHP-modulen Gmagick hittades inte"
+#: includes/admin-page.php:158 includes/admin-page.php:487
+msgid "ImageMagick command-line"
+msgstr "ImageMagick kommando"
 
-#: imagemagick-engine.php:1421
-msgid "ImageMagick path"
-msgstr "ImageMagick sökväg"
+#: includes/admin-page.php:159 includes/admin-page.php:502
+msgid "GraphicsMagick command-line"
+msgstr "GraphicsMagick-kommando"
 
-#: imagemagick-engine.php:1424 imagemagick-engine.php:1437
-msgid "Command not found"
-msgstr "Kommando hittades inte"
+#: includes/admin-page.php:214
+msgid "Available"
+msgstr ""
 
-#: imagemagick-engine.php:1425 imagemagick-engine.php:1438
-msgid "Testing command..."
-msgstr "Testar kommando..."
+#: includes/admin-page.php:215
+msgid "Not available"
+msgstr ""
 
-#: imagemagick-engine.php:1427 imagemagick-engine.php:1440
+#: includes/admin-page.php:263
+msgid "Path to the binary"
+msgstr ""
+
+#: includes/admin-page.php:269
 msgid "Test path"
 msgstr "Testa sökväg"
 
-#: imagemagick-engine.php:1430
+#: includes/admin-page.php:277
+#, fuzzy
 msgid ""
-"Enter the path where ImageMagick is installed on your server. This is "
+"Enter the path where the binary is installed on your server. This is "
 "usually /usr/bin or /usr/local/bin."
 msgstr ""
 "Ange sökvägen till den mapp där ImageMagick är installerat på din server. "
 "Vanligtvis är det /usr/bin eller /usr/local/bin."
 
-#: imagemagick-engine.php:1434
-msgid "GraphicsMagick path"
-msgstr "GraphicsMagick-sökväg"
-
-#: imagemagick-engine.php:1443
-msgid ""
-"Enter the path where GraphicsMagick is installed on your server. This is "
-"usually /usr/bin or /usr/local/bin."
+#: includes/admin-page.php:288
+msgid "Sorry, but you do not have permissions to change settings."
 msgstr ""
-"Ange sökvägen till den mapp där GraphicsMagick är installerat på din server. "
-"Det är vanligtvis /usr/bin eller /usr/local/bin."
 
-#: imagemagick-engine.php:1447
-msgid "ImageMagick quality"
-msgstr "ImageMagick bildkvalité"
+#: includes/admin-page.php:365
+msgid "Settings updated"
+msgstr "Inställningar uppdaterade"
 
-#: imagemagick-engine.php:1449
+#: includes/admin-page.php:411
+msgid "No valid ImageMagick mode found!"
+msgstr "Ingen fungerande ImageMagick-installation hittades!"
+
+#: includes/admin-page.php:416
+msgid "ImageMagick Engine is not enabled."
+msgstr "ImageMagick Engine är inte aktiverad."
+
+#: includes/admin-page.php:427
+msgid ""
+"This settings page requires JavaScript. Please enable JavaScript in your "
+"browser and reload the page to configure ImageMagick Engine."
+msgstr ""
+
+#: includes/admin-page.php:431
+msgid "Secondary menu"
+msgstr ""
+
+#: includes/admin-page.php:436
+msgid "Regenerate"
+msgstr "Skala om"
+
+#: includes/admin-page.php:447
+msgid "Enable"
+msgstr "Aktivera"
+
+#: includes/admin-page.php:456 includes/admin-page.php:459
+msgid "Image engine"
+msgstr "Bildmotor"
+
+#: includes/admin-page.php:466 includes/admin-page.php:476
+msgid "Module loaded"
+msgstr ""
+
+#: includes/admin-page.php:467 includes/admin-page.php:477
+#, fuzzy
+msgid "Module not found"
+msgstr "Kommando hittades inte"
+
+#: includes/admin-page.php:491 includes/admin-page.php:506
+msgid "Command not found"
+msgstr "Kommando hittades inte"
+
+#: includes/admin-page.php:515
 msgid "Optimize for quality"
-msgstr "Vid optimering f&ouml;r kvalité"
+msgstr "Vid optimering för kvalité"
 
-#: imagemagick-engine.php:1450
-msgid "Optimize for size"
-msgstr "Vid optimering f&ouml;r storlek"
-
-#: imagemagick-engine.php:1451
-msgid ""
-"Set to 0-100. Higher value gives better image quality but larger file size. "
-"Leave empty for default value, computed dynamically."
+#: includes/admin-page.php:518 includes/admin-page.php:527
+msgid "auto"
 msgstr ""
-"S&auml;tt till 0-100. H&ouml;gre v&auml;rden ger b&auml;ttre bildkvalité men "
-"st&ouml;rre filstorlek. L&auml;mna tomt f&ouml;r automatiskt ber&auml;knat "
-"v&auml;rde."
 
-#: imagemagick-engine.php:1455
+#: includes/admin-page.php:524
+msgid "Optimize for size"
+msgstr "Vid optimering för storlek"
+
+#: includes/admin-page.php:531
+msgid ""
+"Set to 0-100. A higher value means better image quality and a larger file. "
+"Leave a field empty to pass no quality setting at all, so the image engine "
+"applies its own default."
+msgstr ""
+
+#: includes/admin-page.php:536
 msgid "Image interlace?"
 msgstr "Bildinterlacing?"
 
-#: imagemagick-engine.php:1460
+#: includes/admin-page.php:541
 msgid "Adds interlace option to ImageMagick when images are processed."
 msgstr "Lägger till alternativet för interlace i ImageMagick vid bearbetning."
 
-#: imagemagick-engine.php:1464
+#: includes/admin-page.php:545
 msgid "Preserve Exif data?"
 msgstr "Ska Exif-data bevaras?"
 
-#: imagemagick-engine.php:1469
+#: includes/admin-page.php:550
 msgid ""
 "When optimizing for size, preserve Exif metadata (including GPS location) "
 "instead of stripping it. Other non-essential metadata (IPTC, XMP) is still "
@@ -256,25 +241,222 @@ msgstr ""
 "position) istället för att ta bort dem. Övriga icke-väsentliga metadata "
 "(IPTC, XMP) tas fortfarande bort."
 
-#: imagemagick-engine.php:1476
+#: includes/admin-page.php:555
+msgid "Disable client-side media processing?"
+msgstr "Stäng av bildbehandling i webbläsaren?"
+
+#: includes/admin-page.php:560
+msgid ""
+"WordPress 7.1 and later lets the browser generate image sizes during upload, "
+"bypassing ImageMagick for those sizes. Keep this checked so every size is "
+"generated on the server with the settings above."
+msgstr ""
+"WordPress 7.1 och senare låter webbläsaren skapa bildstorlekar vid "
+"uppladdning, vilket förbigår ImageMagick för de storlekarna. Låt rutan vara "
+"ikryssad så att alla storlekar skapas på servern med inställningarna ovan."
+
+#: includes/admin-page.php:565
+#, fuzzy
+msgid "Image sizes"
+msgstr "Bildstorlek"
+
+#: includes/admin-page.php:567
+msgid ""
+"Choose how each image size is generated. Sizes set to None are left to "
+"WordPress."
+msgstr ""
+
+#: includes/admin-page.php:572
 msgid "Image size"
 msgstr "Bildstorlek"
 
-#: imagemagick-engine.php:1477
+#: includes/admin-page.php:574 includes/admin-page.php:590
 msgid "Quality"
 msgstr "Kvalité"
 
-#: imagemagick-engine.php:1478
+#: includes/admin-page.php:575 includes/admin-page.php:579
+#: includes/admin-page.php:583
+msgid "Select all"
+msgstr ""
+
+#: includes/admin-page.php:578 includes/admin-page.php:591
 msgid "Size"
 msgstr "Storlek"
 
-#: imagemagick-engine.php:1479
-msgid "None (use WP instead)"
-msgstr "Inget (anv&auml;nd WP ist&auml;llet)"
+#: includes/admin-page.php:582 includes/admin-page.php:592
+#: includes/admin-page.php:678
+msgid "None"
+msgstr ""
 
-#: imagemagick-engine.php:1511
+#. translators: %s: image size name
+#: includes/admin-page.php:613
+#, php-format
+msgid "Handling for %s"
+msgstr ""
+
+#: includes/admin-page.php:645
 msgid "Save Changes"
 msgstr "Spara ändringar"
+
+#: includes/admin-page.php:654
+#, fuzzy
+msgid "Regenerate images"
+msgstr "Skala om bilder"
+
+#: includes/admin-page.php:658
+#, fuzzy
+msgid ""
+"ImageMagick Engine is not active, so resizing will use standard WordPress "
+"functions."
+msgstr "Omskalningen kommer använda Wordpress standardfunktioner."
+
+#: includes/admin-page.php:664
+msgid "Sizes"
+msgstr "Bilder"
+
+#: includes/admin-page.php:677
+msgid "All"
+msgstr ""
+
+#: includes/admin-page.php:679
+#, fuzzy
+msgid "Match settings"
+msgstr "Inställningar"
+
+#: includes/admin-page.php:686
+msgid "Also regenerate images already handled by ImageMagick Engine"
+msgstr ""
+
+#: includes/admin-page.php:691
+msgid "Start regeneration"
+msgstr ""
+
+#: includes/admin-page.php:693
+#, fuzzy
+msgid "This can take a long time."
+msgstr "(det här kan ta lång tid)"
+
+#: includes/admin-page.php:701
+msgid "Resume"
+msgstr ""
+
+#: includes/admin-page.php:702
+msgid "Cancel"
+msgstr ""
+
+#: includes/ajax.php:22
+msgid "You do not have permission to perform this action."
+msgstr ""
+
+#. translators: %s: engine name, e.g. ImageMagick
+#: includes/ajax.php:81
+#, php-format
+msgid ""
+"%s not found. Your PHP open_basedir setting is restricting access to this "
+"path. Add the path to your open_basedir configuration."
+msgstr ""
+"%s hittades inte. Din inställning för open_basedir i PHP begränsar åtkomsten "
+"till den här sökvägen. Lägg till sökvägen i din open_basedir-konfiguration."
+
+#. translators: %s: engine name, e.g. ImageMagick
+#: includes/ajax.php:83
+#, php-format
+msgid "%s not found at this path."
+msgstr "%s finns inte på den här sökvägen."
+
+#: includes/ajax.php:126
+msgid "The source file is missing."
+msgstr ""
+
+#. translators: %s: comma-separated list of image size names that failed to resize
+#: includes/ajax.php:183
+#, php-format
+msgid "Could not resize: %s"
+msgstr ""
+
+#: includes/ajax.php:195 includes/ajax.php:359 includes/ajax.php:407
+msgid "No valid image engine is configured."
+msgstr ""
+
+#: includes/ajax.php:200
+msgid "Invalid attachment."
+msgstr ""
+
+#: includes/ajax.php:208 includes/ajax.php:367
+msgid "Select at least one image size."
+msgstr ""
+
+#: includes/ajax.php:372
+#, fuzzy
+msgid "There are no images to regenerate."
+msgstr "Du har inga bilder att skala om"
+
+#: includes/ajax.php:414
+#, fuzzy
+msgid "No regeneration is in progress."
+msgstr "Skalar om bilder"
+
+#~ msgid "Failed to resize image!"
+#~ msgstr "Kunde inte skala om bild!"
+
+#~ msgid "All done!"
+#~ msgstr "Färdigt!"
+
+#~ msgid "ImageMagick Engine Settings"
+#~ msgstr "ImageMagick Engine Inställningar"
+
+#~ msgid "You must enable Javascript in order to proceed!"
+#~ msgstr ""
+#~ "Du måste tillåta Javascript i din webbläsare för att kunna fortsätta!"
+
+#~ msgid "ImageMagick images too"
+#~ msgstr "ImageMagick bilder också"
+
+#~ msgid "Imagick PHP module found"
+#~ msgstr "Imagick PHP modul finns."
+
+#~ msgid "Imagick PHP module not found"
+#~ msgstr "Imagick PHP modul finns ej."
+
+#~ msgid "Gmagick PHP module found"
+#~ msgstr "Gmagick PHP-modul hittad"
+
+#~ msgid "Gmagick PHP module not found"
+#~ msgstr "PHP-modulen Gmagick hittades inte"
+
+#~ msgid "ImageMagick path"
+#~ msgstr "ImageMagick sökväg"
+
+#~ msgid "Testing command..."
+#~ msgstr "Testar kommando..."
+
+#~ msgid "GraphicsMagick path"
+#~ msgstr "GraphicsMagick-sökväg"
+
+#~ msgid ""
+#~ "Enter the path where GraphicsMagick is installed on your server. This is "
+#~ "usually /usr/bin or /usr/local/bin."
+#~ msgstr ""
+#~ "Ange sökvägen till den mapp där GraphicsMagick är installerat på din "
+#~ "server. Det är vanligtvis /usr/bin eller /usr/local/bin."
+
+#~ msgid "ImageMagick quality"
+#~ msgstr "ImageMagick bildkvalité"
+
+#~ msgid "None (use WP instead)"
+#~ msgstr "Inget (anv&auml;nd WP ist&auml;llet)"
+
+#~ msgid "Handle all image sizes?"
+#~ msgstr "Hantera alla bildstorlekar?"
+
+#~ msgid ""
+#~ "WordPress 7.1 and later can generate image sizes in the browser instead "
+#~ "of on the server. Keep this checked to turn that off, so every size is "
+#~ "generated by ImageMagick with the settings above."
+#~ msgstr ""
+#~ "WordPress 7.1 och senare kan skapa bildstorlekar i webbläsaren istället "
+#~ "för på servern. Låt rutan vara ikryssad för att stänga av det, så att "
+#~ "alla storlekar skapas av ImageMagick med inställningarna ovan."
 
 #~ msgid "Thumbnail"
 #~ msgstr "Miniatyr"

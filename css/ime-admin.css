@@ -1,108 +1,144 @@
-[x-cloak] { display: none !important; }
-
-.form-table td.ime-handle-table-wrapper {
-    padding: 0;
+[x-cloak] {
+	display: none !important;
 }
 
-#ime-handle-table th {
-    padding: 5px 10px 0 0;
-	font-weight: normal;
+/* Engine cards */
+
+.ime-engine-grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 12px;
+	margin: 16px 0 24px;
+	border: 0;
+	padding: 0;
 }
 
-#ime-handle-table td {
-    padding: 5px 0 0 10px;
+.ime-engine-card {
+	/* Core defines no --wp-admin-border-color custom property; this is a
+	   literal, not a fallback for a scheme-aware value. Do not restore the
+	   var(). */
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	padding: 12px 16px;
+	background: #fff;
 }
 
-#ime-handle-table .ime-headline {
-    font-weight: bold;
+.ime-engine-card--unavailable {
+	opacity: 0.6;
 }
 
-#ime-handle-table .ime-fixed-width {
-    width: 60px;
+.ime-engine-card__label {
+	font-weight: 600;
 }
 
-#ime-regeneration {
-	display: none;
-	margin: 30px 0;
+.ime-engine-card__status {
+	margin: 6px 0 0;
 }
 
-#ime-regeneration.working {
-	display: block;
+.ime-engine-card__status .dashicons-yes-alt {
+	color: #00a32a;
 }
 
-.form-table td p.ime-description {
-	color: #666;
-	font-size: 12px;
+.ime-engine-card__status .dashicons-dismiss {
+	color: #d63638;
 }
 
-#ime-regenbar {
-	position: relative;
-	border-radius: 5px;
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
-	-khtml-border-radius: 5px;
-	border: 1px solid #666;
-	padding: 1px;
+.ime-engine-card__path {
+	margin-top: 12px;
 }
 
-#ime-regenbar-percent {
-	position: absolute;
-	left: 50%;
-	top: 50%;
-	width: 50px;
-	margin-left: -25px;
-	height: 22px;
-	margin-top: -9px;
-	font-weight: bold;
+/* Image size table */
+
+/*
+ * The size table is nested inside .form-table, whose descendant selectors
+ * would otherwise impose their own padding, line-height and font-size on
+ * every cell here.
+ */
+.ime-sizes-table th,
+.ime-sizes-table td {
+	padding: 8px 10px;
+	line-height: 1.4;
+	font-size: 13px;
+	vertical-align: middle;
+}
+
+.ime-sizes-table thead th {
 	text-align: center;
 }
 
-#ime-regenbar.ui-progressbar {
-	background-color: #eee;
-	color: #000;
-	height: 30px;
+.ime-sizes-table thead th:first-child,
+.ime-sizes-table tbody th {
+	text-align: left;
 }
 
-#ime-regenbar.ui-progressbar .ui-progressbar-value {
-    height: 30px;
-    background: #FF6600;
-	border-radius: 5px;
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
-	-khtml-border-radius: 5px;
+.ime-sizes-table td {
+	text-align: center;
+	width: 22%;
 }
 
-.ime-regen-button {
-    float: left;
+.ime-sizes-table fieldset {
+	margin: 0;
+	padding: 0;
+	border: 0;
 }
 
-.ime-spinner {
-    width: 16px;
-    height: 16px;
+/*
+ * At (max-width: 782px) core has two responsive rules that both match this
+ * nested table because it also carries the wp-list-table class for its base
+ * styling: ".wp-list-table tr { display: flex }" (the mobile card layout)
+ * and ".form-table td/th { display: block }" (their descendant selectors
+ * are not scoped to direct children, so they reach into this inner table
+ * too). Flex on the row blockifies "table-cell" on its children regardless
+ * of what they're set to, so the row itself has to be put back to
+ * table-row first, or the th/td override below has no effect. Keep this
+ * table tabular; its columns are narrow enough to still fit.
+ *
+ * No !important is needed: both core rules have the same specificity as
+ * these, and this stylesheet is enqueued after core's, so source order
+ * already decides it.
+ */
+@media screen and ( max-width: 782px ) {
+	.ime-sizes-table tr {
+		display: table-row;
+	}
 
-    float: left;
-
-    padding: 3px 8px;
+	.ime-sizes-table th,
+	.ime-sizes-table td {
+		display: table-cell;
+	}
 }
 
-.ime-spinner img {
-    display: none;
+/* Regeneration */
+
+.ime-progress {
+	width: 100%;
+	max-width: 600px;
+	height: 24px;
+	accent-color: var( --wp-admin-theme-color, #2271b1 );
+}
+
+.ime-regen-status {
+	font-weight: 600;
+}
+
+.ime-regen-sizes label {
+	display: inline-block;
+	margin-right: 16px;
+}
+
+.ime-regen-failures {
+	margin: 8px 0 0 20px;
+	list-style: disc;
+}
+
+/* Media screens */
+
+.ime-media-regen {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
 }
 
 .ime-media-message {
-    float: left;
-
-    padding: 0 3px;
-
-    font-style: italic;
-    line-height: 22px;
-}
-
-.ime-path-error {
-    margin: 6px 0 0;
-    padding: 6px 10px;
-    background: #fce8e8;
-    border-left: 4px solid #d63638;
-    color: #3c3c3c;
-    font-size: 13px;
+	font-style: italic;
 }

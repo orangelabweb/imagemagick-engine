@@ -1,10 +1,18 @@
 /.wordpress-org
 /.git
 /.github
+/.idea
+/.claude
+/.superpowers
+/docs
 /node_modules
 
 .distignore
 .gitignore
+.gitattributes
 package.json
 package-lock.json
 .wp-env.json
+.wp-env.override.json
+.DS_Store
+CLAUDE.md

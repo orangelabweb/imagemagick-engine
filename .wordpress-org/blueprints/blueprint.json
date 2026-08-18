@@ -1,7 +1,7 @@
 {
     "landingPage": "/wp-admin/options-general.php?page=imagemagick-engine",
     "preferredVersions": {
-        "php": "8.2",
+        "php": "8.2"
     },
     "phpExtensionBundles": [
         "kitchen-sink"
