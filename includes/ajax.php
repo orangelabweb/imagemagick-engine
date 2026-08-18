@@ -173,6 +173,50 @@ function ime_process_attachment( $id, $size_names, $force ) {
             if ( ! $exists ) {
                 wp_delete_file( $dir . $old_file );
             }
+
+            /*
+             * Other plugins hang a 'sources' array off a size entry, listing
+             * WebP/AVIF copies of that sub-size -- Modern Image Formats does.
+             * We replace the entry wholesale, so that list is gone from the
+             * new metadata, and the files it named are now both orphaned on
+             * disk and stale against the image we just wrote. Nothing else
+             * will ever clean them up: the only record of them was the entry
+             * we overwrote.
+             *
+             * A size we did not regenerate keeps its entry, and its sources
+             * with it, so it is skipped here.
+             */
+            if ( empty( $sizeinfo['sources'] ) || ! is_array( $sizeinfo['sources'] ) ) {
+                continue;
+            }
+
+            if ( ! empty( $new_meta['sizes'][ $size ]['sources'] ) ) {
+                continue;
+            }
+
+            /*
+             * The list includes an entry for the sub-size's own mime type,
+             * pointing at the sub-size file itself. That one is not a variant
+             * and must survive -- both under its old name and under the name
+             * the regenerated file was just written to.
+             */
+            $keep = [ $old_file ];
+            if ( isset( $new_meta['sizes'][ $size ]['file'] ) ) {
+                $keep[] = $new_meta['sizes'][ $size ]['file'];
+            }
+
+            foreach ( $sizeinfo['sources'] as $source ) {
+                if ( empty( $source['file'] ) ) {
+                    continue;
+                }
+
+                $variant = wp_basename( $source['file'] );
+                if ( in_array( $variant, $keep, true ) ) {
+                    continue;
+                }
+
+                wp_delete_file( $dir . $variant );
+            }
         }
     }
 
