@@ -11,7 +11,10 @@ jobs:
   phpunit:
     name: PHPUnit
     runs-on: ubuntu-latest
-    container: wordpress:cli-php8.3
+    container:
+      image: wordpress:cli-php8.3
+      # The image defaults to www-data, which cannot write to the runner's directories.
+      options: --user root
     services:
       mysql:
         image: mariadb:lts
