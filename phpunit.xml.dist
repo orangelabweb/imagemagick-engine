@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<phpunit
+    bootstrap="tests/bootstrap.php"
+    backupGlobals="false"
+    colors="true"
+    convertDeprecationsToExceptions="true"
+    beStrictAboutTestsThatDoNotTestAnything="true"
+>
+    <testsuites>
+        <testsuite name="imagemagick-engine">
+            <directory suffix="Test.php">tests</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>
