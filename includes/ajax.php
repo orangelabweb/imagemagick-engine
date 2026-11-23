@@ -38,26 +38,6 @@ function ime_ajax_test_im_path() {
     $r          = ime_im_cli_check_command( $check_path, $is_gm );
     $found = ! empty( $r );
 
-    $open_basedir = false;
-    if ( ! $found ) {
-        $open_basedir_ini = ini_get( 'open_basedir' );
-        if ( $open_basedir_ini ) {
-            $covered    = false;
-            $check_norm = rtrim( $check_path, '/\\' ) . DIRECTORY_SEPARATOR;
-            foreach ( explode( PATH_SEPARATOR, $open_basedir_ini ) as $dir ) {
-                if ( $dir === '' ) {
-                    continue;
-                }
-                $dir_norm = rtrim( $dir, '/\\' ) . DIRECTORY_SEPARATOR;
-                if ( strpos( $check_norm, $dir_norm ) === 0 ) {
-                    $covered = true;
-                    break;
-                }
-            }
-            $open_basedir = ! $covered;
-        }
-    }
-
     $engine  = $is_gm ? 'GraphicsMagick' : 'ImageMagick';
     $version = $is_gm ? ime_get_option( 'graphicsmagick_version' ) : ime_get_option( 'imagemagick_version' );
 
@@ -71,16 +51,15 @@ function ime_ajax_test_im_path() {
         );
     }
 
+    $reason = ime_im_cli_diagnose( $check_path, $is_gm );
+
     wp_send_json_error(
         [
-            'found'        => false,
-            'engine'       => $engine,
-            'open_basedir' => $open_basedir,
-            'message'      => $open_basedir
-                /* translators: %s: engine name, e.g. ImageMagick */
-                ? sprintf( __( '%s not found. Your PHP open_basedir setting is restricting access to this path. Add the path to your open_basedir configuration.', 'imagemagick-engine' ), $engine )
-                /* translators: %s: engine name, e.g. ImageMagick */
-                : sprintf( __( '%s not found at this path.', 'imagemagick-engine' ), $engine ),
+            'found'   => false,
+            'engine'  => $engine,
+            'code'    => $reason['code'] ?? 'unknown',
+            /* translators: %s: engine name, e.g. ImageMagick */
+            'message' => $reason['message'] ?? sprintf( __( '%s not found at this path.', 'imagemagick-engine' ), $engine ),
         ]
     );
 }
@@ -149,74 +128,27 @@ function ime_process_attachment( $id, $size_names, $force ) {
         return $new_meta;
     }
 
+    // Stored first: Modern Image Formats reads the sub-sizes back from the database.
     wp_update_attachment_metadata( $id, $new_meta );
 
+    $new_meta = ime_regenerate_modern_formats( $new_meta, $id );
+
     /*
-     * Resized files are normally overwritten in place. If the size
-     * definitions changed, the new files get different names, so the old
-     * ones must be deleted explicitly.
+     * Resized files are normally overwritten in place. If the size definitions
+     * changed, the new files get different names, so the old ones must be
+     * deleted explicitly. The same goes for WebP/AVIF copies listed under a
+     * size's 'sources': that list was the only record of them.
+     *
+     * Only names the new metadata no longer references are deleted. That covers
+     * the sub-size's own entry in 'sources', sizes sharing a file, and sizes
+     * this run skipped or failed to resize, which keep their entries.
      */
     if ( ! empty( $metadata['sizes'] ) ) {
-        $dir = trailingslashit( dirname( $ime_image_file ) );
+        $dir     = trailingslashit( dirname( $ime_image_file ) );
+        $current = ime_metadata_size_files( $new_meta );
 
-        foreach ( $metadata['sizes'] as $size => $sizeinfo ) {
-            $old_file = $sizeinfo['file'];
-            $exists   = false;
-
-            foreach ( $new_meta['sizes'] as $ignore => $new_sizeinfo ) {
-                if ( $old_file === $new_sizeinfo['file'] ) {
-                    $exists = true;
-                    break;
-                }
-            }
-
-            if ( ! $exists ) {
-                wp_delete_file( $dir . $old_file );
-            }
-
-            /*
-             * Other plugins hang a 'sources' array off a size entry, listing
-             * WebP/AVIF copies of that sub-size -- Modern Image Formats does.
-             * We replace the entry wholesale, so that list is gone from the
-             * new metadata, and the files it named are now both orphaned on
-             * disk and stale against the image we just wrote. Nothing else
-             * will ever clean them up: the only record of them was the entry
-             * we overwrote.
-             *
-             * A size we did not regenerate keeps its entry, and its sources
-             * with it, so it is skipped here.
-             */
-            if ( empty( $sizeinfo['sources'] ) || ! is_array( $sizeinfo['sources'] ) ) {
-                continue;
-            }
-
-            if ( ! empty( $new_meta['sizes'][ $size ]['sources'] ) ) {
-                continue;
-            }
-
-            /*
-             * The list includes an entry for the sub-size's own mime type,
-             * pointing at the sub-size file itself. That one is not a variant
-             * and must survive -- both under its old name and under the name
-             * the regenerated file was just written to.
-             */
-            $keep = [ $old_file ];
-            if ( isset( $new_meta['sizes'][ $size ]['file'] ) ) {
-                $keep[] = $new_meta['sizes'][ $size ]['file'];
-            }
-
-            foreach ( $sizeinfo['sources'] as $source ) {
-                if ( empty( $source['file'] ) ) {
-                    continue;
-                }
-
-                $variant = wp_basename( $source['file'] );
-                if ( in_array( $variant, $keep, true ) ) {
-                    continue;
-                }
-
-                wp_delete_file( $dir . $variant );
-            }
+        foreach ( array_diff( ime_metadata_size_files( $metadata ), $current ) as $orphan ) {
+            wp_delete_file( $dir . $orphan );
         }
     }
 
@@ -229,6 +161,57 @@ function ime_process_attachment( $id, $size_names, $force ) {
     }
 
     return true;
+}
+
+/**
+ * Recreate the WebP/AVIF variants of regenerated sizes.
+ *
+ * Regeneration does not run wp_generate_attachment_metadata, because that would
+ * also fire every other consumer of the filter, such as image optimizers that
+ * bill per image. Modern Image Formats is called directly instead. It only
+ * creates variants a size lacks, so sizes outside this run are left alone.
+ *
+ * @param array $metadata      Attachment metadata, already stored.
+ * @param int   $attachment_id Attachment ID.
+ * @return array
+ */
+function ime_regenerate_modern_formats( $metadata, $attachment_id ) {
+    if ( ! is_callable( 'webp_uploads_create_sources_property' ) ) {
+        return $metadata;
+    }
+
+    $metadata = webp_uploads_create_sources_property( $metadata, $attachment_id );
+    wp_update_attachment_metadata( $attachment_id, $metadata );
+
+    return $metadata;
+}
+
+/**
+ * Every file name the sub-sizes of an attachment refer to, variants included.
+ *
+ * @param array $metadata Attachment metadata.
+ * @return string[]
+ */
+function ime_metadata_size_files( $metadata ) {
+    $files = [];
+
+    foreach ( $metadata['sizes'] ?? [] as $size ) {
+        if ( ! empty( $size['file'] ) ) {
+            $files[] = wp_basename( $size['file'] );
+        }
+
+        if ( empty( $size['sources'] ) || ! is_array( $size['sources'] ) ) {
+            continue;
+        }
+
+        foreach ( $size['sources'] as $source ) {
+            if ( ! empty( $source['file'] ) ) {
+                $files[] = wp_basename( $source['file'] );
+            }
+        }
+    }
+
+    return array_values( array_unique( $files ) );
 }
 
 /** Regenerate a single attachment from the media screens. */

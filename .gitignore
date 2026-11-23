@@ -6,3 +6,5 @@ node_modules
 CLAUDE.md
 .wp-env.override.json
 .superpowers
+/vendor
+.phpunit.result.cache

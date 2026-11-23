@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: ImageMagick Engine\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/imagemagick-"
 "engine\n"
-"POT-Creation-Date: 2026-08-17T21:57:49+00:00\n"
+"POT-Creation-Date: 2026-11-23T21:45:44+00:00\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Johan Eenfeldt <johan@orangelab.se>\n"
 "Language-Team: \n"
@@ -42,9 +42,73 @@ msgstr "Orangelab"
 msgid "https://orangelab.com/"
 msgstr "https://orangelab.com/"
 
-#: imagemagick-engine.php:389
+#: imagemagick-engine.php:406
 msgid "The current image editor cannot process this file type."
 msgstr "Den nuvarande bildredigeraren kan inte hantera den här filtypen."
+
+#. translators: %s: engine name, e.g. ImageMagick
+#: imagemagick-engine.php:868
+#, php-format
+msgid ""
+"PHP cannot run %s because proc_open is disabled. Remove it from "
+"disable_functions in php.ini."
+msgstr ""
+"PHP kan inte köra %s eftersom proc_open är avstängt. Ta bort det från "
+"disable_functions i php.ini."
+
+#. translators: %s: engine name, e.g. ImageMagick
+#: imagemagick-engine.php:873
+#, php-format
+msgid ""
+"%s was not found in the common install locations. Enter the directory that "
+"contains it."
+msgstr ""
+"%s hittades inte på de vanliga installationsplatserna. Ange katalogen där "
+"det finns."
+
+#. translators: %s: directory path
+#: imagemagick-engine.php:879
+#, php-format
+msgid ""
+"PHP open_basedir does not allow access to %s. Add the directory to "
+"open_basedir."
+msgstr ""
+"PHP-inställningen open_basedir tillåter inte åtkomst till %s. Lägg till "
+"katalogen i open_basedir."
+
+#. translators: %s: directory path
+#: imagemagick-engine.php:885
+#, php-format
+msgid "The directory %s does not exist, or PHP may not read it."
+msgstr "Katalogen %s finns inte, eller så får PHP inte läsa den."
+
+#. translators: 1: engine name, 2: directory path
+#: imagemagick-engine.php:898
+#, php-format
+msgid "%1$s was not found in %2$s."
+msgstr "%1$s hittades inte i %2$s."
+
+#. translators: %s: file path
+#: imagemagick-engine.php:907
+#, php-format
+msgid "The web server user may not execute %s. Check the file permissions."
+msgstr "Webbserverns användare får inte köra %s. Kontrollera filrättigheterna."
+
+#. translators: 1: file path, 2: error output from the program
+#: imagemagick-engine.php:925
+#, php-format
+msgid ""
+"%1$s could not be run. This can be a missing library or a security policy "
+"such as SELinux. %2$s"
+msgstr ""
+"%1$s kunde inte köras. Det kan bero på ett saknat bibliotek eller en "
+"säkerhetspolicy som SELinux. %2$s"
+
+#. translators: 1: file path, 2: engine name
+#: imagemagick-engine.php:928
+#, php-format
+msgid "%1$s runs, but it is not %2$s."
+msgstr "%1$s går att köra, men det är inte %2$s."
 
 #: includes/admin-page.php:41
 msgid "The request failed. Please try again."
@@ -96,7 +160,7 @@ msgstr ""
 msgid "Settings"
 msgstr "Inställningar"
 
-#: includes/admin-page.php:112 includes/ajax.php:217
+#: includes/admin-page.php:112 includes/ajax.php:244
 msgid "Resized using ImageMagick Engine"
 msgstr "Omskalad av ImageMagick Engine"
 
@@ -160,6 +224,10 @@ msgstr "Inställningar uppdaterade"
 #: includes/admin-page.php:411
 msgid "No valid ImageMagick mode found!"
 msgstr "Ingen fungerande ImageMagick-installation hittades!"
+
+#: includes/admin-page.php:411
+msgid "Each engine below shows what is missing."
+msgstr "Varje motor nedan visar vad som saknas."
 
 #: includes/admin-page.php:416
 msgid "ImageMagick Engine is not enabled."
@@ -349,52 +417,64 @@ msgid "You do not have permission to perform this action."
 msgstr ""
 
 #. translators: %s: engine name, e.g. ImageMagick
-#: includes/ajax.php:81
-#, php-format
-msgid ""
-"%s not found. Your PHP open_basedir setting is restricting access to this "
-"path. Add the path to your open_basedir configuration."
-msgstr ""
-"%s hittades inte. Din inställning för open_basedir i PHP begränsar åtkomsten "
-"till den här sökvägen. Lägg till sökvägen i din open_basedir-konfiguration."
-
-#. translators: %s: engine name, e.g. ImageMagick
-#: includes/ajax.php:83
+#: includes/ajax.php:62
 #, php-format
 msgid "%s not found at this path."
 msgstr "%s finns inte på den här sökvägen."
 
-#: includes/ajax.php:126
+#: includes/ajax.php:105
 msgid "The source file is missing."
 msgstr ""
 
 #. translators: %s: comma-separated list of image size names that failed to resize
-#: includes/ajax.php:183
+#: includes/ajax.php:159
 #, php-format
 msgid "Could not resize: %s"
 msgstr ""
 
-#: includes/ajax.php:195 includes/ajax.php:359 includes/ajax.php:407
+#: includes/ajax.php:222 includes/ajax.php:386 includes/ajax.php:434
+#: includes/cli.php:149
 msgid "No valid image engine is configured."
 msgstr ""
 
-#: includes/ajax.php:200
+#: includes/ajax.php:227
 msgid "Invalid attachment."
 msgstr ""
 
-#: includes/ajax.php:208 includes/ajax.php:367
+#: includes/ajax.php:235 includes/ajax.php:394 includes/cli.php:157
 msgid "Select at least one image size."
 msgstr ""
 
-#: includes/ajax.php:372
+#: includes/ajax.php:399 includes/cli.php:172
 #, fuzzy
 msgid "There are no images to regenerate."
 msgstr "Du har inga bilder att skala om"
 
-#: includes/ajax.php:414
+#: includes/ajax.php:441
 #, fuzzy
 msgid "No regeneration is in progress."
 msgstr "Skalar om bilder"
+
+#. translators: %s: comma-separated list of image size names
+#: includes/cli.php:34
+#, php-format
+msgid "Unknown image size: %s"
+msgstr "Okänd bildstorlek: %s"
+
+#. translators: %d: attachment ID
+#: includes/cli.php:54
+#, php-format
+msgid "ID %d is not an image attachment."
+msgstr "ID %d är inte en bildbilaga."
+
+#, php-format
+#~ msgid ""
+#~ "%s not found. Your PHP open_basedir setting is restricting access to this "
+#~ "path. Add the path to your open_basedir configuration."
+#~ msgstr ""
+#~ "%s hittades inte. Din inställning för open_basedir i PHP begränsar "
+#~ "åtkomsten till den här sökvägen. Lägg till sökvägen i din open_basedir-"
+#~ "konfiguration."
 
 #~ msgid "Failed to resize image!"
 #~ msgstr "Kunde inte skala om bild!"

@@ -1,0 +1,39 @@
+name: Tests
+on:
+  pull_request:
+  push:
+    branches:
+    - develop
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  phpunit:
+    name: PHPUnit
+    runs-on: ubuntu-latest
+    container:
+      image: wordpress:cli-php8.3
+      # The image defaults to www-data, which cannot write to the runner's directories.
+      options: --user root
+    services:
+      mysql:
+        image: mariadb:lts
+        env:
+          MARIADB_ROOT_PASSWORD: password
+        options: >-
+          --health-cmd "healthcheck.sh --connect --innodb_initialized"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      WORDPRESS_DB_HOST: mysql
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: password
+      WP_TESTS_DIR: /wordpress-phpunit
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install WordPress, test library and engines
+      run: sh tests/bin/install.sh "$GITHUB_WORKSPACE"
+    - name: Run tests
+      working-directory: /var/www/html/wp-content/plugins/imagemagick-engine
+      run: vendor/bin/phpunit --do-not-cache-result

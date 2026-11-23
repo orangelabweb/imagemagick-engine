@@ -6,12 +6,18 @@
 /.superpowers
 /docs
 /node_modules
+/tests
+/vendor
 
 .distignore
 .gitignore
 .gitattributes
 package.json
 package-lock.json
+composer.json
+composer.lock
+phpunit.xml.dist
+.phpunit.result.cache
 .wp-env.json
 .wp-env.override.json
 .DS_Store

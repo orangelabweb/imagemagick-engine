@@ -247,8 +247,11 @@ function ime_render_engine_card( $mode, $label, $valid, $detail, $current_mode, 
  *
  * @param string $prefix 'cli' or 'gm'.
  * @param string $path   Current stored path.
+ * @param bool   $always Show the field even when the engine is not selected. An
+ *                       unavailable engine cannot be selected, and entering its
+ *                       path is the way to make it available.
  */
-function ime_render_path_field( $prefix, $path ) {
+function ime_render_path_field( $prefix, $path, $always = false ) {
     $field    = 'cli' === $prefix ? 'cli_path' : 'gm_path';
     $show     = 'cli' === $prefix ? 'isCli' : 'isGraphicsmagick';
     $testing  = 'cli' === $prefix ? 'cliPathTesting' : 'gmPathTesting';
@@ -258,7 +261,7 @@ function ime_render_path_field( $prefix, $path ) {
     $test     = 'cli' === $prefix ? 'testCliPath' : 'testGmPath';
     $describe = $prefix . '-path-help';
     ?>
-    <div class="ime-engine-card__path" x-show="<?php echo esc_attr( $show ); ?>" x-cloak>
+    <div class="ime-engine-card__path"<?php echo $always ? '' : ' x-show="' . esc_attr( $show ) . '" x-cloak'; ?>>
         <label class="screen-reader-text" for="<?php echo esc_attr( $field ); ?>">
             <?php esc_html_e( 'Path to the binary', 'imagemagick-engine' ); ?>
         </label>
@@ -408,7 +411,7 @@ function ime_option_page() {
 
     if ( ! $any_valid ) {
         wp_admin_notice(
-            __( 'No valid ImageMagick mode found!', 'imagemagick-engine' ),
+            __( 'No valid ImageMagick mode found!', 'imagemagick-engine' ) . ' ' . __( 'Each engine below shows what is missing.', 'imagemagick-engine' ),
             [ 'type' => 'error' ]
         );
     } elseif ( ! $enabled ) {
@@ -479,7 +482,7 @@ function ime_option_page() {
                                             );
 
                                             ob_start();
-                                            ime_render_path_field( 'cli', $cli_path );
+                                            ime_render_path_field( 'cli', (string) $cli_path, ! $modes_valid['cli'] );
                                             $cli_field = ob_get_clean();
 
                                             ime_render_engine_card(
@@ -488,13 +491,13 @@ function ime_option_page() {
                                                 $modes_valid['cli'],
                                                 $cli_path_ok
                                                     ? ime_get_option( 'imagemagick_version' )
-                                                    : __( 'Command not found', 'imagemagick-engine' ),
+                                                    : ( ime_im_cli_diagnose( (string) $cli_path )['message'] ?? __( 'Command not found', 'imagemagick-engine' ) ),
                                                 $current_mode,
                                                 $cli_field
                                             );
 
                                             ob_start();
-                                            ime_render_path_field( 'gm', $gm_path );
+                                            ime_render_path_field( 'gm', (string) $gm_path, ! $modes_valid['graphicsmagick'] );
                                             $gm_field = ob_get_clean();
 
                                             ime_render_engine_card(
@@ -503,7 +506,7 @@ function ime_option_page() {
                                                 $modes_valid['graphicsmagick'],
                                                 $gm_path_ok
                                                     ? ime_get_option( 'graphicsmagick_version' )
-                                                    : __( 'Command not found', 'imagemagick-engine' ),
+                                                    : ( ime_im_cli_diagnose( (string) $gm_path, true )['message'] ?? __( 'Command not found', 'imagemagick-engine' ) ),
                                                 $current_mode,
                                                 $gm_field
                                             );

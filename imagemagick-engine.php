@@ -5,7 +5,7 @@
 	Description: Improve the quality of re-sized images by replacing standard GD library with ImageMagick
 	Author: Orangelab
 	Author URI: https://orangelab.com/
-	Version: 2.0.0
+	Version: 2.1.0
 	Requires at least: 6.4
 	Requires PHP: 7.4
 	Text Domain: imagemagick-engine
@@ -38,7 +38,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Constants
  */
 define( 'IME_OPTION_VERSION', 2 );
-define( 'IME_VERSION', '2.0.0' );
+define( 'IME_VERSION', '2.1.0' );
 define( 'IME_REGEN_OPTION', 'ime_regen_queue' );
 define( 'IME_REGEN_TTL', 12 * HOUR_IN_SECONDS );
 define( 'IME_REGEN_BATCH_START', 5 );
@@ -48,6 +48,7 @@ define( 'IME_REGEN_FAILED_CAP', 100 );
 
 require_once __DIR__ . '/includes/admin-page.php';
 require_once __DIR__ . '/includes/ajax.php';
+require_once __DIR__ . '/includes/cli.php';
 
 /*
  * Global variables
@@ -742,73 +743,193 @@ function ime_im_gmagick_resize( $old_file, $new_file, $width, $height, $crop, $r
  * ImageMagick executable handling
  */
 
-// Check if path is executable depending on OS
-function ime_is_executable($fullpath) {
-    if ( ! function_exists('proc_open') ) {
-        return @is_executable($fullpath);
-    }
-    $whereIsCommand = (PHP_OS == 'WINNT') ? 'where' : 'which';
-    $process = proc_open(
-        [ $whereIsCommand, $fullpath ],
-        [ 1 => [ 'pipe', 'w' ], 2 => [ 'pipe', 'w' ] ],
-        $pipes
-    );
-    if ( ! is_resource($process) ) {
-        return false;
-    }
-    $output = trim( stream_get_contents( $pipes[1] ) );
-    fclose( $pipes[1] );
-    fclose( $pipes[2] );
-    proc_close( $process );
-    return ! empty( $output );
-}
-
 // Do we have a valid CLI executable set? Pass $is_gm = true for GraphicsMagick.
 function ime_im_cli_valid( $is_gm = false ) {
     $transient = $is_gm ? 'ime_gm_valid' : 'ime_cli_valid';
     if ( WP_DEBUG || false === ( $valid = get_transient( $transient ) ) ) {
         $cmd   = ime_im_cli_command( $is_gm );
-        $valid = ( ! empty( $cmd ) && ime_is_executable( $cmd ) ) ? 'yes' : 'no';
+        // ime_im_cli_command() has already run the binary and read its version.
+        $valid = ! empty( $cmd ) ? 'yes' : 'no';
         set_transient( $transient, $valid, DAY_IN_SECONDS );
     }
     return $valid === 'yes';
 }
 
-// Test if executable is a working IM or GM binary.
-function ime_im_cli_check_executable( $fullpath, $is_gm = false ) {
-    if ( ! @is_executable( $fullpath ) || ! function_exists( 'proc_open' ) ) {
-        return false;
+/**
+ * Run a binary's version command.
+ *
+ * @param string $fullpath Path to the binary.
+ * @param bool   $is_gm    Whether it should be GraphicsMagick.
+ * @return array{exit: int, stdout: string, stderr: string}|null Null when it could not be started.
+ */
+function ime_im_cli_probe( $fullpath, $is_gm = false ) {
+    if ( ! function_exists( 'proc_open' ) ) {
+        return null;
     }
 
     $args    = $is_gm ? [ $fullpath, 'version' ] : [ $fullpath, '--version' ];
-    $process = proc_open(
+    $process = @proc_open(
         $args,
         [ 1 => [ 'pipe', 'w' ], 2 => [ 'pipe', 'w' ] ],
         $pipes
     );
     if ( ! is_resource( $process ) ) {
-        return false;
+        return null;
     }
-    $output = stream_get_contents( $pipes[1] );
+
+    $stdout = (string) stream_get_contents( $pipes[1] );
+    $stderr = (string) stream_get_contents( $pipes[2] );
     fclose( $pipes[1] );
     fclose( $pipes[2] );
-    proc_close( $process );
 
-    if ( $is_gm ) {
-        preg_match( '/GraphicsMagick ([0-9]+\.[0-9]+(?:\.[0-9]+)?)/', $output, $version );
-        if ( isset( $version[1] ) ) {
-            ime_set_option( 'graphicsmagick_version', $version[1], true );
-            return true;
+    return [
+        'exit'   => proc_close( $process ),
+        'stdout' => $stdout,
+        'stderr' => $stderr,
+    ];
+}
+
+// Extract the engine version from version command output, null if it is another program.
+function ime_im_cli_parse_version( $output, $is_gm = false ) {
+    $pattern = $is_gm
+        ? '/GraphicsMagick ([0-9]+\.[0-9]+(?:\.[0-9]+)?)/'
+        : '/ImageMagick ([0-9]+\.[0-9]+\.[0-9]+)/';
+
+    return preg_match( $pattern, $output, $version ) ? $version[1] : null;
+}
+
+// Test if executable is a working IM or GM binary.
+function ime_im_cli_check_executable( $fullpath, $is_gm = false ) {
+    if ( ! @is_executable( $fullpath ) ) {
+        return false;
+    }
+
+    $probe = ime_im_cli_probe( $fullpath, $is_gm );
+    if ( null === $probe ) {
+        return false;
+    }
+
+    $version = ime_im_cli_parse_version( $probe['stdout'], $is_gm );
+    if ( null === $version ) {
+        return false;
+    }
+
+    ime_set_option( $is_gm ? 'graphicsmagick_version' : 'imagemagick_version', $version, true );
+
+    return true;
+}
+
+/**
+ * Is a path outside every directory allowed by open_basedir?
+ *
+ * @param string $path         Directory to check.
+ * @param string $open_basedir Value of the open_basedir setting.
+ * @return bool False when the setting is empty.
+ */
+function ime_path_outside_open_basedir( $path, $open_basedir ) {
+    if ( '' === (string) $open_basedir ) {
+        return false;
+    }
+
+    $path = rtrim( $path, '/\\' ) . DIRECTORY_SEPARATOR;
+
+    foreach ( explode( PATH_SEPARATOR, $open_basedir ) as $dir ) {
+        if ( '' === $dir ) {
+            continue;
         }
-    } else {
-        preg_match( '/ImageMagick ([0-9]+\.[0-9]+\.[0-9]+)/', $output, $version );
-        if ( isset( $version[1] ) ) {
-            ime_set_option( 'imagemagick_version', $version[1], true );
-            return true;
+        // The trailing separator keeps /usr/bin from matching /usr/binary.
+        if ( 0 === strpos( $path, rtrim( $dir, '/\\' ) . DIRECTORY_SEPARATOR ) ) {
+            return false;
         }
     }
 
-    return false;
+    return true;
+}
+
+/**
+ * Explain why a directory does not provide a working command-line engine.
+ *
+ * @param string      $path         Directory holding the binary.
+ * @param bool        $is_gm        Check for GraphicsMagick instead of ImageMagick.
+ * @param string|null $open_basedir The setting to check against, null for the current one.
+ * @return array{code: string, message: string}|null Null when the engine works.
+ */
+function ime_im_cli_diagnose( $path, $is_gm = false, $open_basedir = null ) {
+    $engine = $is_gm ? 'GraphicsMagick' : 'ImageMagick';
+    $reason = static function ( $code, $message ) {
+        return [
+            'code'    => $code,
+            'message' => $message,
+        ];
+    };
+
+    if ( ! function_exists( 'proc_open' ) ) {
+        /* translators: %s: engine name, e.g. ImageMagick */
+        return $reason( 'proc_open_disabled', sprintf( __( 'PHP cannot run %s because proc_open is disabled. Remove it from disable_functions in php.ini.', 'imagemagick-engine' ), $engine ) );
+    }
+
+    if ( '' === trim( (string) $path ) ) {
+        /* translators: %s: engine name, e.g. ImageMagick */
+        return $reason( 'no_path', sprintf( __( '%s was not found in the common install locations. Enter the directory that contains it.', 'imagemagick-engine' ), $engine ) );
+    }
+
+    $open_basedir = is_null( $open_basedir ) ? (string) ini_get( 'open_basedir' ) : $open_basedir;
+    if ( ime_path_outside_open_basedir( $path, $open_basedir ) ) {
+        /* translators: %s: directory path */
+        return $reason( 'open_basedir', sprintf( __( 'PHP open_basedir does not allow access to %s. Add the directory to open_basedir.', 'imagemagick-engine' ), $path ) );
+    }
+
+    $path = ime_try_realpath( $path );
+    if ( ! @is_dir( $path ) ) {
+        /* translators: %s: directory path */
+        return $reason( 'path_missing', sprintf( __( 'The directory %s does not exist, or PHP may not read it.', 'imagemagick-engine' ), $path ) );
+    }
+
+    $names = $is_gm ? [ 'gm', 'gm.exe' ] : [ 'magick', 'magick.exe', 'convert', 'convert.exe' ];
+    $found = [];
+    foreach ( $names as $name ) {
+        if ( @file_exists( $path . DIRECTORY_SEPARATOR . $name ) ) {
+            $found[] = $path . DIRECTORY_SEPARATOR . $name;
+        }
+    }
+
+    if ( empty( $found ) ) {
+        /* translators: 1: engine name, 2: directory path */
+        return $reason( 'binary_missing', sprintf( __( '%1$s was not found in %2$s.', 'imagemagick-engine' ), $engine, $path ) );
+    }
+
+    $runnable = array_values( array_filter( $found, static function ( $file ) {
+        return @is_executable( $file );
+    } ) );
+
+    if ( empty( $runnable ) ) {
+        /* translators: %s: file path */
+        return $reason( 'not_executable', sprintf( __( 'The web server user may not execute %s. Check the file permissions.', 'imagemagick-engine' ), $found[0] ) );
+    }
+
+    $failure = null;
+    foreach ( $runnable as $file ) {
+        $probe = ime_im_cli_probe( $file, $is_gm );
+
+        if ( null !== $probe && null !== ime_im_cli_parse_version( $probe['stdout'], $is_gm ) ) {
+            return null;
+        }
+
+        if ( null !== $failure ) {
+            continue;
+        }
+
+        if ( null === $probe || 0 !== $probe['exit'] ) {
+            $detail = null === $probe ? '' : substr( trim( $probe['stderr'] ), 0, 200 );
+            /* translators: 1: file path, 2: error output from the program */
+            $failure = $reason( 'run_failed', trim( sprintf( __( '%1$s could not be run. This can be a missing library or a security policy such as SELinux. %2$s', 'imagemagick-engine' ), $file, $detail ) ) );
+        } else {
+            /* translators: 1: file path, 2: engine name */
+            $failure = $reason( 'wrong_program', sprintf( __( '%1$s runs, but it is not %2$s.', 'imagemagick-engine' ), $file, $engine ) );
+        }
+    }
+
+    return $failure;
 }
 
 /*
@@ -817,6 +938,11 @@ function ime_im_cli_check_executable( $fullpath, $is_gm = false ) {
  * This won't work if there is open_basename restrictions.
  */
 function ime_try_realpath( $path ) {
+    // realpath( '' ) returns the current directory, which is never what was meant.
+    if ( '' === $path ) {
+        return $path;
+    }
+
     $realpath = @realpath( $path );
     if ( $realpath ) {
         return $realpath;
@@ -923,10 +1049,26 @@ function ime_im_cli_do_resize( $cmd_path, $is_gm, $old_file, $new_file, $width, 
         [ 1 => [ 'pipe', 'w' ], 2 => [ 'pipe', 'w' ] ],
         $pipes
     );
-    if ( is_resource( $process ) ) {
-        fclose( $pipes[1] );
-        fclose( $pipes[2] );
-        proc_close( $process );
+    if ( ! is_resource( $process ) ) {
+        return false;
+    }
+
+    // Drain the pipes: closing them early kills a binary that prints a warning.
+    stream_get_contents( $pipes[1] );
+    stream_get_contents( $pipes[2] );
+    fclose( $pipes[1] );
+    fclose( $pipes[2] );
+
+    $exit = proc_close( $process );
+
+    /*
+     * The file alone proves nothing when regenerating, since the previous
+     * version is overwritten in place and survives a failed run. proc_close()
+     * returns -1 when the exit status is unavailable, for example when the host
+     * reaps child processes itself, so that case falls back to the file check.
+     */
+    if ( 0 !== $exit && -1 !== $exit ) {
+        return false;
     }
 
     return file_exists( $new_file );

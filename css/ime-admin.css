@@ -23,7 +23,7 @@
 	background: #fff;
 }
 
-.ime-engine-card--unavailable {
+.ime-engine-card--unavailable > label {
 	opacity: 0.6;
 }
 

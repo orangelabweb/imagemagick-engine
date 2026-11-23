@@ -4,8 +4,11 @@ on:
     tags:
     - "*"
 jobs:
+  tests:
+    uses: ./.github/workflows/tests.yml
   tag:
     name: New plugin release
+    needs: tests
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master

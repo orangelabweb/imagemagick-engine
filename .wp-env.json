@@ -1,8 +1,13 @@
 {
-  "plugins": [ "." ],
+  "plugins": [
+    "."
+  ],
   "core": "https://wordpress.org/nightly-builds/wordpress-latest.zip",
+  "mappings": {
+    "wp-content/plugins/webp-uploads": "https://downloads.wordpress.org/plugin/webp-uploads.2.7.1.zip"
+  },
   "lifecycleScripts": {
-    "afterStart": "docker exec -u 0 $(docker ps -q --filter 'name=wordpress' --filter 'status=running' | head -1) bash -c 'apt-get update -qq && apt-get install -y -qq imagemagick graphicsmagick'"
+    "afterStart": "docker exec -u 0 $(docker ps -q --filter 'name=wordpress' --filter 'status=running' | head -1) bash -c 'apt-get update -qq && apt-get install -y -qq imagemagick graphicsmagick' && docker exec -u 0 $(docker ps -q --filter 'name=-cli-1' --filter 'status=running' | head -1) apk add --no-cache -q imagemagick imagemagick-jpeg imagemagick-webp graphicsmagick"
   },
   "testsEnvironment": false
 }
