@@ -4,7 +4,7 @@ Tags: image, picture, imagemagick, gd, regenerate
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.0.0
+Stable tag: 2.1.0
 License: GPLv2 or later
 
 Improve the quality of re-sized images by replacing standard GD library with ImageMagick.
@@ -67,6 +67,14 @@ You can also find binary releases at http://www.imagemagick.org including a Wind
 2. Regenerating existing images in adaptive batches, with progress, a time estimate and a cancel button.
 
 == Changelog ==
+
+= 2.1.0 =
+* Fixed regeneration removing the WebP/AVIF versions created by the Modern Image Formats plugin. They are now recreated for every regenerated size. Images that already lost them get them back when regenerated with "Also regenerate images already handled by ImageMagick Engine" checked
+* Added a WP-CLI command: `wp ime regenerate`, with optional attachment IDs, `--sizes`, `--force` and `--dry-run`
+* The settings page now explains why a command-line engine is unavailable, for example a wrong path, open_basedir, missing permissions, disabled proc_open, or a binary that fails to run
+* Fixed valid ImageMagick and GraphicsMagick installs being rejected on servers where the `which` command is unavailable to PHP
+* Fixed failed command-line resizes being reported as successful when an older version of the file already existed
+* Fixed the path field being unreachable for an unavailable command-line engine, and saving an empty path storing the wrong directory, which stopped auto-detection
 
 = 2.0.0 =
 * Rebuilt the settings page: tabbed layout, engine status cards, and native WordPress form controls, buttons and progress bar that follow your admin colour scheme
