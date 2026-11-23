@@ -48,6 +48,7 @@ define( 'IME_REGEN_FAILED_CAP', 100 );
 
 require_once __DIR__ . '/includes/admin-page.php';
 require_once __DIR__ . '/includes/ajax.php';
+require_once __DIR__ . '/includes/cli.php';
 
 /*
  * Global variables
