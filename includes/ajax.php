@@ -38,26 +38,6 @@ function ime_ajax_test_im_path() {
     $r          = ime_im_cli_check_command( $check_path, $is_gm );
     $found = ! empty( $r );
 
-    $open_basedir = false;
-    if ( ! $found ) {
-        $open_basedir_ini = ini_get( 'open_basedir' );
-        if ( $open_basedir_ini ) {
-            $covered    = false;
-            $check_norm = rtrim( $check_path, '/\\' ) . DIRECTORY_SEPARATOR;
-            foreach ( explode( PATH_SEPARATOR, $open_basedir_ini ) as $dir ) {
-                if ( $dir === '' ) {
-                    continue;
-                }
-                $dir_norm = rtrim( $dir, '/\\' ) . DIRECTORY_SEPARATOR;
-                if ( strpos( $check_norm, $dir_norm ) === 0 ) {
-                    $covered = true;
-                    break;
-                }
-            }
-            $open_basedir = ! $covered;
-        }
-    }
-
     $engine  = $is_gm ? 'GraphicsMagick' : 'ImageMagick';
     $version = $is_gm ? ime_get_option( 'graphicsmagick_version' ) : ime_get_option( 'imagemagick_version' );
 
@@ -71,16 +51,15 @@ function ime_ajax_test_im_path() {
         );
     }
 
+    $reason = ime_im_cli_diagnose( $check_path, $is_gm );
+
     wp_send_json_error(
         [
-            'found'        => false,
-            'engine'       => $engine,
-            'open_basedir' => $open_basedir,
-            'message'      => $open_basedir
-                /* translators: %s: engine name, e.g. ImageMagick */
-                ? sprintf( __( '%s not found. Your PHP open_basedir setting is restricting access to this path. Add the path to your open_basedir configuration.', 'imagemagick-engine' ), $engine )
-                /* translators: %s: engine name, e.g. ImageMagick */
-                : sprintf( __( '%s not found at this path.', 'imagemagick-engine' ), $engine ),
+            'found'   => false,
+            'engine'  => $engine,
+            'code'    => $reason['code'] ?? 'unknown',
+            /* translators: %s: engine name, e.g. ImageMagick */
+            'message' => $reason['message'] ?? sprintf( __( '%s not found at this path.', 'imagemagick-engine' ), $engine ),
         ]
     );
 }
